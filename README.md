@@ -1,69 +1,112 @@
-# React + TypeScript + Vite
+# Map Quiz - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 🚀 Description
 
-Currently, two official plugins are available:
+Application frontend pour Map Quiz, un jeu de quiz géographique interactif avec système d'amis et authentification sociale.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🛠️ Technologies
 
-## Expanding the ESLint configuration
+- **Framework**: React 19 + Vite
+- **Routing**: TanStack Router
+- **Styling**: Tailwind CSS + Shadcn UI
+- **State Management**: TanStack Query
+- **Authentification**: Better Auth React
+- **Cartes**: React Simple Maps + D3 Geo
+- **Langage**: TypeScript
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## ✨ Fonctionnalités
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- 🗺️ **Quiz géographiques** interactifs
+- 👥 **Système d'amis** avec demandes
+- 🔐 **Authentification Google** OAuth
+- 🎯 **Mode entraînement**
+- 📱 **Interface responsive**
+- 🌙 **Mode sombre/clair**
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+## 📋 Prérequis
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Node.js 18+
+- npm ou pnpm
+
+## 🔧 Installation
+
+1. Clonez le repository
+
+```bash
+git clone <votre-repo>
+cd frontend
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+2. Installez les dépendances
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+pnpm install
+# ou
+npm install
+```
+
+3. Configurez les variables d'environnement
+
+```
+cp .env.example .env.local
+```
+
+Variables requises :
+
+```
+VITE_API_URL="http://localhost:3000/api"
+BETTER_AUTH_URL="http://localhost:3000"
+```
+
+## 🚀 Démarrage
+
+### Développement
+
+```
+pnpm dev
+# ou
+npm run dev
+```
+
+L'application sera disponible sur http://localhost:5173
+
+### Build de production
+
+```
+pnpm build
+pnpm preview
+```
+
+## 📱 Pages disponibles
+
+- / - Page d'accueil avec dashboard
+- /quiz - Interface de quiz (en développement)
+- /training - Mode entraînement
+- /social - Gestion des amis et profil
+
+## 📝 Scripts disponibles
+
+- pnpm dev - Démarrage en mode développement
+- pnpm build - Build de production
+- pnpm preview - Aperçu du build
+- pnpm lint - Vérification ESLint
+
+## 🔧 Configuration
+
+### Vite
+
+- Configuration dans vite.config.ts
+- Plugins : React, TanStack Router
+- Alias : @ pour /src
+
+### Tailwind CSS
+
+- Configuration dans tailwind.config.js
+- Thème personnalisé avec variables CSS
+- Animations avec tw-animate-css
+
+### TypeScript
+
+- Configuration stricte
+- Types pour les composants React
+- Types pour les données géographiques
