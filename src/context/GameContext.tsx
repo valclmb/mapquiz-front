@@ -11,8 +11,8 @@ type GameContext = {
     capital: { value: string; valid: boolean };
   };
   refs: {
-    countryRef: React.RefObject<HTMLInputElement>;
-    capitalRef: React.RefObject<HTMLInputElement>;
+    countryRef: React.RefObject<HTMLInputElement | null>;
+    capitalRef: React.RefObject<HTMLInputElement | null>;
   };
   handleChange: (event: unknown) => void;
   score: number;
