@@ -15,7 +15,7 @@ function RouteComponent() {
     <Grid>
       <div className="w-full max-w-4xl mx-auto p-6">
         <Typography variant="h1" className="mb-10 text-center">
-          Profil
+          Amis
         </Typography>
 
         <div className="grid gap-6 md:grid-cols-2 mb-8">

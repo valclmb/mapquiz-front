@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
-type Friend = {
+export type Friend = {
   id: string;
   name: string;
   image: string | null;
@@ -21,28 +21,6 @@ export function useFriendsList() {
 
   useEffect(() => {
     if (!session?.user?.id) return;
-
-    // const socket = io("/", {
-    //   auth: {
-    //     userId: session.user.id,
-    //   },
-    // });
-
-    // socket.on("friendStatusChange", ({ friendId, isOnline }) => {
-    //   queryClient.setQueryData(["friends"], (oldData: Friend[] | undefined) => {
-    //     if (!oldData) return oldData;
-    //     return oldData.map((friend) => {
-    //       if (friend.id === friendId) {
-    //         return { ...friend, isOnline };
-    //       }
-    //       return friend;
-    //     });
-    //   });
-    // });
-
-    // return () => {
-    //   socket.disconnect();
-    // };
   }, [queryClient, session]);
 
   return useQuery({

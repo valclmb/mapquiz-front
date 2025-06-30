@@ -18,6 +18,7 @@
     "@tanstack/react-query": "^5.81.2",
     "@tanstack/react-router": "^1.121.34",
     "@tanstack/react-router-devtools": "^1.121.34",
+    "@types/ws": "^8.18.1",
     "better-auth": "^1.2.10",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -29,7 +30,8 @@
     "react-simple-maps": "^3.0.0",
     "sonner": "^2.0.5",
     "tailwind-merge": "^3.3.1",
-    "tailwindcss": "^4.1.10"
+    "tailwindcss": "^4.1.10",
+    "ws": "^8.18.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",

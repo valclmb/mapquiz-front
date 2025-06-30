@@ -43,7 +43,7 @@ export function useHandleFriendRequest() {
       action: "accept" | "reject";
     }) => {
       return apiFetch<FriendRequestResponse>(`friends/requests/${requestId}`, {
-        method: "PATCH",
+        method: "POST",
         body: { action },
       });
     },
