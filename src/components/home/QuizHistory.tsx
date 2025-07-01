@@ -10,8 +10,12 @@ import { Area, AreaChart, XAxis } from "recharts";
 
 const chartConfig = {
   desktop: {
-    label: "Desktop",
+    label: "Score",
     color: "var(--chart-3)",
+  },
+  time: {
+    label: "Durée",
+    color: "var(--chart-2)",
   },
 } satisfies ChartConfig;
 
@@ -51,7 +55,7 @@ export const QuizHistory = ({ selectedRegions = [] }: QuizHistoryProps) => {
   return (
     <ChartContainer config={chartConfig} className="h-24 w-full">
       <AreaChart
-        data={filteredData}
+        data={data}
         margin={{
           left: 15,
           right: 15,
@@ -71,10 +75,23 @@ export const QuizHistory = ({ selectedRegions = [] }: QuizHistoryProps) => {
         />
         <Area
           dataKey="score"
+          name="Score"
           type="natural"
           fill="var(--color-desktop)"
           fillOpacity={0.4}
           stroke="var(--color-desktop)"
+          baseValue={0}
+        />
+        {/* Ajout d'une nouvelle Area pour le temps */}
+        <Area
+          dataKey="duration"
+          name="Durée (sec)"
+          type="natural"
+          fill="var(--color-time)"
+          fillOpacity={0.4}
+          stroke="var(--color-time)"
+          baseValue={0}
+          yAxisId="time"
         />
       </AreaChart>
     </ChartContainer>
