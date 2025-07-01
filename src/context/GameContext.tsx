@@ -1,10 +1,15 @@
-import type { GeoJsonProperties } from "geojson";
-import { createContext } from "react";
+import type { Country } from "@/hooks/useMapGame";
+import { createContext, type ChangeEvent } from "react";
+
+// Étendre le type Country pour inclure la propriété filtered
+type FilteredCountry = Country & { filtered?: boolean };
 
 type GameContext = {
-  countries: GeoJsonProperties[];
+  countries: FilteredCountry[]; // Mise à jour du type
+  activeCountries: Country[];
   changeIndex: (valid?: boolean) => void;
   validatedCountries: string[];
+  incorrectCountries: string[];
   randomIndex: number;
   currentCountry: {
     name: { value: string; valid: boolean };
@@ -14,7 +19,7 @@ type GameContext = {
     countryRef: React.RefObject<HTMLInputElement | null>;
     capitalRef: React.RefObject<HTMLInputElement | null>;
   };
-  handleChange: (event: unknown) => void;
+  handleChange: (event: ChangeEvent<HTMLInputElement>) => void;
   score: number;
 };
 

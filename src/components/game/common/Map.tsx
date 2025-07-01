@@ -10,25 +10,32 @@ import {
 export const Map = () => {
   const gameContext = useContext(GameContext);
   if (!gameContext) throw new Error("gameContext is not defined");
-  const { countries, validatedCountries, randomIndex } = gameContext;
+  const { countries, validatedCountries, incorrectCountries, randomIndex } =
+    gameContext;
 
+  // Trouver le pays actif correspondant à l'index aléatoire
+  const activeCountries = countries.filter(
+    (country) => !("filtered" in country && country.filtered)
+  );
+
+  // Utiliser le code du pays actif sélectionné
+  const currentCountryCode = activeCountries[randomIndex]?.properties.code;
+
+  console.log(currentCountryCode);
   const countryStyle = (key: number) => {
-    if (key === randomIndex) {
-      return "red";
+    // Utiliser le code du pays au lieu de l'index
+    if (countries[key]?.properties.code === currentCountryCode) {
+      return "violet";
     }
     if (validatedCountries.includes(countries[key]?.properties.code)) {
       return "green";
     }
+    if (incorrectCountries.includes(countries[key]?.properties.code)) {
+      return "red";
+    }
 
     return "black";
   };
-
-  // europe : { scale: 150, center: [70, 50], rotate: [-10, 0, 0] }
-  // africa : { scale: 200, center: [0, -25], rotate: [-10, 0, 0] }
-  // North america : { scale: 120, center: [-80, 30], rotate: [-10, 0, 0] }
-  // South america : { scale: 200, center: [-80, -50], rotate: [-10, 0, 0] }
-  // Asia : { scale: 225, center: [80, 0], rotate: [-10, 0, 0] }
-  // Oceania : { scale: 275, center: [125, -40], rotate: [-10, 0, 0] }
 
   return (
     <ComposableMap
@@ -51,8 +58,15 @@ export const Map = () => {
                 strokeWidth={0.3}
                 fill={countryStyle(key)}
                 style={{
-                  default: { outline: "none" },
-                  hover: { outline: "none" },
+                  default: {
+                    outline: "none",
+                    opacity: countries[key]?.filtered ? 0.1 : 1,
+                  },
+                  hover: {
+                    outline: "none",
+                    // Garder la même opacité au survol pour les pays filtrés
+                    opacity: countries[key]?.filtered ? 0.1 : 1,
+                  },
                   pressed: { outline: "none" },
                 }}
               />

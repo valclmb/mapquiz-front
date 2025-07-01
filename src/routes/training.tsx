@@ -1,13 +1,17 @@
-import { Game } from "@/components/Game";
+import { TrainingGame } from "@/components/game/training/TrainingGame";
 import { getCountries } from "@/lib/data";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/training")({
   component: RouteComponent,
+  loader: async () => {
+    const countries = await getCountries();
+    return { countries };
+  },
 });
 
-async function RouteComponent() {
-  const countries = await getCountries();
+function RouteComponent() {
+  const { countries } = Route.useLoaderData();
 
-  return <Game countries={countries ?? []} />;
+  return <TrainingGame countries={countries ?? []} />;
 }

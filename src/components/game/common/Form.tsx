@@ -1,10 +1,10 @@
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { GameContext } from "@/context/GameContext";
 import { Delete } from "lucide-react";
 import { useContext } from "react";
-import { Button } from "./ui/button";
-import { Card, CardContent } from "./ui/card";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
 
 export const Form = () => {
   const gameContext = useContext(GameContext);

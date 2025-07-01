@@ -7,9 +7,9 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { Link } from "@tanstack/react-router";
 
+import { Button } from "@/components/ui/button";
 import { Earth, LogOut, UserPlus } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "./ui/button";
 
 export const Nav = () => {
   const { data, isPending } = authClient.useSession();

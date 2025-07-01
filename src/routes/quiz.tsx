@@ -1,9 +1,32 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { QuizGame } from "@/components/game/quiz/QuizGame";
+import { getCountries } from "@/lib/data";
+import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute('/quiz')({
+type QuizSearch = {
+  regions?: string[];
+};
+
+export const Route = createFileRoute("/quiz")({
   component: RouteComponent,
-})
+  validateSearch: (search: Record<string, unknown>): QuizSearch => {
+    return {
+      regions: Array.isArray(search.regions) ? search.regions : ["Europe"],
+    };
+  },
+  loader: async () => {
+    const countries = await getCountries();
+    return { countries };
+  },
+});
 
 function RouteComponent() {
-  return <div>Hello "/quiz"!</div>
+  const { regions } = Route.useSearch();
+  const { countries } = Route.useLoaderData();
+
+  return (
+    <QuizGame
+      countries={countries ?? []}
+      selectedRegions={regions || ["Europe"]}
+    />
+  );
 }
