@@ -1,5 +1,5 @@
 {
-  "name": "vite-project",
+  "name": "mapquiz-front",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -39,6 +39,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",
+    "@flydotio/dockerfile": "^0.7.10",
     "@tanstack/router-plugin": "^1.121.34",
     "@types/geojson": "^7946.0.16",
     "@types/node": "^24.0.3",

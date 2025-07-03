@@ -1,0 +1,26 @@
+# fly.toml app configuration file generated for frontend-lively-star-6238 on 2025-07-03T19:23:08+02:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'frontend-lively-star-6238'
+primary_region = 'cdg'
+
+[build]
+  [build.args]
+    API_URL='https://backend-solitary-moon-1875.fly.dev/api'
+    AUTH_URL='https://backend-solitary-moon-1875.fly.dev'
+    WS_URL='wss://backend-solitary-moon-1875.fly.dev/ws'
+
+[http_service]
+  internal_port = 80
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1

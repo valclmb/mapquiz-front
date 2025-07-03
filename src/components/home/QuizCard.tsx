@@ -51,7 +51,7 @@ export const QuizCard = () => {
           selectedRegions={selectedRegions}
           onChange={setSelectedRegions}
         />
-        {data?.user && (
+        {data && (
           <div className="w-full">
             <h4 className="text-base sm:text-lg font-medium mb-2">
               Historique

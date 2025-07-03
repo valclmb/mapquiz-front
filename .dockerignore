@@ -1,0 +1,33 @@
+node_modules
+package-lock.json
+yarn.lock
+# pnpm-lock.yaml
+
+*.local
+
+.DS_Store
+.cache
+.env
+.vercel
+.output
+/build/
+/dist/
+/api/
+/server/build
+/public/build
+
+# Vite cache
+.vite/
+
+# TanStack cache
+.tanstack/
+
+# VSCode settings (optionnel - à vous de décider)
+.vscode/
+
+# Sentry Config File
+.env.sentry-build-plugin
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
