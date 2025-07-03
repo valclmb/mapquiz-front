@@ -20,13 +20,17 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   const { data: session } = authClient.useSession();
   const queryClient = useQueryClient();
 
+  // Vérifier si l'utilisateur est authentifié via better-auth
+  const isUserLoggedIn = !!session?.user;
+
   const {
     isConnected,
     isAuthenticated,
     sendFriendRequest,
     respondToFriendRequest,
   } = useWebSocket({
-    userId: session?.user?.id,
+    // Ne passer userId que si l'utilisateur est authentifié
+    userId: isUserLoggedIn ? session?.user?.id : undefined,
     onFriendRequestReceived: (request) => {
       console.log("Nouvelle demande d'ami reçue:", request);
       // Invalider les requêtes pour mettre à jour l'UI
@@ -56,8 +60,9 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   return (
     <WebSocketContext.Provider
       value={{
-        isConnected,
-        isAuthenticated,
+        // Combiner les deux états d'authentification
+        isConnected: isConnected && isUserLoggedIn,
+        isAuthenticated: isAuthenticated && isUserLoggedIn,
         sendFriendRequest,
         respondToFriendRequest,
       }}

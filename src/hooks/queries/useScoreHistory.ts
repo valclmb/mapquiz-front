@@ -9,7 +9,6 @@ export type ScoreHistoryItem = {
   gameMode: string;
   duration: number;
   createdAt: string;
-
   date: string; // Format dd/MM
   scorePercentage: number; // Pourcentage arrondi
 };

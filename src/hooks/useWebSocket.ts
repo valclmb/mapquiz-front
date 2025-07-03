@@ -40,8 +40,29 @@ export function useWebSocket({
   const [reconnectAttempts, setReconnectAttempts] = useState(0);
   // const maxReconnectAttempts = 5;
 
-  // Fonction pour se connecter au WebSocket
+  // Fonction pour se déconnecter (déplacée avant connect)
+  const disconnect = useCallback(() => {
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+    }
+
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+
+    setIsConnected(false);
+    setIsAuthenticated(false);
+  }, []);
+
+  // Ne pas établir de connexion si userId n'existe pas
   const connect = useCallback(() => {
+    if (!userId) {
+      setIsConnected(false);
+      setIsAuthenticated(false);
+      return;
+    }
+
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       return;
     }
@@ -62,6 +83,9 @@ export function useWebSocket({
         // Authentifier automatiquement si userId est disponible
         if (userId) {
           authenticate(userId);
+        } else {
+          // Si pas d'userId, fermer la connexion
+          disconnect();
         }
       };
 
@@ -106,7 +130,7 @@ export function useWebSocket({
     } catch (error) {
       console.error("Erreur lors de la connexion WebSocket:", error);
     }
-  }, [userId, reconnectAttempts]);
+  }, [userId, reconnectAttempts, disconnect]);
 
   // Fonction pour gérer les messages reçus
   const handleMessage = useCallback(
@@ -120,6 +144,11 @@ export function useWebSocket({
         case "auth_error":
           console.error("Erreur d'authentification:", message.message);
           setIsAuthenticated(false);
+          break;
+
+        case "connected":
+          console.log("Connexion WebSocket établie:", message.message);
+          // Pas besoin de changer l'état ici, car setIsConnected(true) est déjà appelé dans onopen
           break;
 
         case "friend_request_received":
@@ -274,21 +303,6 @@ export function useWebSocket({
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify({ type: "ping" }));
     }
-  }, []);
-
-  // Fonction pour se déconnecter
-  const disconnect = useCallback(() => {
-    if (reconnectTimeoutRef.current) {
-      clearTimeout(reconnectTimeoutRef.current);
-    }
-
-    if (wsRef.current) {
-      wsRef.current.close();
-      wsRef.current = null;
-    }
-
-    setIsConnected(false);
-    setIsAuthenticated(false);
   }, []);
 
   // Effet pour gérer la connexion
