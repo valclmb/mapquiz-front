@@ -1,8 +1,8 @@
+import { RegionSelector } from "@/components/game/common/RegionSelector";
+import { UserList } from "@/components/social/UserList";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLobbyRoom } from "@/hooks/useLobbyRoom";
-import { RegionSelector } from "../game/common/RegionSelector";
-import { UserList } from "../social/UserList";
 import { LobbyPlayerList } from "./LobbyPlayerList";
 
 type LobbyRoomProps = {
