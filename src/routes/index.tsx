@@ -2,8 +2,7 @@ import { MultiplayerCard } from "@/components/home/MultiplayerCard";
 import { QuizCard } from "@/components/home/QuizCard";
 import { TrainingCard } from "@/components/home/TrainingCard";
 import { Grid } from "@/components/layout/Grid";
-import { UserSummary } from "@/components/social/UserSummary";
-
+import { UserSummary } from "@/components/social";
 import { authClient } from "@/lib/auth-client";
 import { createFileRoute } from "@tanstack/react-router";
 
