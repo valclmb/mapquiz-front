@@ -87,9 +87,10 @@ export function useWebSocket({
 
     try {
       const wsUrl =
-        process.env.NODE_ENV === "production"
+        import.meta.env.VITE_WS_URL ||
+        (process.env.NODE_ENV === "production"
           ? `wss://${window.location.host}/ws`
-          : "ws://localhost:3000/ws";
+          : "ws://localhost:3000/ws");
 
       wsRef.current = new WebSocket(wsUrl);
 
