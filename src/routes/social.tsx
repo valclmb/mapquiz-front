@@ -1,10 +1,10 @@
 import { Grid } from "@/components/layout/Grid";
+import { AddFriend } from "@/components/social/AddFriend";
+import { FriendRequests } from "@/components/social/FriendRequests";
+import { FriendsList } from "@/components/social/FriendsList";
+import { FriendTag } from "@/components/social/FriendTag";
 import Typography from "@/components/ui/Typography";
 import { createFileRoute } from "@tanstack/react-router";
-import { AddFriend } from "../components/social/AddFriend";
-import { FriendRequests } from "../components/social/FriendRequests";
-import { FriendsList } from "../components/social/FriendsList";
-import { FriendTag } from "../components/social/FriendTag";
 
 export const Route = createFileRoute("/social")({
   component: RouteComponent,
