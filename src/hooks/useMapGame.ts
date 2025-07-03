@@ -34,10 +34,12 @@ type GameMode = "quiz" | "practice";
 type GameOptions = {
   mode: GameMode;
   onGameEnd?: (score: number, total: number) => void;
+  onCorrectAnswer?: (countryCode: string) => void;
+  onIncorrectAnswer?: () => void;
 };
 
 export const useMapGame = (countries: Country[], options: GameOptions) => {
-  const { mode, onGameEnd } = options;
+  const { mode, onGameEnd, onCorrectAnswer, onIncorrectAnswer } = options;
 
   // Filtrer les pays pour ne garder que ceux qui ne sont pas marqués comme filtrés
   const activeCountries = useMemo(() => {
@@ -132,6 +134,9 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
       const newValidatedCountries = [...validatedCountries, countryCode];
       setValidatedCountries(newValidatedCountries);
 
+      // Appeler le callback pour réponse correcte
+      onCorrectAnswer?.(countryCode);
+
       setTimeout(
         () => {
           // Utiliser la nouvelle liste de pays validés pour la sélection du prochain pays
@@ -190,6 +195,9 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
           const code = activeCountries[randomIndex].properties.code;
           return prev.includes(code) ? prev : [...prev, code];
         });
+
+        // Appeler le callback pour réponse incorrecte
+        onIncorrectAnswer?.();
       }
 
       setRandomIndex(newIndex);
@@ -214,6 +222,7 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
       defaultValues,
       mode,
       endGame,
+      onIncorrectAnswer,
     ]
   );
 

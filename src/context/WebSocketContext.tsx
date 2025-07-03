@@ -1,9 +1,10 @@
 import type { Friend } from "@/hooks/queries/useFriends";
-import { useWebSocket } from "@/hooks/useWebSocket";
+import { useWebSocket, type WebSocketMessage } from "@/hooks/useWebSocket";
 import { authClient } from "@/lib/auth-client";
 import { useQueryClient } from "@tanstack/react-query";
 import { createContext, useContext } from "react";
 
+// Ajouter sendMessage à l'interface avec le bon type
 interface WebSocketContextType {
   isConnected: boolean;
   isAuthenticated: boolean;
@@ -12,8 +13,11 @@ interface WebSocketContextType {
     requestId: string,
     action: "accept" | "reject"
   ) => void;
+  sendMessage: (message: WebSocketMessage) => void;
+  lastMessage: WebSocketMessage | null; // Ajoutez cette ligne
 }
 
+// Dans le provider, ajouter sendMessage
 const WebSocketContext = createContext<WebSocketContextType | null>(null);
 
 export function WebSocketProvider({ children }: { children: React.ReactNode }) {
@@ -28,6 +32,8 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     isAuthenticated,
     sendFriendRequest,
     respondToFriendRequest,
+    sendMessage,
+    lastMessage, // Ajoutez cette ligne
   } = useWebSocket({
     // Ne passer userId que si l'utilisateur est authentifié
     userId: isUserLoggedIn ? session?.user?.id : undefined,
@@ -60,11 +66,12 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   return (
     <WebSocketContext.Provider
       value={{
-        // Combiner les deux états d'authentification
         isConnected: isConnected && isUserLoggedIn,
         isAuthenticated: isAuthenticated && isUserLoggedIn,
         sendFriendRequest,
         respondToFriendRequest,
+        sendMessage,
+        lastMessage, // Ajoutez cette ligne
       }}
     >
       {children}

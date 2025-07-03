@@ -6,7 +6,7 @@ export function useUserTag() {
   return useQuery({
     queryKey: ["userTag"],
     queryFn: async (): Promise<string> => {
-      const data = await apiFetch<{ tag: string }>("user/tag");
+      const data = await apiFetch<{ tag: string }>("users/tag");
       return data.tag || "";
     },
   });

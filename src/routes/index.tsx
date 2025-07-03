@@ -1,3 +1,4 @@
+import { MultiplayerCard } from "@/components/home/MultiplayerCard";
 import { QuizCard } from "@/components/home/QuizCard";
 import { TrainingCard } from "@/components/home/TrainingCard";
 import { Grid } from "@/components/layout/Grid";
@@ -21,6 +22,7 @@ function Home() {
           <div className="flex flex-col gap-5 w-full lg:w-2/3">
             <TrainingCard />
             <QuizCard />
+            <MultiplayerCard />
           </div>
 
           {data?.user && (

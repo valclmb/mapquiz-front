@@ -24,9 +24,12 @@ const queryClient = new QueryClient();
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <WebSocketProvider>
-        <RouterProvider router={router} />
-      </WebSocketProvider>
+      <RouterProvider
+        router={router}
+        InnerWrap={({ children }) => (
+          <WebSocketProvider>{children}</WebSocketProvider>
+        )}
+      />
     </QueryClientProvider>
     <Toaster richColors />
   </StrictMode>

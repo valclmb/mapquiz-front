@@ -1,4 +1,5 @@
 import { QuizGame } from "@/components/game/quiz/QuizGame";
+import { DEFAULT_CONTINENT } from "@/lib/constants";
 import { getCountries } from "@/lib/data";
 import { createFileRoute } from "@tanstack/react-router";
 
@@ -10,7 +11,9 @@ export const Route = createFileRoute("/quiz")({
   component: RouteComponent,
   validateSearch: (search: Record<string, unknown>): QuizSearch => {
     return {
-      regions: Array.isArray(search.regions) ? search.regions : ["Europe"],
+      regions: Array.isArray(search.regions)
+        ? search.regions
+        : [DEFAULT_CONTINENT],
     };
   },
   loader: async () => {
@@ -26,7 +29,7 @@ function RouteComponent() {
   return (
     <QuizGame
       countries={countries ?? []}
-      selectedRegions={regions || ["Europe"]}
+      selectedRegions={regions || [DEFAULT_CONTINENT]}
     />
   );
 }

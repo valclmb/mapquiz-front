@@ -13,6 +13,9 @@ import { Route as TrainingRouteImport } from './routes/training'
 import { Route as SocialRouteImport } from './routes/social'
 import { Route as QuizRouteImport } from './routes/quiz'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MultiplayerIndexRouteImport } from './routes/multiplayer/index'
+import { Route as MultiplayerLobbyIdRouteImport } from './routes/multiplayer/$lobbyId'
+import { Route as MultiplayerGameLobbyIdRouteImport } from './routes/multiplayer/game/$lobbyId'
 
 const TrainingRoute = TrainingRouteImport.update({
   id: '/training',
@@ -34,18 +37,39 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MultiplayerIndexRoute = MultiplayerIndexRouteImport.update({
+  id: '/multiplayer/',
+  path: '/multiplayer/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MultiplayerLobbyIdRoute = MultiplayerLobbyIdRouteImport.update({
+  id: '/multiplayer/$lobbyId',
+  path: '/multiplayer/$lobbyId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MultiplayerGameLobbyIdRoute = MultiplayerGameLobbyIdRouteImport.update({
+  id: '/multiplayer/game/$lobbyId',
+  path: '/multiplayer/game/$lobbyId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/quiz': typeof QuizRoute
   '/social': typeof SocialRoute
   '/training': typeof TrainingRoute
+  '/multiplayer/$lobbyId': typeof MultiplayerLobbyIdRoute
+  '/multiplayer': typeof MultiplayerIndexRoute
+  '/multiplayer/game/$lobbyId': typeof MultiplayerGameLobbyIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/quiz': typeof QuizRoute
   '/social': typeof SocialRoute
   '/training': typeof TrainingRoute
+  '/multiplayer/$lobbyId': typeof MultiplayerLobbyIdRoute
+  '/multiplayer': typeof MultiplayerIndexRoute
+  '/multiplayer/game/$lobbyId': typeof MultiplayerGameLobbyIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +77,38 @@ export interface FileRoutesById {
   '/quiz': typeof QuizRoute
   '/social': typeof SocialRoute
   '/training': typeof TrainingRoute
+  '/multiplayer/$lobbyId': typeof MultiplayerLobbyIdRoute
+  '/multiplayer/': typeof MultiplayerIndexRoute
+  '/multiplayer/game/$lobbyId': typeof MultiplayerGameLobbyIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/quiz' | '/social' | '/training'
+  fullPaths:
+    | '/'
+    | '/quiz'
+    | '/social'
+    | '/training'
+    | '/multiplayer/$lobbyId'
+    | '/multiplayer'
+    | '/multiplayer/game/$lobbyId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/quiz' | '/social' | '/training'
-  id: '__root__' | '/' | '/quiz' | '/social' | '/training'
+  to:
+    | '/'
+    | '/quiz'
+    | '/social'
+    | '/training'
+    | '/multiplayer/$lobbyId'
+    | '/multiplayer'
+    | '/multiplayer/game/$lobbyId'
+  id:
+    | '__root__'
+    | '/'
+    | '/quiz'
+    | '/social'
+    | '/training'
+    | '/multiplayer/$lobbyId'
+    | '/multiplayer/'
+    | '/multiplayer/game/$lobbyId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,6 +116,9 @@ export interface RootRouteChildren {
   QuizRoute: typeof QuizRoute
   SocialRoute: typeof SocialRoute
   TrainingRoute: typeof TrainingRoute
+  MultiplayerLobbyIdRoute: typeof MultiplayerLobbyIdRoute
+  MultiplayerIndexRoute: typeof MultiplayerIndexRoute
+  MultiplayerGameLobbyIdRoute: typeof MultiplayerGameLobbyIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -99,6 +151,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/multiplayer/': {
+      id: '/multiplayer/'
+      path: '/multiplayer'
+      fullPath: '/multiplayer'
+      preLoaderRoute: typeof MultiplayerIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/multiplayer/$lobbyId': {
+      id: '/multiplayer/$lobbyId'
+      path: '/multiplayer/$lobbyId'
+      fullPath: '/multiplayer/$lobbyId'
+      preLoaderRoute: typeof MultiplayerLobbyIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/multiplayer/game/$lobbyId': {
+      id: '/multiplayer/game/$lobbyId'
+      path: '/multiplayer/game/$lobbyId'
+      fullPath: '/multiplayer/game/$lobbyId'
+      preLoaderRoute: typeof MultiplayerGameLobbyIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -107,6 +180,9 @@ const rootRouteChildren: RootRouteChildren = {
   QuizRoute: QuizRoute,
   SocialRoute: SocialRoute,
   TrainingRoute: TrainingRoute,
+  MultiplayerLobbyIdRoute: MultiplayerLobbyIdRoute,
+  MultiplayerIndexRoute: MultiplayerIndexRoute,
+  MultiplayerGameLobbyIdRoute: MultiplayerGameLobbyIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

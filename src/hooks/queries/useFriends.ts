@@ -2,7 +2,7 @@ import { apiFetch } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export type Friend = {
@@ -18,18 +18,40 @@ export type Friend = {
 export function useFriendsList() {
   const queryClient = useQueryClient();
   const { data: session } = authClient.useSession();
+  // Un seul état pour suivre les utilisateurs invités
+  const [invitedUsers, setInvitedUsers] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (!session?.user?.id) return;
   }, [queryClient, session]);
 
-  return useQuery({
+  // Fonction pour marquer un utilisateur comme invité
+  const markUserAsInvited = useCallback((userId: string) => {
+    setInvitedUsers((prev) => ({ ...prev, [userId]: true }));
+
+    // Réinitialiser après 5 secondes
+    setTimeout(() => {
+      setInvitedUsers((prev) => {
+        const newState = { ...prev };
+        delete newState[userId];
+        return newState;
+      });
+    }, 5000);
+  }, []);
+
+  const query = useQuery({
     queryKey: ["friends"],
     queryFn: async (): Promise<Friend[]> => {
       const data = await apiFetch<{ friends: Friend[] }>("friends/list");
       return data.friends || [];
     },
   });
+
+  return {
+    ...query,
+    invitedUsers,
+    markUserAsInvited,
+  };
 }
 
 // Hook pour supprimer un ami
