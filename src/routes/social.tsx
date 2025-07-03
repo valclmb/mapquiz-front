@@ -1,10 +1,9 @@
 import { Grid } from "@/components/layout/Grid";
-import {
-  AddFriend,
-  FriendRequests,
-  FriendsList,
-  FriendTag,
-} from "@/components/social";
+import { AddFriend } from "@/components/social/AddFriend";
+import { FriendRequests } from "@/components/social/FriendRequests";
+import { FriendsList } from "@/components/social/FriendsList";
+import { FriendTag } from "@/components/social/FriendTag";
+
 import Typography from "@/components/ui/Typography";
 import { createFileRoute } from "@tanstack/react-router";
 
