@@ -36,10 +36,26 @@ type GameOptions = {
   onGameEnd?: (score: number, total: number) => void;
   onCorrectAnswer?: (countryCode: string) => void;
   onIncorrectAnswer?: () => void;
+  initialValidatedCountries?: string[];
+  initialIncorrectCountries?: string[];
+  onProgressSync?: (
+    validatedCountries: string[],
+    incorrectCountries: string[],
+    score: number,
+    totalQuestions: number
+  ) => void;
 };
 
 export const useMapGame = (countries: Country[], options: GameOptions) => {
-  const { mode, onGameEnd, onCorrectAnswer, onIncorrectAnswer } = options;
+  const {
+    mode,
+    onGameEnd,
+    onCorrectAnswer,
+    onIncorrectAnswer,
+    initialValidatedCountries = [],
+    initialIncorrectCountries = [],
+    onProgressSync,
+  } = options;
 
   // Filtrer les pays pour ne garder que ceux qui ne sont pas marqués comme filtrés
   const activeCountries = useMemo(() => {
@@ -48,9 +64,14 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
     );
   }, [countries]);
 
-  const [validatedCountries, setValidatedCountries] = useState<string[]>([]);
-  const [incorrectCountries, setIncorrectCountries] = useState<string[]>([]);
+  const [validatedCountries, setValidatedCountries] = useState<string[]>(
+    initialValidatedCountries
+  );
+  const [incorrectCountries, setIncorrectCountries] = useState<string[]>(
+    initialIncorrectCountries
+  );
   const [gameEnded, setGameEnded] = useState(false);
+  const hasRestoredState = useRef(false);
 
   const defaultValues = useMemo(
     () => ({
@@ -134,6 +155,16 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
       const newValidatedCountries = [...validatedCountries, countryCode];
       setValidatedCountries(newValidatedCountries);
 
+      // Synchroniser avec le backend si nécessaire
+      if (onProgressSync) {
+        onProgressSync(
+          newValidatedCountries,
+          incorrectCountries,
+          newValidatedCountries.length,
+          countries.length
+        );
+      }
+
       // Appeler le callback pour réponse correcte
       onCorrectAnswer?.(countryCode);
 
@@ -151,7 +182,8 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
   const changeIndexWithValidated = useCallback(
     (valid = false, updatedValidatedCountries = validatedCountries) => {
       // Vérifier si tous les pays ont été traités (validés ou incorrects)
-      const allCountriesProcessed = activeCountries.every(
+      // Utiliser tous les pays du jeu, pas seulement les actifs
+      const allCountriesProcessed = countries.every(
         (country) =>
           updatedValidatedCountries.includes(country.properties.code) ||
           incorrectCountries.includes(country.properties.code)
@@ -159,7 +191,7 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
 
       if (
         allCountriesProcessed ||
-        updatedValidatedCountries.length === activeCountries.length
+        updatedValidatedCountries.length === countries.length
       ) {
         endGame();
         return;
@@ -193,7 +225,21 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
       if (!valid && activeCountries[randomIndex] && mode === "quiz") {
         setIncorrectCountries((prev) => {
           const code = activeCountries[randomIndex].properties.code;
-          return prev.includes(code) ? prev : [...prev, code];
+          const newIncorrectCountries = prev.includes(code)
+            ? prev
+            : [...prev, code];
+
+          // Synchroniser avec le backend si nécessaire
+          if (onProgressSync) {
+            onProgressSync(
+              validatedCountries,
+              newIncorrectCountries,
+              validatedCountries.length,
+              countries.length
+            );
+          }
+
+          return newIncorrectCountries;
         });
 
         // Appeler le callback pour réponse incorrecte
@@ -215,6 +261,7 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
       }
     },
     [
+      countries,
       activeCountries,
       validatedCountries,
       incorrectCountries,
@@ -223,6 +270,7 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
       mode,
       endGame,
       onIncorrectAnswer,
+      onProgressSync,
     ]
   );
 
@@ -255,12 +303,49 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
 
   // Corriger le useEffect d'initialisation
   useEffect(() => {
-    if (activeCountries.length > 0) {
+    if (activeCountries.length > 0 && !hasRestoredState.current) {
       // Appeler directement la logique au lieu de defineRandomIndex()
       const index = Math.floor(Math.random() * activeCountries.length);
       setRandomIndex(index);
     }
   }, [activeCountries.length]); // Utiliser activeCountries.length au lieu de countries
+
+  // Synchroniser l'état avec les données initiales
+  useEffect(() => {
+    if (
+      !hasRestoredState.current &&
+      (initialValidatedCountries.length > 0 ||
+        initialIncorrectCountries.length > 0)
+    ) {
+      hasRestoredState.current = true;
+      setValidatedCountries(initialValidatedCountries);
+      setIncorrectCountries(initialIncorrectCountries);
+
+      // Si on a des pays validés, calculer le prochain index en conséquence
+      if (activeCountries.length > 0) {
+        const availableCountries = activeCountries.filter(
+          (country) =>
+            !initialValidatedCountries.includes(country.properties.code) &&
+            !initialIncorrectCountries.includes(country.properties.code)
+        );
+
+        if (availableCountries.length > 0) {
+          const randomIndex = Math.floor(
+            Math.random() * availableCountries.length
+          );
+          const countryIndex = activeCountries.findIndex(
+            (country) =>
+              country.properties.code ===
+              availableCountries[randomIndex].properties.code
+          );
+          setRandomIndex(countryIndex);
+        } else {
+          // Tous les pays ont été traités
+          setGameEnded(true);
+        }
+      }
+    }
+  }, [initialValidatedCountries, initialIncorrectCountries, activeCountries]);
 
   return {
     countries,

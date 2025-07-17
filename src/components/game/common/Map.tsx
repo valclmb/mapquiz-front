@@ -21,7 +21,6 @@ export const Map = () => {
   // Utiliser le code du pays actif sélectionné
   const currentCountryCode = activeCountries[randomIndex]?.properties.code;
 
-  console.log(currentCountryCode);
   const countryStyle = (key: number) => {
     // Utiliser le code du pays au lieu de l'index
     if (countries[key]?.properties.code === currentCountryCode) {

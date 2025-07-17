@@ -7,6 +7,8 @@ export interface Player {
 export interface PlayerScore extends Player {
   score: number;
   progress: number;
+  validatedCountries?: string[];
+  incorrectCountries?: string[];
 }
 
 export interface LobbySettings {

@@ -22,6 +22,7 @@ export interface WebSocketMessage {
     [key: string]: unknown;
   };
   message?: string;
+  lobbyId?: string;
   data?: {
     lobby?: {
       id: string;
@@ -97,7 +98,7 @@ export function useWebSocket({
       wsRef.current.onopen = () => {
         console.log("WebSocket connecté");
         setIsConnected(true);
-        setReconnectAttempts(0);
+        setReconnectAttempts(0); // Réinitialiser les tentatives de reconnexion
 
         // Authentifier automatiquement si userId est disponible
         if (userId) {
@@ -122,13 +123,14 @@ export function useWebSocket({
         setIsConnected(false);
         setIsAuthenticated(false);
 
-        // Commenter ou supprimer ce bloc pour désactiver la reconnexion automatique
-        /*
+        // Réactiver la reconnexion automatique
         const maxReconnectAttempts = 5;
         if (reconnectAttempts < maxReconnectAttempts) {
           const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000);
-          console.log(`Tentative de reconnexion dans ${delay}ms...`);
-        
+          console.log(
+            `Tentative de reconnexion dans ${delay}ms... (${reconnectAttempts + 1}/${maxReconnectAttempts})`
+          );
+
           reconnectTimeoutRef.current = setTimeout(() => {
             setReconnectAttempts((prev) => prev + 1);
             connect();
@@ -139,7 +141,6 @@ export function useWebSocket({
             "Connexion WebSocket perdue. Veuillez rafraîchir la page."
           );
         }
-        */
       };
 
       wsRef.current.onerror = (error) => {
@@ -283,6 +284,7 @@ export function useWebSocket({
                 lobbyId: message.data.lobby.id,
                 players: message.data.players,
                 settings: message.data.settings,
+                hostId: message.data.hostId as string, // Ajouter le hostId
               },
             });
           }
@@ -335,6 +337,7 @@ export function useWebSocket({
                 lobbyId: message.payload.lobbyId,
                 players: message.payload.players,
                 settings: message.payload.settings,
+                hostId: message.payload.hostId as string, // Ajouter le hostId
               },
             });
             toast.success("Invitation envoyée avec succès");
@@ -351,6 +354,7 @@ export function useWebSocket({
                 lobbyId: message.data.lobby.id,
                 players: message.data.players,
                 settings: message.data.settings,
+                hostId: message.data.hostId as string, // Ajouter le hostId
               },
             });
             toast.success("Lobby rejoint avec succès");
@@ -362,21 +366,105 @@ export function useWebSocket({
           toast.success(String(message.data?.message || "Statut mis à jour"));
           break;
 
-        case "game_start":
-          console.log("Partie démarrée:", message.payload);
-          // Stocker le gameState dans le localStorage pour y accéder dans la page du jeu
-          if (message.payload?.gameState) {
-            localStorage.setItem(
-              `gameState_${message.payload.lobbyId}`,
-              JSON.stringify(message.payload.gameState)
+        case "start_game_success":
+          // Afficher un toast de succès
+          toast.success("Partie démarrée avec succès!");
+          break;
+
+        case "leave_game_success":
+          // Afficher un toast de succès et rediriger vers la page d'accueil
+          toast.success("Vous avez quitté la partie");
+          router.navigate({ to: "/" });
+          break;
+
+        case "game_start": {
+          console.log("Partie démarrée:", message.data);
+          const gameStateData = message.data?.gameState as
+            | { countries?: unknown[]; settings?: unknown }
+            | undefined;
+          console.log("game_start - détails du message:", {
+            lobbyId: message.data?.lobbyId,
+            gameState: message.data?.gameState,
+            countriesCount: gameStateData?.countries?.length,
+            settings: gameStateData?.settings,
+          });
+
+          // Si le message contient l'état du jeu, le traiter directement
+          if (message.data?.gameState) {
+            console.log(
+              "game_start - traitement du gameState:",
+              message.data.gameState
             );
+            setLastMessage({
+              type: "game_state_update",
+              payload: {
+                lobbyId: message.data.lobbyId as string,
+                gameState: message.data.gameState,
+              },
+            });
           }
 
           // Rediriger vers la page du jeu
-          if (message.payload?.lobbyId) {
+          if (message.data?.lobbyId) {
             router.navigate({
               to: "/multiplayer/game/$lobbyId",
-              params: { lobbyId: message.payload.lobbyId },
+              params: { lobbyId: message.data.lobbyId as string },
+            });
+          }
+          break;
+        }
+
+        case "get_game_state_success":
+          console.log("État du jeu reçu:", message.data);
+          // Transformer ce message en un message de type "game_state_update"
+          // pour que le hook useMultiplayerGame puisse le traiter
+          if (message.data) {
+            setLastMessage({
+              type: "game_state_update",
+              payload: {
+                lobbyId: message.data.lobbyId as string,
+                gameState: message.data.gameState,
+              },
+            });
+          }
+          break;
+
+        case "score_update":
+          console.log("Mise à jour de score reçue:", message.data);
+          // Transformer ce message en un message de type "player_progress_update"
+          // pour que le hook useMultiplayerGame puisse le traiter
+          if (message.data) {
+            setLastMessage({
+              type: "player_progress_update",
+              payload: {
+                lobbyId: message.data.lobbyId as string,
+                players: message.data.players,
+                updatedPlayerId: message.data.updatedPlayerId,
+              },
+            });
+          }
+          break;
+
+        case "update_game_progress_success":
+          console.log("Mise à jour de progression confirmée:", message.data);
+          // Ce message est juste une confirmation, pas besoin de traitement spécial
+          break;
+
+        case "player_left_game":
+          console.log("Un joueur a quitté la partie:", message.payload);
+          toast.info(
+            `${message.payload?.playerName || "Un joueur"} a quitté la partie`
+          );
+          // Transformer ce message en un message de type "lobby_update" pour mettre à jour l'UI
+          if (message.payload?.lobbyId) {
+            setLastMessage({
+              type: "lobby_update",
+              payload: {
+                lobbyId: message.payload.lobbyId,
+                playerLeft: true,
+                leftPlayerId: message.payload.playerId,
+                leftPlayerName: message.payload.playerName,
+              },
             });
           }
           break;
@@ -412,8 +500,6 @@ export function useWebSocket({
             payload: { receiverTag },
           })
         );
-      } else {
-        toast.error("Connexion WebSocket non disponible");
       }
     },
     [isAuthenticated]
@@ -429,8 +515,6 @@ export function useWebSocket({
             payload: { requestId, action },
           })
         );
-      } else {
-        toast.error("Connexion WebSocket non disponible");
       }
     },
     [isAuthenticated]
@@ -441,8 +525,6 @@ export function useWebSocket({
     (message: WebSocketMessage) => {
       if (wsRef.current?.readyState === WebSocket.OPEN && isAuthenticated) {
         wsRef.current.send(JSON.stringify(message));
-      } else {
-        toast.error("Connexion WebSocket non disponible");
       }
     },
     [isAuthenticated]
@@ -466,12 +548,20 @@ export function useWebSocket({
     };
   }, [userId, connect, disconnect]);
 
-  // Effet pour authentifier quand userId change
+  // Effet pour authentifier quand userId change ou après reconnexion
   useEffect(() => {
     if (userId && isConnected && !isAuthenticated) {
+      console.log("Authentification automatique après connexion");
       authenticate(userId);
     }
   }, [userId, isConnected, isAuthenticated, authenticate]);
+
+  // Effet pour réinitialiser l'authentification quand la connexion est perdue
+  useEffect(() => {
+    if (!isConnected) {
+      setIsAuthenticated(false);
+    }
+  }, [isConnected]);
 
   // Ping périodique pour maintenir la connexion
   useEffect(() => {

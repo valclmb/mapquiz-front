@@ -14,7 +14,7 @@ interface WebSocketContextType {
     action: "accept" | "reject"
   ) => void;
   sendMessage: (message: WebSocketMessage) => void;
-  lastMessage: WebSocketMessage | null; // Ajoutez cette ligne
+  lastMessage: WebSocketMessage | null;
 }
 
 // Dans le provider, ajouter sendMessage
@@ -33,7 +33,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     sendFriendRequest,
     respondToFriendRequest,
     sendMessage,
-    lastMessage, // Ajoutez cette ligne
+    lastMessage,
   } = useWebSocket({
     // Ne passer userId que si l'utilisateur est authentifié
     userId: isUserLoggedIn ? session?.user?.id : undefined,
@@ -71,7 +71,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
         sendFriendRequest,
         respondToFriendRequest,
         sendMessage,
-        lastMessage, // Ajoutez cette ligne
+        lastMessage,
       }}
     >
       {children}

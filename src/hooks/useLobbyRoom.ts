@@ -50,6 +50,16 @@ export function useLobbyRoom(lobbyId: string) {
       if (lastMessage.payload.players) {
         console.log("Mise à jour des joueurs:", lastMessage.payload.players);
         setPlayers(lastMessage.payload.players);
+
+        // Mettre à jour l'état isReady en fonction du statut du joueur actuel
+        if (currentUserId) {
+          const currentPlayer = lastMessage.payload.players.find(
+            (p: Player) => p.id === currentUserId
+          );
+          if (currentPlayer) {
+            setIsReady(currentPlayer.status === "ready");
+          }
+        }
       }
       // Vérifier que settings existe avant de l'assigner
       if (lastMessage.payload.settings) {
@@ -60,7 +70,7 @@ export function useLobbyRoom(lobbyId: string) {
         setHostId(lastMessage.payload.hostId);
       }
     }
-  }, [lastMessage, lobbyId]);
+  }, [lastMessage, lobbyId, currentUserId]);
 
   // Déterminer si l'utilisateur actuel est l'hôte
   const isHost = currentUserId && hostId ? currentUserId === hostId : false;
@@ -115,16 +125,15 @@ export function useLobbyRoom(lobbyId: string) {
     });
   };
 
-  const allPlayersReady = players.every(
-    (p) => p.status === "ready" || (isHost && p.id === currentUserId)
-  );
+  // Vérifier que tous les joueurs sont prêts
+  const allPlayersReady = players.every((p) => p.status === "ready");
 
   return {
     players,
     settings,
     isReady,
     isHost,
-    hostId, // Ajouter hostId dans l'objet retourné
+    hostId,
     allPlayersReady,
     inviteFriend,
     updateSettings,

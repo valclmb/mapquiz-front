@@ -6,7 +6,10 @@ import { GameContext } from "@/context/GameContext";
 import { Delete } from "lucide-react";
 import { useContext } from "react";
 
-export const Form = () => {
+import { cn } from "@/lib/utils";
+
+type FormProps = { className?: string };
+export const Form = ({ className }: FormProps) => {
   const gameContext = useContext(GameContext);
 
   if (!gameContext) throw new Error("Game context not defined");
@@ -14,7 +17,12 @@ export const Form = () => {
   const { currentCountry, handleChange, refs, changeIndex } = gameContext;
 
   return (
-    <Card className="absolute right-1/2 bottom-2 translate-x-1/2 z-40 bg-background/90 backdrop-blur-md">
+    <Card
+      className={cn(
+        "absolute right-1/2 bottom-2 translate-x-1/2 z-40 bg-background/90 backdrop-blur-md",
+        className
+      )}
+    >
       <CardContent className="px-5 space-y-2">
         <div className="flex flex-col">
           <Label htmlFor="name">Pays</Label>
