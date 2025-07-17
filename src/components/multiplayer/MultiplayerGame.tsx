@@ -67,9 +67,24 @@ export const MultiplayerGame = ({
 
   const map = useMapGame(filteredCountries, {
     mode: "quiz",
+    isMultiplayer: true, // Activer la logique de fin de jeu multijoueur
     initialValidatedCountries,
     initialIncorrectCountries,
     onProgressSync: syncProgressWithBackend,
+    onMultiplayerGameEnd: () => {
+      // Envoyer le score final avec la progression complète
+      sendMessage({
+        type: "update_player_progress",
+        payload: {
+          lobbyId,
+          validatedCountries: map.validatedCountries,
+          incorrectCountries: map.incorrectCountries,
+          score: map.validatedCountries.length,
+          totalQuestions: activeCountries.length, // Utiliser les pays actifs
+        },
+      });
+      console.log("Fin de jeu multijoueur - message envoyé au backend");
+    },
     onGameEnd: (score: number) => {
       // Envoyer le score final avec la progression complète
       sendMessage({
@@ -79,7 +94,7 @@ export const MultiplayerGame = ({
           validatedCountries: map.validatedCountries,
           incorrectCountries: map.incorrectCountries,
           score,
-          totalQuestions: countries.length,
+          totalQuestions: activeCountries.length, // Utiliser les pays actifs
         },
       });
     },

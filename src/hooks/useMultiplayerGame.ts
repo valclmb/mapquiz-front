@@ -118,7 +118,17 @@ export function useMultiplayerGame(
         const allFinished = playerScoresData.every(
           (player) => player.progress >= 100
         );
+        console.log("useMultiplayerGame - Vérification fin de jeu:", {
+          playerScoresData: playerScoresData.map((p) => ({
+            id: p.id,
+            name: p.name,
+            progress: p.progress,
+          })),
+          allFinished,
+          gameFinished,
+        });
         if (allFinished && !gameFinished) {
+          console.log("useMultiplayerGame - Fin de jeu déclenchée !");
           setGameFinished(true);
           toast.success("Partie terminée !");
         }
@@ -149,7 +159,22 @@ export function useMultiplayerGame(
         const allFinished = playerScoresData.every(
           (player) => player.progress >= 100
         );
+        console.log(
+          "useMultiplayerGame - Vérification fin de jeu (score_update):",
+          {
+            playerScoresData: playerScoresData.map((p) => ({
+              id: p.id,
+              name: p.name,
+              progress: p.progress,
+            })),
+            allFinished,
+            gameFinished,
+          }
+        );
         if (allFinished && !gameFinished) {
+          console.log(
+            "useMultiplayerGame - Fin de jeu déclenchée (score_update) !"
+          );
           setGameFinished(true);
           toast.success("Partie terminée !");
         }
@@ -164,6 +189,27 @@ export function useMultiplayerGame(
       const { rankings: gameRankings } =
         lastMessage.payload || lastMessage.data || {};
       if (gameRankings && Array.isArray(gameRankings)) {
+        console.log(
+          "useMultiplayerGame - Rankings reçus (game_results):",
+          gameRankings
+        );
+        setRankings(gameRankings);
+        setGameFinished(true);
+      }
+    }
+
+    if (
+      lastMessage?.type === "game_end" &&
+      (lastMessage.payload?.lobbyId === lobbyId ||
+        lastMessage.data?.lobbyId === lobbyId)
+    ) {
+      const { rankings: gameRankings } =
+        lastMessage.payload || lastMessage.data || {};
+      if (gameRankings && Array.isArray(gameRankings)) {
+        console.log(
+          "useMultiplayerGame - Rankings reçus (game_end):",
+          gameRankings
+        );
         setRankings(gameRankings);
         setGameFinished(true);
       }

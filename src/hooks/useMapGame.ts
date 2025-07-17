@@ -38,6 +38,8 @@ type GameOptions = {
   onIncorrectAnswer?: () => void;
   initialValidatedCountries?: string[];
   initialIncorrectCountries?: string[];
+  isMultiplayer?: boolean; // Nouveau paramètre pour différencier le mode multijoueur
+  onMultiplayerGameEnd?: () => void; // Callback spécifique pour la fin de jeu multijoueur
   onProgressSync?: (
     validatedCountries: string[],
     incorrectCountries: string[],
@@ -105,13 +107,25 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
   }, [activeCountries, validatedCountries, mode]);
 
   const endGame = useCallback(() => {
-    if (mode === "quiz" && !gameEnded) {
+    if (options.isMultiplayer) {
+      // Mode multijoueur : appeler le callback spécifique
+      console.log("Fin de jeu multijoueur - appel du callback");
+      options.onMultiplayerGameEnd?.();
+    } else if (mode === "quiz" && !gameEnded) {
       setGameEnded(true);
-      onGameEnd?.(score, activeCountries.length); // <-- CORRECTION ICI
+      onGameEnd?.(score, activeCountries.length);
     } else if (mode === "practice") {
       alert("Game Over");
     }
-  }, [gameEnded, score, activeCountries.length, onGameEnd, mode]); // <-- CORRECTION ICI
+  }, [
+    gameEnded,
+    score,
+    activeCountries.length,
+    onGameEnd,
+    mode,
+    options.isMultiplayer,
+    options.onMultiplayerGameEnd,
+  ]);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const target = event.currentTarget;
@@ -161,7 +175,7 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
           newValidatedCountries,
           incorrectCountries,
           newValidatedCountries.length,
-          countries.length
+          activeCountries.length // Utiliser les pays actifs, pas tous les pays
         );
       }
 
@@ -181,18 +195,46 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
   // Nouvelle fonction pour changer l'index avec une liste de pays validés à jour
   const changeIndexWithValidated = useCallback(
     (valid = false, updatedValidatedCountries = validatedCountries) => {
-      // Vérifier si tous les pays ont été traités (validés ou incorrects)
-      // Utiliser tous les pays du jeu, pas seulement les actifs
-      const allCountriesProcessed = countries.every(
-        (country) =>
-          updatedValidatedCountries.includes(country.properties.code) ||
-          incorrectCountries.includes(country.properties.code)
-      );
+      // Logique de fin de jeu différente selon le mode
+      let shouldEndGame = false;
 
-      if (
-        allCountriesProcessed ||
-        updatedValidatedCountries.length === countries.length
-      ) {
+      if (options.isMultiplayer) {
+        // Mode multijoueur : finir quand tous les pays actifs sont traités
+        const allActiveCountriesProcessed = activeCountries.every(
+          (country) =>
+            updatedValidatedCountries.includes(country.properties.code) ||
+            incorrectCountries.includes(country.properties.code)
+        );
+
+        const totalAnswered =
+          updatedValidatedCountries.length + incorrectCountries.length;
+        const allAnswered = totalAnswered >= activeCountries.length;
+
+        shouldEndGame = allActiveCountriesProcessed || allAnswered;
+
+        if (shouldEndGame) {
+          console.log(
+            "Fin de jeu multijoueur détectée - tous les pays actifs traités"
+          );
+        }
+      } else {
+        // Mode solo : finir quand tous les pays (validés + incorrects) sont traités
+        const allCountriesProcessed = countries.every(
+          (country) =>
+            updatedValidatedCountries.includes(country.properties.code) ||
+            incorrectCountries.includes(country.properties.code)
+        );
+
+        shouldEndGame =
+          allCountriesProcessed ||
+          updatedValidatedCountries.length === countries.length;
+
+        if (shouldEndGame) {
+          console.log("Fin de jeu solo détectée - tous les pays traités");
+        }
+      }
+
+      if (shouldEndGame) {
         endGame();
         return;
       }
@@ -235,7 +277,7 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
               validatedCountries,
               newIncorrectCountries,
               validatedCountries.length,
-              countries.length
+              activeCountries.length // Utiliser les pays actifs, pas tous les pays
             );
           }
 
@@ -271,6 +313,7 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
       endGame,
       onIncorrectAnswer,
       onProgressSync,
+      options.isMultiplayer,
     ]
   );
 
