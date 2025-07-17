@@ -5,14 +5,15 @@ type LobbyPlayerListProps = {
   players: Player[];
   title?: string;
   className?: string;
+  hostId?: string;
 };
 
 export const LobbyPlayerList = ({
   players,
   title = "Joueurs",
   className = "",
-  hostId, // Ajouter le hostId comme prop
-}: LobbyPlayerListProps & { hostId?: string }) => {
+  hostId,
+}: LobbyPlayerListProps) => {
   return (
     <Card className={className}>
       {title && (
@@ -30,7 +31,20 @@ export const LobbyPlayerList = ({
                 key={player.id}
                 className="flex items-center justify-between p-2 border rounded-md"
               >
-                <span>{player.name}</span>
+                <div className="flex items-center gap-2">
+                  <div className="relative">
+                    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
+                      {player.name.charAt(0)}
+                    </div>
+                    <div
+                      className="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white bg-green-500"
+                      title="En ligne"
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-medium">{player.name}</span>
+                  </div>
+                </div>
                 <div className="flex items-center space-x-2">
                   {hostId && player.id === hostId && (
                     <span className="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-800">

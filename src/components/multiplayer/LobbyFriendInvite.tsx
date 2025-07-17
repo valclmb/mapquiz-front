@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useWebSocketContext } from "@/context/WebSocketContext";
 import { useFriendsList, type Friend } from "@/hooks/queries/useFriends";
+import { Check } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -17,7 +18,9 @@ export const LobbyFriendInvite = ({
 }: LobbyFriendInviteProps) => {
   const { data: friends } = useFriendsList();
   const { sendMessage } = useWebSocketContext();
-  const [invitedFriends, setInvitedFriends] = useState<Set<string>>(new Set());
+  const [cooldownFriends, setCooldownFriends] = useState<Set<string>>(
+    new Set()
+  );
 
   const handleInviteFriend = (friendId: string) => {
     sendMessage({
@@ -28,13 +31,23 @@ export const LobbyFriendInvite = ({
       },
     });
 
-    setInvitedFriends((prev) => new Set(prev).add(friendId));
+    // Ajouter l'ami au cooldown
+    setCooldownFriends((prev) => new Set(prev).add(friendId));
     toast.success("Invitation envoyée !");
+
+    // Retirer du cooldown après 5 secondes
+    setTimeout(() => {
+      setCooldownFriends((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(friendId);
+        return newSet;
+      });
+    }, 5000);
   };
 
   const isAlreadyInLobby = (friendId: string) =>
     currentPlayers.includes(friendId);
-  const isInvited = (friendId: string) => invitedFriends.has(friendId);
+  const isInCooldown = (friendId: string) => cooldownFriends.has(friendId);
 
   if (!friends || friends.length === 0) {
     return (
@@ -76,13 +89,20 @@ export const LobbyFriendInvite = ({
                   </Badge>
                 )}
               </div>
-              <Button
-                size="sm"
-                onClick={() => handleInviteFriend(friend.id)}
-                disabled={isInvited(friend.id)}
-              >
-                {isInvited(friend.id) ? "Invité" : "Inviter"}
-              </Button>
+              {isInCooldown(friend.id) ? (
+                <div className="flex items-center space-x-2">
+                  <Check className="w-4 h-4 text-green-500" />
+                  <span className="text-xs text-green-500">Envoyée</span>
+                </div>
+              ) : (
+                <Button
+                  size="sm"
+                  onClick={() => handleInviteFriend(friend.id)}
+                  disabled={isInCooldown(friend.id)}
+                >
+                  Inviter
+                </Button>
+              )}
             </div>
           ))}
 

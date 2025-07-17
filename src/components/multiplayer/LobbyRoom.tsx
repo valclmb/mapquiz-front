@@ -1,10 +1,10 @@
 import { RegionSelector } from "@/components/game/common/RegionSelector";
+import { UserList } from "@/components/social/UserList";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useWebSocketContext } from "@/context/WebSocketContext";
 import { useLobbyRoom } from "@/hooks/useLobbyRoom";
-import { LobbyFriendInvite } from "./LobbyFriendInvite";
-import { LobbyPlayerList } from "./LobbyPlayerList";
 
 type LobbyRoomProps = {
   lobbyId: string;
@@ -21,9 +21,10 @@ export const LobbyRoom = ({ lobbyId }: LobbyRoomProps) => {
     allPlayersReady,
     updateSettings,
     toggleReady,
-    startGame,
     leaveLobby,
   } = useLobbyRoom(lobbyId);
+
+  const { sendMessage } = useWebSocketContext();
 
   const currentPlayerIds = players.map((player) => player.id);
 
@@ -38,7 +39,7 @@ export const LobbyRoom = ({ lobbyId }: LobbyRoomProps) => {
               <Badge variant="outline">
                 {players.length} joueur{players.length > 1 ? "s" : ""}
               </Badge>
-              {allPlayersReady && players.length > 1 && (
+              {allPlayersReady && players.length >= 1 && (
                 <Badge variant="default" className="bg-green-500">
                   Tous prêts !
                 </Badge>
@@ -51,9 +52,18 @@ export const LobbyRoom = ({ lobbyId }: LobbyRoomProps) => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Colonne 1: Liste des joueurs */}
         <div className="space-y-4">
-          <LobbyPlayerList
-            players={players}
+          <UserList
             title="Joueurs dans le lobby"
+            customUsers={players.map((player) => ({
+              id: player.id,
+              name: player.name,
+              image: null,
+              tag: null,
+              isOnline: true,
+              lastSeen: "",
+              status: player.status,
+            }))}
+            showStatus={true}
             hostId={hostId}
           />
 
@@ -67,6 +77,11 @@ export const LobbyRoom = ({ lobbyId }: LobbyRoomProps) => {
             }`}
           >
             {isReady ? "Annuler prêt" : "Je suis prêt"}
+          </Button>
+
+          {/* Bouton pour quitter le lobby */}
+          <Button onClick={leaveLobby} variant="outline" className="w-full">
+            Quitter le lobby
           </Button>
         </div>
 
@@ -91,14 +106,6 @@ export const LobbyRoom = ({ lobbyId }: LobbyRoomProps) => {
                       }
                     />
                   </div>
-
-                  <Button
-                    onClick={startGame}
-                    className="w-full bg-green-500 hover:bg-green-600"
-                    disabled={!allPlayersReady || players.length < 1}
-                  >
-                    Démarrer la partie
-                  </Button>
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -116,24 +123,24 @@ export const LobbyRoom = ({ lobbyId }: LobbyRoomProps) => {
               )}
             </CardContent>
           </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Actions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Button onClick={leaveLobby} variant="outline" className="w-full">
-                Quitter le lobby
-              </Button>
-            </CardContent>
-          </Card>
         </div>
 
         {/* Colonne 3: Invitation d'amis */}
-        <div className="space-y-4">
-          <LobbyFriendInvite
-            lobbyId={lobbyId}
-            currentPlayers={currentPlayerIds}
+        <div className="space-y-2">
+          <UserList
+            title="Inviter des amis"
+            filterUsers={(friend) => !currentPlayerIds.includes(friend.id)}
+            showInviteForOffline={true}
+            onInvite={(friendId: string) => {
+              // Envoyer l'invitation au lobby via WebSocket
+              sendMessage({
+                type: "invite_to_lobby",
+                payload: {
+                  lobbyId,
+                  friendId,
+                },
+              });
+            }}
           />
         </div>
       </div>
