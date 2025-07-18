@@ -12,6 +12,7 @@ export type Friend = {
   tag: string | null;
   isOnline: boolean;
   lastSeen: string;
+  status: "ready" | "joined" | "invited";
 };
 
 // Hook pour récupérer la liste des amis

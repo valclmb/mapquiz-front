@@ -17,6 +17,22 @@ type LobbyPlayer = {
 // Type union pour supporter les deux cas
 type UserListItem = Friend | LobbyPlayer;
 
+// Configuration des statuts
+const STATUS_CONFIG = {
+  ready: {
+    label: "Prêt",
+    style: "bg-green-100 text-green-800",
+  },
+  joined: {
+    label: "Pas prêt",
+    style: "bg-yellow-100 text-yellow-800",
+  },
+  invited: {
+    label: "Invité",
+    style: "bg-blue-100 text-blue-800",
+  },
+} as const;
+
 type UserListProps = {
   title?: string;
   onInvite?: (userId: string) => void;
@@ -120,27 +136,22 @@ export const UserList = ({
                       Hôte
                     </span>
                   )}
-                  {showStatus && "status" in user && user.status && (
-                    <span
-                      className={`px-2 py-1 text-xs rounded-full ${
-                        user.status === "ready"
-                          ? "bg-green-100 text-green-800"
-                          : user.status === "joined"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : user.status === "invited"
-                              ? "bg-blue-100 text-blue-800"
-                              : "bg-gray-100 text-gray-800"
-                      }`}
-                    >
-                      {user.status === "ready"
-                        ? "Prêt"
-                        : user.status === "joined"
-                          ? "Pas prêt"
-                          : user.status === "invited"
-                            ? "Invité"
-                            : user.status}
-                    </span>
-                  )}
+                  {showStatus &&
+                    user.status &&
+                    (() => {
+                      const status = (user as LobbyPlayer).status;
+                      const statusConfig =
+                        STATUS_CONFIG[status as keyof typeof STATUS_CONFIG];
+                      return (
+                        <span
+                          className={`px-2 py-1 text-xs rounded-full ${
+                            statusConfig?.style || "bg-gray-100 text-gray-800"
+                          }`}
+                        >
+                          {statusConfig?.label || String(status)}
+                        </span>
+                      );
+                    })()}
                   {onInvite &&
                     (user.isOnline || showInviteForOffline) &&
                     (invitedUsers[user.id] ? (
