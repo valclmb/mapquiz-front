@@ -5,7 +5,7 @@ import type { WebSocketMessage } from "@/hooks/useWebSocket";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
-export const Route = createFileRoute("/multiplayer/game/$lobbyId")({
+export const Route = createFileRoute("/multiplayer/$lobbyId/game")({
   component: MultiplayerGamePage,
 });
 
@@ -32,23 +32,8 @@ function MultiplayerGamePage() {
   const [error, setError] = useState<string | null>(null);
   const { sendMessage, lastMessage, isConnected } = useWebSocketContext();
 
-  // Debug: afficher l'état actuel
-  console.log("MultiplayerGamePage - État actuel:", {
-    lobbyId,
-    gameState: !!gameState,
-    loading,
-    error,
-    isConnected,
-    lastMessageType: lastMessage?.type,
-  });
-
-  // 1. Attendre la connexion WebSocket et demander l'état du jeu
   useEffect(() => {
     if (isConnected && !gameState) {
-      console.log(
-        "Connexion WebSocket établie, demande de l'état du jeu pour le lobby:",
-        lobbyId
-      );
       sendMessage({
         type: "get_game_state",
         payload: { lobbyId },
@@ -57,7 +42,6 @@ function MultiplayerGamePage() {
     }
   }, [isConnected, gameState, lobbyId, sendMessage]);
 
-  // Fonctions pour gérer les différents types de messages
   const handleGameStateMessage = (message: WebSocketMessage) => {
     if (message.payload?.gameState) {
       setGameState(message.payload.gameState as GameState);
@@ -68,29 +52,17 @@ function MultiplayerGamePage() {
   };
 
   const handleGameStateUpdateMessage = (message: WebSocketMessage) => {
-    console.log("handleGameStateUpdateMessage - message complet:", message);
-    console.log("handleGameStateUpdateMessage - payload:", message.payload);
-
     const state = message.payload?.gameState;
-    console.log("handleGameStateUpdateMessage - state extrait:", state);
-
-    // Vérifier si gameState est directement dans le payload avec countries
     if (
       state &&
       typeof state === "object" &&
       "countries" in state &&
       (state as { countries?: unknown }).countries
     ) {
-      console.log(
-        "handleGameStateUpdateMessage - gameState direct trouvé:",
-        state
-      );
       setGameState(state as GameState);
       setError(null);
       return;
     }
-
-    // Vérifier si gameState est imbriqué (structure du backend)
     if (
       state &&
       typeof state === "object" &&
@@ -98,16 +70,10 @@ function MultiplayerGamePage() {
       (state as { gameState?: { countries?: unknown } }).gameState?.countries
     ) {
       const nestedState = (state as { gameState?: GameState }).gameState;
-      console.log(
-        "handleGameStateUpdateMessage - gameState imbriqué trouvé:",
-        nestedState
-      );
       setGameState(nestedState as GameState);
       setError(null);
       return;
     }
-
-    // Vérifier si nous avons la structure complète du backend
     if (state && typeof state === "object" && "gameState" in state) {
       const nestedGameState = (state as { gameState?: GameState }).gameState;
       if (
@@ -115,21 +81,11 @@ function MultiplayerGamePage() {
         "countries" in nestedGameState &&
         nestedGameState.countries
       ) {
-        console.log(
-          "handleGameStateUpdateMessage - structure backend trouvée:",
-          nestedGameState
-        );
         setGameState(nestedGameState as GameState);
         setError(null);
         return;
       }
     }
-
-    console.log("handleGameStateUpdateMessage - Aucun gameState valide trouvé");
-    console.log(
-      "handleGameStateUpdateMessage - Structure reçue:",
-      JSON.stringify(state, null, 2)
-    );
     setError("Aucun état de jeu disponible");
   };
 
@@ -143,66 +99,28 @@ function MultiplayerGamePage() {
   const handleErrorMessage = (message: WebSocketMessage) => {
     const errorMessage =
       message.message || "Erreur lors du chargement de l'état du jeu";
-
-    // Si c'est une erreur de jeu non trouvé, juste continuer à charger
     if (errorMessage.includes("Aucun état de jeu disponible")) {
-      console.log("Aucun état de jeu disponible, continuer à charger...");
       setLoading(true);
       return;
     }
-
     setError(errorMessage);
   };
 
-  // 2. Gérer les réponses du backend
   useEffect(() => {
-    // Ajouter des logs de débogage détaillés
-    console.log("MultiplayerGamePage - Message reçu:", {
-      type: lastMessage?.type,
-      payload: lastMessage?.payload,
-      data: lastMessage?.data,
-      lobbyId:
-        lastMessage?.lobbyId ||
-        lastMessage?.payload?.lobbyId ||
-        lastMessage?.data?.lobbyId,
-      expectedLobbyId: lobbyId,
-      match:
-        (lastMessage?.lobbyId ||
-          lastMessage?.payload?.lobbyId ||
-          lastMessage?.data?.lobbyId) === lobbyId,
-    });
-
-    // Traiter tous les messages de type game_state_update, même si le lobbyId ne correspond pas exactement
-    if (lastMessage?.type === "game_state_update") {
-      console.log("Traitement du message game_state_update");
-      handleGameStateUpdateMessage(lastMessage);
-      return;
-    }
-
-    // Traiter les messages de mise à jour de score (ils viennent dans le data field)
-    if (lastMessage?.type === "score_update") {
-      console.log("Traitement du message score_update");
-      // Ces messages sont gérés par le hook useMultiplayerGame
-      return;
-    }
-
-    // Pour les autres types de messages, vérifier le lobbyId (vérifier à la fois le root, payload et data)
     const messageLobbyId =
       lastMessage?.lobbyId ||
       lastMessage?.payload?.lobbyId ||
       lastMessage?.data?.lobbyId;
-    if (!lastMessage || messageLobbyId !== lobbyId) {
-      console.log("Message ignoré - lobbyId ne correspond pas ou message null");
+    if (lastMessage?.type === "game_state_update") {
+      handleGameStateUpdateMessage(lastMessage);
       return;
     }
-
-    console.log(
-      "Traitement du message:",
-      lastMessage.type,
-      "pour le lobby:",
-      lobbyId
-    );
-
+    if (lastMessage?.type === "score_update") {
+      return;
+    }
+    if (!lastMessage || messageLobbyId !== lobbyId) {
+      return;
+    }
     switch (lastMessage.type) {
       case "game_state":
         handleGameStateMessage(lastMessage);
@@ -216,10 +134,8 @@ function MultiplayerGamePage() {
     }
   }, [lastMessage, lobbyId]);
 
-  // 3. Gérer les erreurs de connexion
   useEffect(() => {
     if (!isConnected && !loading && !gameState) {
-      console.log("Connexion WebSocket perdue, affichage de l'erreur");
       setError("Connexion WebSocket perdue. Veuillez rafraîchir la page.");
     }
   }, [isConnected, loading, gameState]);

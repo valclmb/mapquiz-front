@@ -1,18 +1,23 @@
 import { Toggle } from "@/components/ui/toggle";
 import { CONTINENTS } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
 type RegionSelectorProps = {
   selectedRegions: string[];
   onChange: (regions: string[]) => void;
   className?: string;
   inverted?: boolean;
+  isLoading?: boolean;
+  compact?: boolean;
 };
 
 export const RegionSelector = ({
   selectedRegions,
   onChange,
-  className = "flex flex-wrap gap-2 mb-4",
+  className,
   inverted = false,
+  isLoading = false,
+  compact = false,
 }: RegionSelectorProps) => {
   const handleRegionToggle = (region: string) => {
     const newSelectedRegions = selectedRegions.includes(region)
@@ -23,7 +28,7 @@ export const RegionSelector = ({
   };
 
   return (
-    <div className={className}>
+    <div className={cn("flex flex-wrap gap-2 mb-4", className)}>
       {CONTINENTS.map((continent) => {
         // En mode inversé, le bouton est pressé quand la région n'est PAS sélectionnée
         const isPressed = inverted
@@ -35,8 +40,11 @@ export const RegionSelector = ({
             key={continent}
             aria-label={continent}
             pressed={isPressed}
-            onPressedChange={() => handleRegionToggle(continent)}
-            className="text-sm"
+            onPressedChange={() => {
+              if (!isLoading) handleRegionToggle(continent);
+            }}
+            disabled={isLoading}
+            className="text-sm hover:cursor-pointer"
           >
             {continent}
           </Toggle>

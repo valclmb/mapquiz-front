@@ -1,4 +1,5 @@
 import { GameContext } from "@/context/GameContext";
+import { useTheme } from "@/context/ThemeProvider";
 import { useContext } from "react";
 import {
   ComposableMap,
@@ -8,6 +9,7 @@ import {
 } from "react-simple-maps";
 
 export const Map = () => {
+  const { theme } = useTheme();
   const gameContext = useContext(GameContext);
   if (!gameContext) throw new Error("gameContext is not defined");
   const { countries, validatedCountries, incorrectCountries, randomIndex } =
@@ -24,25 +26,28 @@ export const Map = () => {
   const countryStyle = (key: number) => {
     // Utiliser le code du pays au lieu de l'index
     if (countries[key]?.properties.code === currentCountryCode) {
-      return "violet";
+      return "#ec4899";
     }
     if (validatedCountries.includes(countries[key]?.properties.code)) {
-      return "green";
+      return "#10b981";
     }
     if (incorrectCountries.includes(countries[key]?.properties.code)) {
-      return "red";
+      return "var(--color-destructive)";
+    }
+    if (countries[key]?.filtered) {
+      return "var(--color-secondary)";
     }
 
-    return "black";
+    return "var(--color-primary)";
   };
 
   return (
     <ComposableMap
-      className="max-h-screen w-full"
+      className="h-[750px] w-full rounded-4xl border-2 border-secondary "
       projection="geoMercator"
       projectionConfig={{
         scale: 140,
-        center: [0, 35],
+        center: [0, 40],
         rotate: [-10, 0, 0],
       }}
     >
@@ -54,17 +59,16 @@ export const Map = () => {
                 tabIndex={-1}
                 key={geo.rsmKey}
                 geography={geo}
-                strokeWidth={0.3}
+                strokeWidth={0.6}
                 fill={countryStyle(key)}
                 style={{
                   default: {
                     outline: "none",
-                    opacity: countries[key]?.filtered ? 0.1 : 1,
+                    stroke: theme === "dark" ? "black" : "white",
                   },
                   hover: {
                     outline: "none",
-                    // Garder la même opacité au survol pour les pays filtrés
-                    opacity: countries[key]?.filtered ? 0.1 : 1,
+                    stroke: theme === "dark" ? "black" : "white",
                   },
                   pressed: { outline: "none" },
                 }}

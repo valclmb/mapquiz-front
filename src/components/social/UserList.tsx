@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useFriendsList, type Friend } from "@/hooks/queries/useFriends";
+import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
+import Typography from "../ui/Typography";
+import { Card, CardContent } from "../ui/card";
 
 // Type pour les joueurs de lobby avec statut
 type LobbyPlayer = {
@@ -77,13 +79,13 @@ export const UserList = ({
   const filteredUsers = filterUsers ? users.filter(filterUsers) : users;
 
   return (
-    <Card className={className}>
+    <div className={cn(className, "mb-10 space-y-4")}>
       {title && (
-        <CardHeader>
-          <CardTitle>{title}</CardTitle>
-        </CardHeader>
+        <div>
+          <Typography variant="h3">{title}</Typography>
+        </div>
       )}
-      <CardContent>
+      <div>
         <div className="space-y-2">
           {isLoading ? (
             <p className="text-muted-foreground">Chargement...</p>
@@ -95,85 +97,88 @@ export const UserList = ({
             </p>
           ) : (
             filteredUsers.map((user) => (
-              <div
-                key={user.id}
-                className="flex items-center justify-between p-2 border rounded-md"
-              >
-                <div className="flex items-center gap-2">
-                  <div className="relative">
-                    {user.image ? (
-                      <div className="w-8 h-8 rounded-full overflow-hidden">
-                        <img
-                          src={user.image}
-                          alt={user.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
-                        {user.name.charAt(0)}
-                      </div>
-                    )}
-                    <div
-                      className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
-                        user.isOnline ? "bg-green-500" : "bg-gray-400"
-                      }`}
-                      title={user.isOnline ? "En ligne" : "Hors ligne"}
-                    />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="font-medium">{user.name}</span>
-                    {!user.isOnline && user.lastSeen && (
-                      <span className="text-xs text-gray-500">
-                        Vu {new Date(user.lastSeen).toLocaleDateString()}
+              <Card key={user.id} className=" rounded-xl p-0">
+                <CardContent className="flex items-center justify-between gap-2 p-4">
+                  {/* Avatar et nom */}
+                  <section className="flex items-center gap-2">
+                    <div className="relative">
+                      {user.image ? (
+                        <div className="w-8 h-8 rounded-full overflow-hidden">
+                          <img
+                            src={user.image}
+                            alt={user.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
+                          {user.name.charAt(0)}
+                        </div>
+                      )}
+                      <div
+                        className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
+                          user.isOnline ? "bg-green-500" : "bg-gray-400"
+                        }`}
+                        title={user.isOnline ? "En ligne" : "Hors ligne"}
+                      />
+                    </div>
+
+                    <div className="flex flex-col">
+                      <span className="font-medium">{user.name}</span>
+                      {!user.isOnline && user.lastSeen && (
+                        <span className="text-xs text-gray-500">
+                          Vu {new Date(user.lastSeen).toLocaleDateString()}
+                        </span>
+                      )}
+                    </div>
+                  </section>
+
+                  {/* Bouton d'invitation */}
+                  <div className="flex items-center space-x-2">
+                    {showStatus && hostId && user.id === hostId && (
+                      <span className="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-800">
+                        Hôte
                       </span>
                     )}
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  {showStatus && hostId && user.id === hostId && (
-                    <span className="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-800">
-                      Hôte
-                    </span>
-                  )}
-                  {showStatus &&
-                    user.status &&
-                    (() => {
-                      const status = (user as LobbyPlayer).status;
-                      const statusConfig =
-                        STATUS_CONFIG[status as keyof typeof STATUS_CONFIG];
-                      return (
-                        <span
-                          className={`px-2 py-1 text-xs rounded-full ${
-                            statusConfig?.style || "bg-gray-100 text-gray-800"
-                          }`}
+                    {showStatus &&
+                      user.status &&
+                      (() => {
+                        const status = (user as LobbyPlayer).status;
+                        const statusConfig =
+                          STATUS_CONFIG[status as keyof typeof STATUS_CONFIG];
+                        return (
+                          <span
+                            className={`px-2 py-1 text-xs rounded-full ${
+                              statusConfig?.style || "bg-gray-100 text-gray-800"
+                            }`}
+                          >
+                            {statusConfig?.label || String(status)}
+                          </span>
+                        );
+                      })()}
+                    {onInvite &&
+                      (user.isOnline || showInviteForOffline) &&
+                      (invitedUsers[user.id] ? (
+                        <div className="w-8 h-8 flex items-center justify-center text-green-500">
+                          <Check size={18} />
+                        </div>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleInvite(user.id)}
+                          disabled={invitedUsers[user.id]}
                         >
-                          {statusConfig?.label || String(status)}
-                        </span>
-                      );
-                    })()}
-                  {onInvite &&
-                    (user.isOnline || showInviteForOffline) &&
-                    (invitedUsers[user.id] ? (
-                      <div className="w-8 h-8 flex items-center justify-center text-green-500">
-                        <Check size={18} />
-                      </div>
-                    ) : (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleInvite(user.id)}
-                        disabled={invitedUsers[user.id]}
-                      >
-                        Inviter
-                      </Button>
-                    ))}
-                </div>
-              </div>
+                          Inviter
+                        </Button>
+                      ))}
+                  </div>
+                </CardContent>
+              </Card>
             ))
           )}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };

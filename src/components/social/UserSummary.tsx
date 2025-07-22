@@ -16,7 +16,7 @@ export const UserSummary = () => {
     useFriendRequests();
 
   return (
-    <Card className="bg-white h-fit">
+    <Card className="h-fit">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-2xl">Social</CardTitle>
@@ -58,9 +58,7 @@ export const UserSummary = () => {
                 Vous n{"'"}avez pas encore d{"'"}amis
               </p>
               <Link to="/social">
-                <Button variant="outline" size="sm">
-                  Ajouter des amis
-                </Button>
+                <Button variant="outline">Ajouter des amis</Button>
               </Link>
             </div>
           ) : (
@@ -68,7 +66,7 @@ export const UserSummary = () => {
               {friends.slice(0, 3).map((friend) => (
                 <div
                   key={friend.id}
-                  className="flex items-center gap-2 bg-muted p-2 rounded-lg"
+                  className="flex items-center gap-2 bg-secondary p-2 rounded-xl"
                 >
                   <div className="relative">
                     {friend.image ? (
@@ -119,7 +117,7 @@ export const UserSummary = () => {
           {isLoadingRequests ? (
             <p>Chargement...</p>
           ) : (
-            <div className="flex items-center gap-2 bg-muted p-2 rounded-lg">
+            <div className="flex items-center gap-2 bg-secondary p-2 rounded-xl">
               <span className="font-medium">
                 {requests.length} demande{requests.length !== 1 ? "s" : ""} en
                 attente

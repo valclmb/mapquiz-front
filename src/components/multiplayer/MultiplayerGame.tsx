@@ -1,4 +1,3 @@
-import { Grid } from "@/components/layout/Grid";
 import { GameContext } from "@/context/GameContext";
 import { useFilter } from "@/hooks/useFilter";
 import { useMapGame, type Country } from "@/hooks/useMapGame";
@@ -7,6 +6,7 @@ import { authClient } from "@/lib/auth-client";
 import { useEffect } from "react";
 import { Form } from "../game/common/Form";
 import { Map } from "../game/common/Map";
+import Typography from "../ui/Typography";
 import { LobbyScoreList } from "./LobbyScoreList";
 import { MultiplayerResults } from "./MultiplayerResults";
 
@@ -145,14 +145,18 @@ export const MultiplayerGame = ({
 
   return (
     <GameContext.Provider value={map}>
-      <Grid>
-        <Map />
+      <Typography variant="h2" className="text-center">
+        MULTIJOUEUR
+      </Typography>
+      <div className="flex items-start gap-4 mt-4">
         <LobbyScoreList
           players={playerScores}
           totalCountries={activeCountries.length}
-          className="absolute top-0 left-19"
+          className="border-secondary"
         />
-      </Grid>
+        <Map />
+      </div>
+
       <Form />
     </GameContext.Provider>
   );

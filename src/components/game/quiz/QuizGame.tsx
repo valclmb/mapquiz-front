@@ -1,6 +1,6 @@
 "use client";
 
-import { Grid } from "@/components/layout/Grid";
+import Typography from "@/components/ui/Typography";
 import { GameContext } from "@/context/GameContext";
 import { useSaveScore } from "@/hooks/queries/useSaveScore";
 import { useFilter } from "@/hooks/useFilter";
@@ -71,11 +71,14 @@ export const QuizGame = ({ countries, selectedRegions }: QuizGameProps) => {
 
   return (
     <GameContext.Provider value={map}>
-      <Grid>
-        <Map />
-      </Grid>
+      <Typography variant="h2" className="text-center">
+        QUIZ
+      </Typography>
+      <Map />
       <Form />
-      <Score />
+      <div className="flex items-center gap-4 ml-8 mt-4">
+        <Score />
+      </div>
     </GameContext.Provider>
   );
 };

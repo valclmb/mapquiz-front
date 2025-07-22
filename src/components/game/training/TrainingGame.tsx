@@ -1,6 +1,6 @@
 "use client";
 
-import { Grid } from "@/components/layout/Grid";
+import Typography from "@/components/ui/Typography";
 import { GameContext } from "@/context/GameContext";
 import { useFilter } from "@/hooks/useFilter";
 import type { Country } from "@/hooks/useMapGame";
@@ -19,16 +19,18 @@ export const TrainingGame = ({ countries }: GameProps) => {
   const map = useMapGame(filteredCountries, {
     mode: "practice",
   });
-  console.log(map);
 
   return (
     <GameContext.Provider value={map}>
-      <Filter filter={filter} setFilter={setFilter} />
-      <Grid>
-        <Map />
-      </Grid>
+      <Typography variant="h2" className="text-center ">
+        ENTRAINEMENT
+      </Typography>
+      <Map />
       <Form />
-      <Score />
+      <div className="flex items-center gap-4 ml-8 mt-4">
+        <Filter filter={filter} setFilter={setFilter} />
+        <Score />
+      </div>
     </GameContext.Provider>
   );
 };
