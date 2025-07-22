@@ -1,15 +1,21 @@
+import { Grid } from "@/components/layout/Grid";
 import { Nav } from "@/components/layout/Nav";
-import { LobbyInvitation } from "@/components/multiplayer/LobbyInvitation";
+import { Providers } from "@/context/Providers";
 import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
-export const Route = createRootRoute({
-  component: () => (
-    <div className="min-h-screen flex flex-col  m-auto">
-      <Nav />
-      <Outlet />
-      <LobbyInvitation />
+function RootLayout() {
+  return (
+    <Providers>
+      <Grid>
+        <Nav />
+        <Outlet />
+      </Grid>
       <TanStackRouterDevtools />
-    </div>
-  ),
+    </Providers>
+  );
+}
+
+export const Route = createRootRoute({
+  component: RootLayout,
 });

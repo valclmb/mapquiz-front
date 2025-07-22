@@ -28,7 +28,7 @@ export const Score = () => {
   }, [score]);
 
   return (
-    <div className="absolute border z-40 border-white py-1 px-2 bottom-56 right-1/2 translate-x-1/2 rounded-md bg-background/80 backdrop-blur-md">
+    <div className="w-max bg-secondary border border-secondary py-2 px-4 backdrop-blur-md  rounded-lg text-lg ">
       <div className="flex items-center gap-2">
         <span>
           {answeredQuestions}/{activeCountries.length}

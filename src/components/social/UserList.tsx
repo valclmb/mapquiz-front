@@ -80,7 +80,7 @@ export const UserList = ({
     <Card className={className}>
       {title && (
         <CardHeader>
-          <CardTitle>{title}</CardTitle>
+          <CardTitle className="text-xl">{title}</CardTitle>
         </CardHeader>
       )}
       <CardContent>

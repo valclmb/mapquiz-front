@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 
 export function Grid({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative flex flex-grow w-full  mt-20  bg-white dark:bg-black">
+    <div className="relative flex flex-grow w-full min-h-screen  md:mx-auto lg:max-w-10/12 md:max-w-11/12 sm:max-w-full py-5  bg-background dark:bg-black">
       <div
         className={cn(
           "absolute inset-0",
@@ -12,8 +12,8 @@ export function Grid({ children }: { children: React.ReactNode }) {
         )}
       />
       {/* Radial gradient for the container to give a faded look */}
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)] dark:bg-black"></div>
-      <div className=" z-20 size-full">{children}</div>
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-background [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)] dark:bg-black"></div>
+      <main className=" z-20 size-full mt-16">{children}</main>
     </div>
   );
 }

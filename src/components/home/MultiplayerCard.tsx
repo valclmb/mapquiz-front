@@ -10,7 +10,7 @@ import { Link } from "@tanstack/react-router";
 
 export const MultiplayerCard = () => {
   return (
-    <Card className="bg-white">
+    <Card>
       <CardHeader>
         <CardTitle className="text-xl sm:text-2xl">Multijoueur</CardTitle>
         <CardDescription>

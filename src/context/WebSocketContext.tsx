@@ -2,7 +2,7 @@ import type { Friend } from "@/hooks/queries/useFriends";
 import { useWebSocket, type WebSocketMessage } from "@/hooks/useWebSocket";
 import { authClient } from "@/lib/auth-client";
 import { useQueryClient } from "@tanstack/react-query";
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect } from "react";
 
 // Ajouter sendMessage à l'interface avec le bon type
 interface WebSocketContextType {
@@ -20,8 +20,19 @@ interface WebSocketContextType {
 // Dans le provider, ajouter sendMessage
 const WebSocketContext = createContext<WebSocketContextType | null>(null);
 
-export function WebSocketProvider({ children }: { children: React.ReactNode }) {
+interface WebSocketProviderProps {
+  children: React.ReactNode;
+  onLobbyJoined?: (lobbyId: string) => void;
+  onGameStart?: (lobbyId: string) => void;
+}
+
+export function WebSocketProvider({
+  children,
+  onLobbyJoined,
+  onGameStart,
+}: WebSocketProviderProps) {
   const { data: session } = authClient.useSession();
+  console.log("WebSocketProvider MOUNT", session);
   const queryClient = useQueryClient();
 
   // Vérifier si l'utilisateur est authentifié via better-auth
@@ -34,21 +45,18 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     respondToFriendRequest,
     sendMessage,
     lastMessage,
+    // Ajoute les callbacks à passer au hook
+    setExternalCallbacks,
   } = useWebSocket({
-    // Ne passer userId que si l'utilisateur est authentifié
     userId: isUserLoggedIn ? session?.user?.id : undefined,
     onFriendRequestReceived: (request) => {
       console.log("Nouvelle demande d'ami reçue:", request);
-      // Invalider les requêtes pour mettre à jour l'UI
       queryClient.invalidateQueries({ queryKey: ["friendRequests"] });
     },
     onFriendStatusChange: (friendId, isOnline, lastSeen) => {
       console.log(`Ami ${friendId} ${isOnline ? "connecté" : "déconnecté"}`);
-
-      // Mettre à jour le cache des amis
       queryClient.setQueryData(["friends"], (oldData: Friend[] | undefined) => {
         if (!oldData) return oldData;
-
         return oldData.map((friend: Friend) => {
           if (friend.id === friendId) {
             return {
@@ -62,6 +70,11 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
       });
     },
   });
+
+  // Passe les callbacks au hook après le mount
+  useEffect(() => {
+    setExternalCallbacks?.({ onLobbyJoined, onGameStart });
+  }, [onLobbyJoined, onGameStart, setExternalCallbacks]);
 
   return (
     <WebSocketContext.Provider

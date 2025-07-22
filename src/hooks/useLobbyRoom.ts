@@ -45,6 +45,10 @@ export function useLobbyRoom(lobbyId: string) {
       lastMessage?.type === "lobby_update" &&
       lastMessage.payload?.lobbyId === lobbyId
     ) {
+      console.log(
+        "LobbyRoom - settings reçus du backend :",
+        lastMessage.payload.settings
+      );
       console.log("Mise à jour du lobby détectée:", lastMessage.payload);
       // Vérifier que players existe avant de l'assigner
       if (lastMessage.payload.players) {
@@ -140,5 +144,7 @@ export function useLobbyRoom(lobbyId: string) {
     toggleReady,
     startGame,
     leaveLobby,
+    lastMessage,
+    currentUserId,
   };
 }

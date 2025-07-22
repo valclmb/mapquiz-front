@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import type { Friend } from "./queries/useFriends";
 
 import type { LobbySettings, Player } from "@/types/game";
-import { useRouter } from "@tanstack/react-router";
 
 export interface WebSocketMessage {
   type: string;
@@ -53,14 +52,29 @@ export function useWebSocket({
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const queryClient = useQueryClient();
-  const router = useRouter();
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [reconnectAttempts, setReconnectAttempts] = useState(0);
   const [lastMessage, setLastMessage] = useState<WebSocketMessage | null>(null);
   // const maxReconnectAttempts = 5;
 
+  // Stocke les callbacks externes (navigation, etc.)
+  const externalCallbacksRef = useRef<{
+    onLobbyJoined?: (lobbyId: string) => void;
+    onGameStart?: (lobbyId: string) => void;
+  }>({});
+  const setExternalCallbacks = useCallback(
+    (callbacks: {
+      onLobbyJoined?: (lobbyId: string) => void;
+      onGameStart?: (lobbyId: string) => void;
+    }) => {
+      externalCallbacksRef.current = callbacks;
+    },
+    []
+  );
+
   // Fonction pour se déconnecter (déplacée avant connect)
   const disconnect = useCallback(() => {
+    console.log("Déconnexion WebSocket");
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
     }
@@ -76,6 +90,7 @@ export function useWebSocket({
 
   // Ne pas établir de connexion si userId n'existe pas
   const connect = useCallback(() => {
+    console.log("Tentative d'ouverture d'une connexion WebSocket");
     if (!userId) {
       setIsConnected(false);
       setIsAuthenticated(false);
@@ -287,15 +302,8 @@ export function useWebSocket({
                 hostId: message.data.hostId as string, // Ajouter le hostId
               },
             });
-          }
-
-          // Redirection vers la page du lobby avec la route dynamique
-          if (message.data?.lobby?.id) {
-            console.log("Redirection vers le lobby:", message.data.lobby.id);
-            router.navigate({
-              to: "/multiplayer/$lobbyId",
-              params: { lobbyId: message.data.lobby.id },
-            });
+            // Utilise le callback externe pour la navigation
+            externalCallbacksRef.current.onLobbyJoined?.(message.data.lobby.id);
           }
           break;
 
@@ -317,10 +325,9 @@ export function useWebSocket({
                     });
 
                     // Rediriger vers la page du lobby
-                    router.navigate({
-                      to: "/multiplayer/$lobbyId",
-                      params: { lobbyId: message.payload.lobbyId },
-                    });
+                    externalCallbacksRef.current.onLobbyJoined?.(
+                      message.payload.lobbyId
+                    );
                   }
                 },
               },
@@ -345,8 +352,7 @@ export function useWebSocket({
           break;
 
         case "join_lobby_success":
-          // Transformer ce message en un message de type "lobby_update"
-          // pour que le hook useLobbyRoom puisse le traiter
+          // Ne faire le toast et la navigation que lors du join initial
           if (message.data?.lobby?.id) {
             setLastMessage({
               type: "lobby_update",
@@ -354,11 +360,17 @@ export function useWebSocket({
                 lobbyId: message.data.lobby.id,
                 players: message.data.players,
                 settings: message.data.settings,
-                hostId: message.data.hostId as string, // Ajouter le hostId
+                hostId: message.data.hostId as string,
               },
             });
             toast.success("Lobby rejoint avec succès");
+            externalCallbacksRef.current.onLobbyJoined?.(message.data.lobby.id);
           }
+          break;
+
+        case "lobby_update":
+          // Ne faire que la mise à jour d'état, pas de toast/navigation
+          setLastMessage(message);
           break;
 
         case "set_player_ready_success":
@@ -372,9 +384,13 @@ export function useWebSocket({
           break;
 
         case "leave_game_success":
-          // Afficher un toast de succès et rediriger vers la page d'accueil
           toast.success("Vous avez quitté la partie");
-          router.navigate({ to: "/" });
+          externalCallbacksRef.current.onLobbyJoined?.(""); // Redirige vers l'accueil si besoin
+          break;
+
+        case "leave_lobby_success":
+          toast.success("Vous avez quitté le lobby");
+          externalCallbacksRef.current.onLobbyJoined?.(""); // Redirige vers l'accueil si besoin
           break;
 
         case "game_start": {
@@ -406,10 +422,7 @@ export function useWebSocket({
 
           // Rediriger vers la page du jeu
           if (message.data?.lobbyId) {
-            router.navigate({
-              to: "/multiplayer/game/$lobbyId",
-              params: { lobbyId: message.data.lobbyId as string },
-            });
+            externalCallbacksRef.current.onGameStart?.(message.data.lobbyId);
           }
           break;
         }
@@ -450,11 +463,16 @@ export function useWebSocket({
           // Ce message est juste une confirmation, pas besoin de traitement spécial
           break;
 
+        case "update_lobby_settings_success":
+          // toast.success("Paramètres du lobby mis à jour !");
+          break;
+
         case "player_left_game":
           console.log("Un joueur a quitté la partie:", message.payload);
           toast.info(
             `${message.payload?.playerName || "Un joueur"} a quitté la partie`
           );
+
           // Transformer ce message en un message de type "lobby_update" pour mettre à jour l'UI
           if (message.payload?.lobbyId) {
             setLastMessage({
@@ -473,7 +491,7 @@ export function useWebSocket({
           console.warn("Type de message WebSocket non géré:", message.type);
       }
     },
-    [queryClient, onFriendRequestReceived, onFriendStatusChange, router]
+    [queryClient, onFriendRequestReceived, onFriendStatusChange]
   );
 
   // Fonction pour s'authentifier
@@ -593,5 +611,6 @@ export function useWebSocket({
     reconnect: connect,
     sendMessage,
     lastMessage,
+    setExternalCallbacks,
   };
 }
