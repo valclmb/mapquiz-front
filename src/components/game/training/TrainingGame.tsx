@@ -19,11 +19,10 @@ export const TrainingGame = ({ countries }: GameProps) => {
   const map = useMapGame(filteredCountries, {
     mode: "practice",
   });
-  console.log(map);
 
   return (
     <GameContext.Provider value={map}>
-      <Typography variant="h2" className="text-center  ">
+      <Typography variant="h2" className="text-center ">
         ENTRAINEMENT
       </Typography>
       <Map />

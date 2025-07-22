@@ -71,12 +71,14 @@ export const QuizGame = ({ countries, selectedRegions }: QuizGameProps) => {
 
   return (
     <GameContext.Provider value={map}>
-      <Typography variant="h2" className="text-center mb-8">
-        Quiz
+      <Typography variant="h2" className="text-center">
+        QUIZ
       </Typography>
       <Map />
       <Form />
-      <Score />
+      <div className="flex items-center gap-4 ml-8 mt-4">
+        <Score />
+      </div>
     </GameContext.Provider>
   );
 };

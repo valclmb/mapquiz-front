@@ -44,7 +44,7 @@ export const FriendsList = () => {
             {friends.map((friend) => (
               <div
                 key={friend.id}
-                className="flex items-center justify-between bg-muted p-3 rounded-lg"
+                className="flex items-center justify-between bg-secondary p-3 rounded-xl"
               >
                 <div className="flex items-center gap-3">
                   {friend.image ? (

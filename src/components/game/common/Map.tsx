@@ -43,7 +43,7 @@ export const Map = () => {
 
   return (
     <ComposableMap
-      className="h-[750px] w-full rounded-4xl border border-secondary my-2 shadow-lg"
+      className="h-[750px] w-full rounded-4xl border-2 border-secondary "
       projection="geoMercator"
       projectionConfig={{
         scale: 140,

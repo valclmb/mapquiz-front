@@ -45,6 +45,7 @@ export function useLobbyRoom(lobbyId: string) {
       lastMessage?.type === "lobby_update" &&
       lastMessage.payload?.lobbyId === lobbyId
     ) {
+      console.log("LOBBY_UPDATE PAYLOAD:", lastMessage.payload);
       console.log(
         "LobbyRoom - settings reçus du backend :",
         lastMessage.payload.settings

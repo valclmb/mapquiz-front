@@ -90,7 +90,7 @@ export function useWebSocket({
 
   // Ne pas établir de connexion si userId n'existe pas
   const connect = useCallback(() => {
-    console.log("Tentative d'ouverture d'une connexion WebSocket");
+    console.log("OUVERTURE WEBSOCKET", new Date().toISOString());
     if (!userId) {
       setIsConnected(false);
       setIsAuthenticated(false);

@@ -66,7 +66,7 @@ export const UserSummary = () => {
               {friends.slice(0, 3).map((friend) => (
                 <div
                   key={friend.id}
-                  className="flex items-center gap-2 bg-accent p-2 rounded-xl"
+                  className="flex items-center gap-2 bg-secondary p-2 rounded-xl"
                 >
                   <div className="relative">
                     {friend.image ? (
@@ -117,7 +117,7 @@ export const UserSummary = () => {
           {isLoadingRequests ? (
             <p>Chargement...</p>
           ) : (
-            <div className="flex items-center gap-2 bg-accent p-2 rounded-xl">
+            <div className="flex items-center gap-2 bg-secondary p-2 rounded-xl">
               <span className="font-medium">
                 {requests.length} demande{requests.length !== 1 ? "s" : ""} en
                 attente

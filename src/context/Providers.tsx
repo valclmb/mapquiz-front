@@ -1,3 +1,4 @@
+import { Toaster } from "@/components/ui/sonner";
 import { WebSocketProvider } from "@/context/WebSocketContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
@@ -14,7 +15,7 @@ const queryClient = new QueryClient({
 export function Providers({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   return (
-    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <QueryClientProvider client={queryClient}>
         <WebSocketProvider
           onLobbyJoined={(lobbyId) => {
@@ -35,6 +36,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           }}
         >
           {children}
+          <Toaster richColors />
         </WebSocketProvider>
       </QueryClientProvider>
     </ThemeProvider>

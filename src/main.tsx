@@ -1,7 +1,5 @@
-import { Providers } from "@/context/Providers";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { createRoot } from "react-dom/client";
-import { Toaster } from "./components/ui/sonner";
 import "./index.css";
 import { routeTree } from "./routeTree.gen";
 
@@ -14,8 +12,5 @@ declare module "@tanstack/react-router" {
 }
 
 createRoot(document.getElementById("root")!).render(
-  <Providers>
-    <RouterProvider router={router} />
-    <Toaster richColors />
-  </Providers>
+  <RouterProvider router={router} />
 );

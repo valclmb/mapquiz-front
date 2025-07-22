@@ -17,16 +17,15 @@ export const Filter = ({ filter, setFilter }: FilterProps) => {
     <Popover>
       <PopoverTrigger asChild>
         <Button
-          variant="outline"
           size="icon"
-          className="p-6 bg-secondary border-secondary border hover:bg-secondary/60 cursor-pointer "
+          className="p-6 bg-card border border-secondary hover:bg-secondary cursor-pointer "
         >
           <FilterIcon className="size-7 text-primary " />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="max-w-[440px] w-full">
         <RegionSelector
-          className="justify-center mb-0"
+          className="mb-0"
           selectedRegions={filter}
           onChange={setFilter}
           inverted={true}
