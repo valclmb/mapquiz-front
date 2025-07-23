@@ -157,18 +157,6 @@ export function useLobbyStatus(lobbyId: string) {
       const errorMessage = lastMessage.message as string;
       console.log("useLobbyStatus - Erreur reçue:", errorMessage);
 
-      // Si on est sur la page résultats et que la partie n'est pas terminée, rediriger vers le jeu
-      if (
-        errorMessage.includes("pas encore terminée") &&
-        window.location.pathname.includes("/result")
-      ) {
-        console.log(
-          "useLobbyStatus - Redirection forcée vers le jeu car partie non terminée"
-        );
-        setShouldRedirect({ to: "game", reason: "Partie non terminée" });
-        return;
-      }
-
       // Si on est sur la page jeu et que la partie est terminée, rediriger vers les résultats
       if (
         errorMessage.includes("terminée") &&

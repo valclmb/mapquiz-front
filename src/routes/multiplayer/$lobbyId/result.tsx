@@ -51,9 +51,20 @@ function GameResultPage() {
       setLoading(false);
     }
 
-    // Gérer l'erreur - la redirection sera gérée par la page parent
+    // Gérer l'erreur - rediriger vers le jeu si la partie n'est pas terminée
     if (lastMessage?.type === "error") {
-      console.log("GameResultPage - Erreur reçue:", lastMessage.message);
+      const errorMessage = lastMessage.message as string;
+      console.log("GameResultPage - Erreur reçue:", errorMessage);
+
+      if (errorMessage.includes("pas encore terminée")) {
+        console.log(
+          "GameResultPage - Redirection vers le jeu car partie non terminée"
+        );
+        navigate({
+          to: "/multiplayer/$lobbyId/game",
+          params: { lobbyId },
+        });
+      }
     }
   }, [lastMessage, lobbyId, navigate]);
 

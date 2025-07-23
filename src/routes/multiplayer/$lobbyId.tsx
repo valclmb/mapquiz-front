@@ -73,6 +73,7 @@ function LobbyParentPage() {
   useEffect(() => {
     const basePath = `/multiplayer/${lobbyId}`;
     const currentPath = location.pathname;
+    const isOnLobbyRoute = currentPath.startsWith(basePath);
 
     console.log("LobbyParentPage - Redirection check:", {
       lobbyStatus: lobby?.status,
@@ -81,10 +82,12 @@ function LobbyParentPage() {
       gamePath: `${basePath}/game`,
       resultPath: `${basePath}/result`,
       hasLobbyData: !!lobby,
+      isOnLobbyRoute,
     });
 
-    // Si on a les données du lobby, faire la redirection
-    if (lobby) {
+    // Ne faire la redirection que si on est sur une route de lobby
+    if (lobby && isOnLobbyRoute) {
+      console.log("lobby", lobby);
       // Si on est en train de jouer, rediriger vers la partie
       if (lobby.status === "playing") {
         if (currentPath !== `${basePath}/game`) {
