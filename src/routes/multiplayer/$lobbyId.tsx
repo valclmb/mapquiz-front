@@ -46,6 +46,14 @@ function LobbyParentPage() {
         setLobbyStatus(gameState.status);
       }
     }
+
+    // Gérer le message game_start pour mettre à jour le status
+    if (
+      lastMessage?.type === "game_start" &&
+      lastMessage.data?.lobbyId === lobbyId
+    ) {
+      setLobbyStatus("playing");
+    }
   }, [lastMessage, lobbyId]);
 
   // Redirection centralisée selon le status du lobby

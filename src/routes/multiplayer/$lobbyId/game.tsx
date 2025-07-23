@@ -2,7 +2,7 @@ import { MultiplayerGame } from "@/components/multiplayer/MultiplayerGame";
 import { useWebSocketContext } from "@/context/WebSocketContext";
 import type { Country } from "@/hooks/useMapGame";
 import type { WebSocketMessage } from "@/hooks/useWebSocket";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/multiplayer/$lobbyId/game")({
@@ -30,9 +30,7 @@ function MultiplayerGamePage() {
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [gameStatus, setGameStatus] = useState<string | null>(null);
   const { sendMessage, lastMessage, isConnected } = useWebSocketContext();
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (isConnected && !gameState) {
@@ -113,28 +111,16 @@ function MultiplayerGamePage() {
       lastMessage?.lobbyId ||
       lastMessage?.payload?.lobbyId ||
       lastMessage?.data?.lobbyId;
-    
-    // Vérifier si le message concerne ce lobby
-    if (!lastMessage || messageLobbyId !== lobbyId) {
-      return;
-    }
-
-    // Gérer les mises à jour d'état du jeu
     if (lastMessage?.type === "game_state_update") {
       handleGameStateUpdateMessage(lastMessage);
-      
-      // Vérifier le statut de la partie
-      const gameState = lastMessage.payload?.gameState as { status?: string };
-      if (gameState?.status) {
-        setGameStatus(gameState.status);
-      }
       return;
     }
-    
     if (lastMessage?.type === "score_update") {
       return;
     }
-    
+    if (!lastMessage || messageLobbyId !== lobbyId) {
+      return;
+    }
     switch (lastMessage.type) {
       case "game_state":
         handleGameStateMessage(lastMessage);
@@ -147,16 +133,6 @@ function MultiplayerGamePage() {
         break;
     }
   }, [lastMessage, lobbyId]);
-
-  // Redirection automatique si la partie est terminée
-  useEffect(() => {
-    if (gameStatus === "finished") {
-      navigate({
-        to: "/multiplayer/$lobbyId/result",
-        params: { lobbyId },
-      });
-    }
-  }, [gameStatus, lobbyId, navigate]);
 
   useEffect(() => {
     if (!isConnected && !loading && !gameState) {
