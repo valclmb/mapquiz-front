@@ -23,18 +23,8 @@ export function useLobbyRoom(lobbyId: string) {
   // Utiliser le contexte WebSocket au lieu du hook useWebSocket
   const { sendMessage, lastMessage } = useWebSocketContext();
 
-  // Envoyer une requête pour rejoindre le lobby lors du montage du composant
-  // Cela permettra de récupérer les données du lobby même après un rafraîchissement
-  useEffect(() => {
-    if (lobbyId) {
-      sendMessage({
-        type: "join_lobby",
-        payload: {
-          lobbyId,
-        },
-      });
-    }
-  }, [lobbyId, sendMessage]);
+  // Note: join_lobby est maintenant géré par useLobbyStatus
+  // Pas besoin d'envoyer join_lobby ici car useLobbyStatus s'en charge
 
   // Écouter les mises à jour du lobby
   useEffect(() => {
