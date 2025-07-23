@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import type { Ranking } from "@/types/game";
 import { useNavigate } from "@tanstack/react-router";
 import { Award, Medal, Trophy } from "lucide-react";
@@ -9,11 +10,13 @@ import Typography from "../ui/Typography";
 interface MultiplayerResultsProps {
   rankings: Ranking[];
   onRestart: () => void;
+  isHost?: boolean;
 }
 
 export const MultiplayerResults = ({
   rankings,
   onRestart,
+  isHost = false,
 }: MultiplayerResultsProps) => {
   const navigate = useNavigate();
 
@@ -48,8 +51,8 @@ export const MultiplayerResults = ({
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br ">
-      <Card className="w-full max-w-2xl mx-4">
+    <div className="min-h-screen flex items-start justify-center bg-gradient-to-br ">
+      <Card className="w-full max-w-2xl mt-30">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold ">
             Résultats de la partie
@@ -114,13 +117,27 @@ export const MultiplayerResults = ({
 
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-3 pt-4">
-            <Button onClick={onRestart} className="flex-1 ">
-              Rejouer
-            </Button>
+            {isHost && (
+              <Button onClick={onRestart} className="flex-1 ">
+                Rejouer
+              </Button>
+            )}
+
+            {/* Message d'attente pour les non-hôtes */}
+            {!isHost && (
+              <div
+                className={cn(
+                  buttonVariants({ variant: "outline" }),
+                  "hover:bg-background"
+                )}
+              >
+                Attendre que l'hôte relance la partie...
+              </div>
+            )}
 
             <Button
               onClick={() => navigate({ to: "/" })}
-              variant="outline"
+              variant={isHost ? "outline" : "default"}
               className="flex-1"
             >
               Accueil

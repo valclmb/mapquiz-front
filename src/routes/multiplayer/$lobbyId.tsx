@@ -16,9 +16,17 @@ function LobbyParentPage() {
   const { lobbyId } = Route.useParams();
   const [isHost, setIsHost] = useState(false);
   const [loadingTimeout, setLoadingTimeout] = useState(false);
-  const lobby = useLobbyStatus(lobbyId);
+  const { lobby, shouldRedirect } = useLobbyStatus(lobbyId);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Log à chaque render pour diagnostiquer navigation et status
+  console.log("LobbyParentPage - Render", {
+    pathname: location.pathname,
+    lobbyStatus: lobby?.status,
+    lobbyId,
+    shouldRedirect,
+  });
 
   useEffect(() => {
     setIsHost(true); // À adapter si tu veux une vraie logique d'hôte
@@ -39,6 +47,28 @@ function LobbyParentPage() {
     }
   }, [lobby, lobbyId, location.pathname, navigate]);
 
+  // Redirection forcée basée sur les erreurs WebSocket
+  useEffect(() => {
+    if (shouldRedirect) {
+      const basePath = `/multiplayer/${lobbyId}`;
+      console.log(
+        `LobbyParentPage - Redirection forcée vers ${shouldRedirect.to}: ${shouldRedirect.reason}`
+      );
+      console.log("LobbyParentPage - shouldRedirect", {
+        shouldRedirect,
+        pathname: location.pathname,
+      });
+
+      if (shouldRedirect.to === "game") {
+        navigate({ to: `${basePath}/game`, params: { lobbyId } });
+      } else if (shouldRedirect.to === "result") {
+        navigate({ to: `${basePath}/result`, params: { lobbyId } });
+      } else if (shouldRedirect.to === "lobby") {
+        navigate({ to: basePath, params: { lobbyId } });
+      }
+    }
+  }, [shouldRedirect, lobbyId, navigate, location.pathname]);
+
   // Redirection centralisée selon le status du lobby
   useEffect(() => {
     const basePath = `/multiplayer/${lobbyId}`;
@@ -56,24 +86,30 @@ function LobbyParentPage() {
     // Si on a les données du lobby, faire la redirection
     if (lobby) {
       // Si on est en train de jouer, rediriger vers la partie
-      if (lobby.status === "playing" && currentPath !== `${basePath}/game`) {
-        console.log("LobbyParentPage - Redirection vers la partie en cours");
-        navigate({ to: `${basePath}/game`, params: { lobbyId } });
-        return;
+      if (lobby.status === "playing") {
+        if (currentPath !== `${basePath}/game`) {
+          console.log("LobbyParentPage - Redirection vers la partie en cours");
+          navigate({ to: `${basePath}/game`, params: { lobbyId } });
+          return;
+        }
       }
 
       // Si la partie est terminée, rediriger vers les résultats
-      if (lobby.status === "finished" && currentPath !== `${basePath}/result`) {
-        console.log("LobbyParentPage - Redirection vers les résultats");
-        navigate({ to: `${basePath}/result`, params: { lobbyId } });
-        return;
+      if (lobby.status === "finished") {
+        if (currentPath !== `${basePath}/result`) {
+          console.log("LobbyParentPage - Redirection vers les résultats");
+          navigate({ to: `${basePath}/result`, params: { lobbyId } });
+          return;
+        }
       }
 
       // Si on est en attente, rediriger vers le lobby
-      if (lobby.status === "waiting" && currentPath !== basePath) {
-        console.log("LobbyParentPage - Redirection vers le lobby");
-        navigate({ to: basePath, params: { lobbyId } });
-        return;
+      if (lobby.status === "waiting") {
+        if (currentPath !== basePath) {
+          console.log("LobbyParentPage - Redirection vers le lobby");
+          navigate({ to: basePath, params: { lobbyId } });
+          return;
+        }
       }
     }
   }, [lobby, location.pathname, lobbyId, navigate]);

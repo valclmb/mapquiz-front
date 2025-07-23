@@ -439,6 +439,11 @@ export function useWebSocket({
           }
           break;
 
+        case "get_lobby_state_success":
+          console.log("État du lobby reçu:", message.data);
+          // Ce message sera traité directement par useLobbyStatus
+          break;
+
         case "score_update":
           console.log("Mise à jour de score reçue:", message.data);
           // Transformer ce message en un message de type "player_progress_update"

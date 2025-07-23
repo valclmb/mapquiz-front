@@ -1,5 +1,6 @@
 import { MultiplayerResults } from "@/components/multiplayer/MultiplayerResults";
 import { useWebSocketContext } from "@/context/WebSocketContext";
+import { authClient } from "@/lib/auth-client";
 import type { Ranking } from "@/types/game";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -12,8 +13,24 @@ function GameResultPage() {
   const { lobbyId } = Route.useParams();
   const [rankings, setRankings] = useState<Ranking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hostId, setHostId] = useState<string | null>(null);
+
   const { sendMessage, lastMessage } = useWebSocketContext();
   const navigate = useNavigate();
+
+  // Récupérer l'utilisateur actuel
+  const { data: session } = authClient.useSession();
+  const currentUserId = session?.user?.id;
+
+  // Déterminer si l'utilisateur actuel est l'hôte
+  const isHost = currentUserId && hostId ? currentUserId === hostId : false;
+
+  // Debug: afficher les valeurs pour diagnostiquer
+  console.log("GameResultPage - Debug isHost:", {
+    currentUserId,
+    hostId,
+    isHost,
+  });
 
   // Récupérer les résultats au montage
   useEffect(() => {
@@ -30,9 +47,15 @@ function GameResultPage() {
       lastMessage.data?.rankings
     ) {
       setRankings(lastMessage.data.rankings as Ranking[]);
+      setHostId(lastMessage.data.hostId as string);
       setLoading(false);
     }
-  }, [lastMessage]);
+
+    // Gérer l'erreur - la redirection sera gérée par la page parent
+    if (lastMessage?.type === "error") {
+      console.log("GameResultPage - Erreur reçue:", lastMessage.message);
+    }
+  }, [lastMessage, lobbyId, navigate]);
 
   // Fonction pour relancer la partie
   const handleRestart = () => {
@@ -58,5 +81,11 @@ function GameResultPage() {
     );
   }
 
-  return <MultiplayerResults rankings={rankings} onRestart={handleRestart} />;
+  return (
+    <MultiplayerResults
+      rankings={rankings}
+      onRestart={handleRestart}
+      isHost={isHost}
+    />
+  );
 }

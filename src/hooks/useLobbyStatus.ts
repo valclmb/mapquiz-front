@@ -37,10 +37,15 @@ type GetGameStateSuccessMsg = {
   type: "get_game_state_success";
   data?: { gameState?: unknown };
 };
+type GetLobbyStateSuccessMsg = {
+  type: "get_lobby_state_success";
+  data?: { lobbyState?: unknown };
+};
 type WebSocketMsg =
   | GameStateUpdateMsg
   | LobbyUpdateMsg
   | GetGameStateSuccessMsg
+  | GetLobbyStateSuccessMsg
   | { type: string; [key: string]: unknown };
 
 function extractLobbyStateZod(
@@ -63,6 +68,12 @@ function extractLobbyStateZod(
       data = (msg as GetGameStateSuccessMsg).data?.gameState;
       console.log("extractLobbyStateZod - get_game_state_success data:", data);
       break;
+
+    case "get_lobby_state_success":
+      data = (msg as GetLobbyStateSuccessMsg).data?.lobbyState;
+      console.log("extractLobbyStateZod - get_lobby_state_success data:", data);
+      break;
+
     default:
       console.log("extractLobbyStateZod - Type de message non géré:", msg.type);
       return null;
@@ -103,18 +114,35 @@ export function useLobbyStatus(lobbyId: string) {
   const { lastMessage, sendMessage, isAuthenticated } = useWebSocketContext();
   const [lobby, setLobby] = useState<LobbyState | null>(null);
   const [hasRequestedGameState, setHasRequestedGameState] = useState(false);
+  const [shouldRedirect, setShouldRedirect] = useState<{
+    to: string;
+    reason: string;
+  } | null>(null);
 
-  // Demander l'état du jeu au backend quand le hook se monte, uniquement si authentifié
+  // Demander l'état du lobby au backend quand le hook se monte, uniquement si authentifié
+  // Sur la page résultats, on utilise get_lobby_state (plus léger)
   useEffect(() => {
+    const isOnResultPage = window.location.pathname.includes("/result");
+
     if (!hasRequestedGameState && lobbyId && isAuthenticated) {
       console.log(
-        "useLobbyStatus - Demande de l'état du jeu pour le lobby:",
+        `useLobbyStatus - Demande de l'état ${isOnResultPage ? "du lobby" : "du jeu"} pour le lobby:`,
         lobbyId
       );
-      sendMessage({
-        type: "get_game_state",
-        payload: { lobbyId },
-      });
+
+      if (isOnResultPage) {
+        // Sur la page résultats, demander juste l'état du lobby (plus léger)
+        sendMessage({
+          type: "get_lobby_state",
+          payload: { lobbyId },
+        });
+      } else {
+        // Sur les autres pages, demander l'état complet du jeu
+        sendMessage({
+          type: "get_game_state",
+          payload: { lobbyId },
+        });
+      }
       setHasRequestedGameState(true);
     }
   }, [lobbyId, hasRequestedGameState, sendMessage, isAuthenticated]);
@@ -123,6 +151,36 @@ export function useLobbyStatus(lobbyId: string) {
   useEffect(() => {
     console.log("useLobbyStatus - lastMessage reçu:", lastMessage);
     if (!lastMessage) return;
+
+    // Gérer les messages d'erreur pour forcer la redirection
+    if (lastMessage.type === "error") {
+      const errorMessage = lastMessage.message as string;
+      console.log("useLobbyStatus - Erreur reçue:", errorMessage);
+
+      // Si on est sur la page résultats et que la partie n'est pas terminée, rediriger vers le jeu
+      if (
+        errorMessage.includes("pas encore terminée") &&
+        window.location.pathname.includes("/result")
+      ) {
+        console.log(
+          "useLobbyStatus - Redirection forcée vers le jeu car partie non terminée"
+        );
+        setShouldRedirect({ to: "game", reason: "Partie non terminée" });
+        return;
+      }
+
+      // Si on est sur la page jeu et que la partie est terminée, rediriger vers les résultats
+      if (
+        errorMessage.includes("terminée") &&
+        window.location.pathname.includes("/game")
+      ) {
+        console.log(
+          "useLobbyStatus - Redirection forcée vers les résultats car partie terminée"
+        );
+        setShouldRedirect({ to: "result", reason: "Partie terminée" });
+        return;
+      }
+    }
 
     // Log spécifique pour les messages lobby_update
     if (lastMessage.type === "lobby_update") {
@@ -144,5 +202,5 @@ export function useLobbyStatus(lobbyId: string) {
   }, [lastMessage, lobbyId]);
 
   console.log("useLobbyStatus - État actuel du lobby:", lobby);
-  return lobby;
+  return { lobby, shouldRedirect };
 }
