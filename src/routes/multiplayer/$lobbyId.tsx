@@ -34,6 +34,12 @@ function LobbyParentPage() {
 
   // Met à jour le status du lobby à chaque message pertinent
   useEffect(() => {
+    console.log(
+      "📨 Message reçu dans $lobbyId:",
+      lastMessage?.type,
+      lastMessage
+    );
+
     if (
       lastMessage?.type === "game_state_update" &&
       lastMessage.payload?.gameState
@@ -47,12 +53,18 @@ function LobbyParentPage() {
       }
     }
 
-    // Gérer le message game_start pour mettre à jour le status
+    // Gérer le message get_game_state_success pour mettre à jour le status
     if (
-      lastMessage?.type === "game_start" &&
-      lastMessage.data?.lobbyId === lobbyId
+      lastMessage?.type === "get_game_state_success" &&
+      lastMessage.data?.gameState
     ) {
-      setLobbyStatus("playing");
+      const gameState = lastMessage.data.gameState as {
+        lobbyId: string;
+        status: string;
+      };
+      if (gameState.lobbyId === lobbyId) {
+        setLobbyStatus(gameState.status);
+      }
     }
   }, [lastMessage, lobbyId]);
 
@@ -61,17 +73,27 @@ function LobbyParentPage() {
     if (!lobbyStatus) return;
     const basePath = `/multiplayer/${lobbyId}`;
     const currentPath = location.pathname;
+
+    console.log("🔄 Redirection check:", {
+      lobbyStatus,
+      currentPath,
+      basePath,
+    });
+
     if (lobbyStatus === "waiting" && currentPath !== basePath) {
+      console.log("⬅️ Redirecting to lobby");
       navigate({ to: basePath, params: { lobbyId } });
     } else if (
       lobbyStatus === "playing" &&
       currentPath !== `${basePath}/game`
     ) {
+      console.log("🎮 Redirecting to game");
       navigate({ to: `${basePath}/game`, params: { lobbyId } });
     } else if (
       lobbyStatus === "finished" &&
       currentPath !== `${basePath}/result`
     ) {
+      console.log("🏁 Redirecting to results");
       navigate({ to: `${basePath}/result`, params: { lobbyId } });
     }
   }, [lobbyStatus, location.pathname, lobbyId, navigate]);
