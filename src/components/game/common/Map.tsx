@@ -26,7 +26,7 @@ export const Map = () => {
   const countryStyle = (key: number) => {
     // Utiliser le code du pays au lieu de l'index
     if (countries[key]?.properties.code === currentCountryCode) {
-      return "#ec4899";
+      return "#431407";
     }
     if (validatedCountries.includes(countries[key]?.properties.code)) {
       return "#10b981";

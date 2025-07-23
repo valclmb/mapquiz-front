@@ -464,6 +464,17 @@ export function useWebSocket({
           // toast.success("Paramètres du lobby mis à jour !");
           break;
 
+        case "game_restarted": {
+          console.log("Partie redémarrée par l'hôte:", message.payload);
+          toast.success("Partie redémarrée par l'hôte !");
+          // Rediriger vers le lobby
+          const lobbyId = message.payload?.lobbyId;
+          if (lobbyId && typeof lobbyId === "string") {
+            externalCallbacksRef.current.onLobbyJoined?.(lobbyId);
+          }
+          break;
+        }
+
         case "player_left_game":
           console.log("Un joueur a quitté la partie:", message.payload);
           toast.info(

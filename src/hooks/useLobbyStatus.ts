@@ -124,6 +124,16 @@ export function useLobbyStatus(lobbyId: string) {
     console.log("useLobbyStatus - lastMessage reçu:", lastMessage);
     if (!lastMessage) return;
 
+    // Log spécifique pour les messages lobby_update
+    if (lastMessage.type === "lobby_update") {
+      console.log("useLobbyStatus - Message lobby_update reçu:", {
+        type: lastMessage.type,
+        payload: lastMessage.payload,
+        lobbyId: (lastMessage.payload as Record<string, unknown>)?.lobbyId,
+        status: (lastMessage.payload as Record<string, unknown>)?.status,
+      });
+    }
+
     const state = extractLobbyStateZod(lastMessage as WebSocketMsg, lobbyId);
     if (state) {
       console.log("useLobbyStatus - État du lobby reçu:", state);

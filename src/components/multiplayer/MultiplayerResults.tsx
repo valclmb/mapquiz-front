@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Ranking } from "@/types/game";
 import { useNavigate } from "@tanstack/react-router";
 import { Award, Medal, Trophy } from "lucide-react";
+import Typography from "../ui/Typography";
 
 interface MultiplayerResultsProps {
   rankings: Ranking[];
@@ -50,10 +51,10 @@ export const MultiplayerResults = ({
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br ">
       <Card className="w-full max-w-2xl mx-4">
         <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-bold text-gray-800">
+          <CardTitle className="text-3xl font-bold ">
             Résultats de la partie
           </CardTitle>
-          <p className="text-gray-600 mt-2">Classement final des joueurs</p>
+          <p className="text-primary mt-2">Classement final des joueurs</p>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Classement */}
@@ -76,7 +77,13 @@ export const MultiplayerResults = ({
                     {getRankIcon(player.rank)}
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg">{player.name}</h3>
+                    <Typography
+                      variant="h3"
+                      className="text-dark dark:text-dark"
+                    >
+                      {player.name}
+                    </Typography>
+
                     <div className="flex items-center space-x-2 mt-1">
                       <Badge variant={getRankBadgeVariant(player.rank)}>
                         {player.rank === 1
@@ -87,11 +94,11 @@ export const MultiplayerResults = ({
                               ? "3ème"
                               : `${player.rank}ème`}
                       </Badge>
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-black">
                         {player.score} points
                       </span>
                       {player.completionTime && (
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm ">
                           en {Math.floor(player.completionTime / 60)}:
                           {(player.completionTime % 60)
                             .toString()
