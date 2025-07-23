@@ -37,55 +37,102 @@ type GetGameStateSuccessMsg = {
   type: "get_game_state_success";
   data?: { gameState?: unknown };
 };
-type CreateLobbySuccessMsg = {
-  type: "create_lobby_success";
-  data?: { lobby?: unknown };
-};
 type WebSocketMsg =
   | GameStateUpdateMsg
   | LobbyUpdateMsg
   | GetGameStateSuccessMsg
-  | CreateLobbySuccessMsg
   | { type: string; [key: string]: unknown };
 
 function extractLobbyStateZod(
   msg: WebSocketMsg,
   lobbyId: string
 ): LobbyState | null {
+  console.log("extractLobbyStateZod - Message reçu:", msg);
+
   let data: unknown = null;
   switch (msg.type) {
     case "game_state_update":
       data = (msg as GameStateUpdateMsg).payload?.gameState;
+      console.log("extractLobbyStateZod - game_state_update data:", data);
       break;
     case "lobby_update":
       data = (msg as LobbyUpdateMsg).payload;
+      console.log("extractLobbyStateZod - lobby_update data:", data);
       break;
     case "get_game_state_success":
       data = (msg as GetGameStateSuccessMsg).data?.gameState;
-      break;
-    case "create_lobby_success":
-      data = (msg as CreateLobbySuccessMsg).data?.lobby;
+      console.log("extractLobbyStateZod - get_game_state_success data:", data);
       break;
     default:
+      console.log("extractLobbyStateZod - Type de message non géré:", msg.type);
       return null;
   }
-  if (!data) return null;
+  if (!data) {
+    console.log("extractLobbyStateZod - Pas de données dans le message");
+    return null;
+  }
+
   const parsed = LobbyStateSchema.safeParse(data);
+  console.log("extractLobbyStateZod - Résultat de la validation Zod:", parsed);
+
   if (parsed.success && parsed.data.lobbyId === lobbyId) {
+    console.log(
+      "extractLobbyStateZod - État du lobby extrait avec succès:",
+      parsed.data
+    );
     return parsed.data;
   }
+
+  if (!parsed.success) {
+    console.log(
+      "extractLobbyStateZod - Erreur de validation Zod:",
+      parsed.error
+    );
+    console.log("ZodError details:", parsed.error.issues);
+  } else if (parsed.data.lobbyId !== lobbyId) {
+    console.log("extractLobbyStateZod - lobbyId ne correspond pas:", {
+      expected: lobbyId,
+      received: parsed.data.lobbyId,
+    });
+  }
+
   return null;
 }
 
 export function useLobbyStatus(lobbyId: string) {
-  const { lastMessage } = useWebSocketContext();
+  const { lastMessage, sendMessage, isAuthenticated } = useWebSocketContext();
   const [lobby, setLobby] = useState<LobbyState | null>(null);
+  const [hasRequestedGameState, setHasRequestedGameState] = useState(false);
 
+  // Demander l'état du jeu au backend quand le hook se monte, uniquement si authentifié
   useEffect(() => {
+    if (!hasRequestedGameState && lobbyId && isAuthenticated) {
+      console.log(
+        "useLobbyStatus - Demande de l'état du jeu pour le lobby:",
+        lobbyId
+      );
+      sendMessage({
+        type: "get_game_state",
+        payload: { lobbyId },
+      });
+      setHasRequestedGameState(true);
+    }
+  }, [lobbyId, hasRequestedGameState, sendMessage, isAuthenticated]);
+
+  // Écouter les messages WebSocket
+  useEffect(() => {
+    console.log("useLobbyStatus - lastMessage reçu:", lastMessage);
     if (!lastMessage) return;
+
     const state = extractLobbyStateZod(lastMessage as WebSocketMsg, lobbyId);
-    if (state) setLobby(state);
+    if (state) {
+      console.log("useLobbyStatus - État du lobby reçu:", state);
+      setLobby(state);
+    } else {
+      console.log("useLobbyStatus - Aucun état de lobby extrait du message");
+    }
   }, [lastMessage, lobbyId]);
 
+  console.log("useLobbyStatus - État actuel du lobby:", lobby);
   return lobby;
 }

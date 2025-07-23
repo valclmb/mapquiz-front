@@ -296,6 +296,7 @@ export function useWebSocket({
                 players: message.data.players,
                 settings: message.data.settings,
                 hostId: message.data.hostId as string, // Ajouter le hostId
+                status: message.data.lobby.status,
               },
             });
             // Utilise le callback externe pour la navigation
