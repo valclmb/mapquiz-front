@@ -120,24 +120,52 @@ export function useLobbyStatus(lobbyId: string) {
   } | null>(null);
 
   // Demander l'état du lobby au backend quand le hook se monte, uniquement si authentifié
-  // Sur la page résultats, on utilise get_lobby_state (plus léger)
+  // Sur la page lobby et résultats, on utilise get_lobby_state (plus léger)
   useEffect(() => {
     const isOnResultPage = window.location.pathname.includes("/result");
+    const isOnLobbyPage =
+      window.location.pathname === `/multiplayer/${lobbyId}` ||
+      window.location.pathname === `/multiplayer/${lobbyId}/`;
+    const isOnGamePage = window.location.pathname.includes("/game");
+
+    console.log("useLobbyStatus - Vérification condition demande état:", {
+      hasRequestedGameState,
+      lobbyId,
+      isAuthenticated,
+      condition: !hasRequestedGameState && lobbyId && isAuthenticated,
+    });
 
     if (!hasRequestedGameState && lobbyId && isAuthenticated) {
       console.log(
-        `useLobbyStatus - Demande de l'état ${isOnResultPage ? "du lobby" : "du jeu"} pour le lobby:`,
-        lobbyId
+        `useLobbyStatus - Demande de l'état pour le lobby:`,
+        lobbyId,
+        {
+          isOnResultPage,
+          isOnLobbyPage,
+          isOnGamePage,
+          pathname: window.location.pathname,
+        }
       );
 
-      if (isOnResultPage) {
+      // Sur la page lobby, d'abord essayer de rejoindre le lobby
+      if (isOnLobbyPage) {
+        console.log(
+          "useLobbyStatus - Envoi join_lobby pour rejoindre le lobby"
+        );
+        sendMessage({
+          type: "join_lobby",
+          payload: { lobbyId },
+        });
+      } else if (isOnResultPage) {
         // Sur la page résultats, demander juste l'état du lobby (plus léger)
+        console.log("useLobbyStatus - Envoi get_lobby_state");
         sendMessage({
           type: "get_lobby_state",
           payload: { lobbyId },
         });
-      } else {
-        // Sur les autres pages, demander l'état complet du jeu
+      } else if (isOnGamePage) {
+        // Sur la page jeu, demander l'état complet du jeu
+        console.log("useLobbyStatus - Envoi get_game_state");
         sendMessage({
           type: "get_game_state",
           payload: { lobbyId },

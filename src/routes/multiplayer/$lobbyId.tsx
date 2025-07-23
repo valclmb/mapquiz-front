@@ -118,19 +118,36 @@ function LobbyParentPage() {
   }, [lobby, location.pathname, lobbyId, navigate]);
 
   // Affiche le lobby UNIQUEMENT sur la route exacte et si status = waiting
-  if (
-    location.pathname === `/multiplayer/${lobbyId}` &&
-    lobby?.status === "waiting"
-  ) {
+  const isOnLobbyPage =
+    location.pathname === `/multiplayer/${lobbyId}` ||
+    location.pathname === `/multiplayer/${lobbyId}/`;
+
+  console.log("LobbyParentPage - Vérification affichage lobby:", {
+    pathname: location.pathname,
+    expectedPath: `/multiplayer/${lobbyId}`,
+    lobbyStatus: lobby?.status,
+    hasLobby: !!lobby,
+    isOnLobbyPage,
+    shouldShowLobby: isOnLobbyPage && lobby?.status === "waiting",
+  });
+
+  if (isOnLobbyPage && lobby?.status === "waiting") {
+    console.log("LobbyParentPage - Affichage du LobbyRoom");
     return <LobbyRoom lobbyId={lobbyId} isHost={isHost} />;
   }
 
   // Si on n'a pas encore les données du lobby, afficher un loading
-  if (
-    !lobby &&
-    location.pathname === `/multiplayer/${lobbyId}` &&
-    !loadingTimeout
-  ) {
+  console.log("LobbyParentPage - Vérification affichage loading:", {
+    hasLobby: !!lobby,
+    pathname: location.pathname,
+    expectedPath: `/multiplayer/${lobbyId}`,
+    loadingTimeout,
+    isOnLobbyPage,
+    shouldShowLoading: !lobby && isOnLobbyPage && !loadingTimeout,
+  });
+
+  if (!lobby && isOnLobbyPage && !loadingTimeout) {
+    console.log("LobbyParentPage - Affichage du loading");
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
