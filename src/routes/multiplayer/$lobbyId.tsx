@@ -15,7 +15,7 @@ export const Route = createFileRoute("/multiplayer/$lobbyId")({
 function LobbyParentPage() {
   const { lobbyId } = Route.useParams();
   const [isHost, setIsHost] = useState(false);
-  const { status: lobbyStatus } = useLobbyStatus(lobbyId);
+  const lobby = useLobbyStatus(lobbyId);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -25,38 +25,29 @@ function LobbyParentPage() {
 
   // Redirection centralisée selon le status du lobby
   useEffect(() => {
-    if (!lobbyStatus) return;
+    if (!lobby) return;
     const basePath = `/multiplayer/${lobbyId}`;
     const currentPath = location.pathname;
 
-    console.log("🔄 Redirection check:", {
-      lobbyStatus,
-      currentPath,
-      basePath,
-    });
-
-    if (lobbyStatus === "waiting" && currentPath !== basePath) {
-      console.log("⬅️ Redirecting to lobby");
+    if (lobby.status === "waiting" && currentPath !== basePath) {
       navigate({ to: basePath, params: { lobbyId } });
     } else if (
-      lobbyStatus === "playing" &&
+      lobby.status === "playing" &&
       currentPath !== `${basePath}/game`
     ) {
-      console.log("🎮 Redirecting to game");
       navigate({ to: `${basePath}/game`, params: { lobbyId } });
     } else if (
-      lobbyStatus === "finished" &&
+      lobby.status === "finished" &&
       currentPath !== `${basePath}/result`
     ) {
-      console.log("🏁 Redirecting to results");
       navigate({ to: `${basePath}/result`, params: { lobbyId } });
     }
-  }, [lobbyStatus, location.pathname, lobbyId, navigate]);
+  }, [lobby, location.pathname, lobbyId, navigate]);
 
   // Affiche le lobby UNIQUEMENT sur la route exacte et si status = waiting
   if (
     location.pathname === `/multiplayer/${lobbyId}` &&
-    lobbyStatus === "waiting"
+    lobby?.status === "waiting"
   ) {
     return <LobbyRoom lobbyId={lobbyId} isHost={isHost} />;
   }

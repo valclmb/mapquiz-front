@@ -86,6 +86,9 @@ dependencies:
   ws:
     specifier: ^8.18.3
     version: 8.18.3
+  zod:
+    specifier: ^4.0.5
+    version: 4.0.5
 
 devDependencies:
   '@eslint/js':
@@ -6510,3 +6513,7 @@ packages:
 
   /zod@3.25.71:
     resolution: {integrity: sha512-BsBc/NPk7h8WsUWYWYL+BajcJPY8YhjelaWu2NMLuzgraKAz4Lb4/6K11g9jpuDetjMiqhZ6YaexFLOC0Ogi3Q==}
+
+  /zod@4.0.5:
+    resolution: {integrity: sha512-/5UuuRPStvHXu7RS+gmvRf4NXrNxpSllGwDnCBcJZtQsKrviYXm54yDGV2KYNLT5kq0lHGcl7lqWJLgSaG+tgA==}
+    dev: false
