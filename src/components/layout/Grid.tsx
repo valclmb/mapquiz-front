@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 
 export function Grid({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative flex flex-grow w-full min-h-screen  md:mx-auto lg:max-w-10/12 md:max-w-11/12 sm:max-w-full py-5  bg-background ">
+    <div className="relative flex flex-grow w-11/12 mx-auto min-h-screen  lg:max-w-10/12   py-6  bg-background ">
       <div
         className={cn(
           "absolute inset-0",

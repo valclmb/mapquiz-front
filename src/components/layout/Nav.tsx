@@ -7,11 +7,11 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { Link } from "@tanstack/react-router";
 
+import googleIcon from "@/assets/google-icon.svg";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/context/ThemeProvider";
 import { Earth, LogOut, Moon, Sun, UserPlus } from "lucide-react";
 import { toast } from "sonner";
-
 export const Nav = () => {
   const { data, isPending } = authClient.useSession();
   const { theme, setTheme } = useTheme();
@@ -38,10 +38,11 @@ export const Nav = () => {
     }
   };
   return (
-    <nav className=" bg-card absolute top-2 left-1/2 -translate-x-1/2 z-40  w-11/12 md:w-full flex items-center justify-between px-5 py-2 border border-secondary rounded-2xl shadow-sm">
-      <Link to="/" className="flex items-center gap-2">
-        <Earth />
-        <span className="font-bold">Map Quiz</span>
+    <nav className=" bg-card absolute top-2 left-1/2 -translate-x-1/2 z-40  w-full flex items-center justify-between px-5 py-3 border border-secondary rounded-2xl shadow-sm">
+      <Link to="/" className="group flex items-center gap-2 ">
+        <Earth className="group-hover:rotate-180 transition-all duration-300 " />
+
+        <span className="font-bold ">Map Quiz</span>
       </Link>
 
       <div className="flex items-center gap-2">
@@ -86,7 +87,12 @@ export const Nav = () => {
           </DropdownMenu>
         ) : (
           <Button onClick={signIn} disabled={isPending}>
-            Se connecter
+            <img
+              src={googleIcon}
+              alt="Google"
+              className="w-5 h-5 dark:invert"
+            />
+            Se connecter{" "}
           </Button>
         )}
       </div>

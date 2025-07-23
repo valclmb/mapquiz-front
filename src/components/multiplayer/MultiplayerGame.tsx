@@ -148,11 +148,11 @@ export const MultiplayerGame = ({
       <Typography variant="h2" className="text-center">
         MULTIJOUEUR
       </Typography>
-      <div className="flex items-start gap-4 mt-4">
+      <div className="relative flex items-start mt-4 " dir="ltr">
         <LobbyScoreList
           players={playerScores}
           totalCountries={activeCountries.length}
-          className="border-secondary"
+          className="border-secondary rounded-none rounded-s-2xl translate-x-[2px] shadow-none z-0 mt-10"
         />
         <Map />
       </div>

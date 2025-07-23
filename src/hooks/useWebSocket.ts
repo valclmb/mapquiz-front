@@ -195,21 +195,17 @@ export function useWebSocket({
           break;
 
         case "friend_request_received":
-          console.log("Nouvelle demande d'ami reçue:", message.payload);
-          toast.success("Nouvelle demande d'ami reçue!");
-
-          // Invalider ET refetch immédiatement
-          queryClient.invalidateQueries({
-            queryKey: ["friendRequests"],
-            refetchType: "active",
+          toast("Nouvelle demande d'ami reçue !", {
+            action: {
+              label: "Voir",
+              onClick: () => {
+                // Redirige vers l'onglet social
+                // router.navigate("/social"); // This line was commented out in the original file
+              },
+            },
           });
-
-          // Alternative: refetch explicite
-          queryClient.refetchQueries({ queryKey: ["friendRequests"] });
-
-          if (onFriendRequestReceived) {
-            onFriendRequestReceived(message.payload?.request);
-          }
+          // Invalider la liste pour mise à jour en temps réel si déjà sur la page
+          queryClient.invalidateQueries({ queryKey: ["friendRequests"] });
           break;
 
         case "friend_request_sent":

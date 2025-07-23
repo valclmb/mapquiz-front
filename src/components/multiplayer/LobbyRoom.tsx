@@ -53,8 +53,6 @@ export const LobbyRoom = ({ lobbyId }: LobbyRoomProps) => {
   return (
     <div>
       <div className="w-full mx-auto space-y-6">
-        {/* En-tête du lobby */}
-
         <Typography variant="h1">Lobby Multijoueur</Typography>
         <Card>
           <CardContent className="space-y-3">
@@ -90,9 +88,9 @@ export const LobbyRoom = ({ lobbyId }: LobbyRoomProps) => {
             </div>
 
             {/* Colonne 1: Liste des joueurs */}
-            <div className="flex gap-10 mt-14">
+            <div className="flex flex-col md:flex-row gap-10 mt-14">
               <UserList
-                className="w-1/3 "
+                className="w-full md:w-1/3 "
                 title="Joueurs dans le lobby"
                 customUsers={players.map((player) => ({
                   id: player.id,
@@ -109,7 +107,7 @@ export const LobbyRoom = ({ lobbyId }: LobbyRoomProps) => {
 
               <UserList
                 title="Inviter des amis"
-                className="w-1/3"
+                className="w-full md:w-1/3"
                 filterUsers={(friend) => !currentPlayerIds.includes(friend.id)}
                 showInviteForOffline={true}
                 onInvite={(friendId: string) => {
