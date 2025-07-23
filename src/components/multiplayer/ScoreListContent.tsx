@@ -16,6 +16,7 @@ export function ScoreListContent({
     ready: { label: "Prêt", style: "bg-green-100 text-green-800" },
     joined: { label: "Pas prêt", style: "bg-yellow-100 text-yellow-800" },
     invited: { label: "Invité", style: "bg-blue-100 text-blue-800" },
+    disconnected: { label: "Déconnecté", style: "bg-red-100 text-red-800" },
     finished: { label: "Terminé", style: "bg-gray-200 text-gray-800" },
     playing: { label: "En jeu", style: "bg-green-100 text-green-800" },
     // autres statuts...

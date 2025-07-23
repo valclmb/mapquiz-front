@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
 import Typography from "../ui/Typography";
 import { Card, CardContent } from "../ui/card";
+import { Trash2 } from "lucide-react";
 
 // Type pour les joueurs de lobby avec statut
 type LobbyPlayer = {
@@ -14,6 +15,8 @@ type LobbyPlayer = {
   isOnline: boolean;
   lastSeen: string;
   status?: string; // Statut optionnel pour les joueurs de lobby
+  isDisconnected?: boolean; // Nouveau: indique si le joueur est déconnecté
+  disconnectedAt?: string | null; // Nouveau: timestamp de déconnexion
 };
 
 // Type union pour supporter les deux cas
@@ -33,6 +36,10 @@ const STATUS_CONFIG = {
     label: "Invité",
     style: "bg-blue-100 text-blue-800",
   },
+  disconnected: {
+    label: "Déconnecté",
+    style: "bg-red-100 text-red-800",
+  },
 } as const;
 
 type UserListProps = {
@@ -44,6 +51,8 @@ type UserListProps = {
   customUsers?: UserListItem[]; // Liste d'utilisateurs personnalisée (au lieu d'utiliser useFriendsList)
   showStatus?: boolean; // Afficher le statut des utilisateurs (pour les joueurs de lobby)
   hostId?: string; // ID de l'hôte (pour les lobbies)
+  isHost?: boolean; // Nouveau: indique si l'utilisateur actuel est l'hôte
+  onRemovePlayer?: (playerId: string) => void; // Nouveau: fonction pour supprimer un joueur
 };
 
 export const UserList = ({
@@ -55,6 +64,8 @@ export const UserList = ({
   customUsers,
   showStatus = false,
   hostId,
+  isHost = false,
+  onRemovePlayer,
 }: UserListProps) => {
   // Utiliser le hook useFriendsList avec les nouvelles fonctionnalités
   const {
@@ -97,7 +108,13 @@ export const UserList = ({
             </p>
           ) : (
             filteredUsers.map((user) => (
-              <Card key={user.id} className=" rounded-xl p-0">
+              <Card 
+                key={user.id} 
+                className={cn(
+                  "rounded-xl p-0",
+                  (user as LobbyPlayer).isDisconnected && "border-red-200 bg-red-50"
+                )}
+              >
                 <CardContent className="flex items-center justify-between gap-2 p-4">
                   {/* Avatar et nom */}
                   <section className="flex items-center gap-2">
@@ -111,29 +128,54 @@ export const UserList = ({
                           />
                         </div>
                       ) : (
-                        <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
+                        <div className={cn(
+                          "w-8 h-8 rounded-full flex items-center justify-center text-primary-foreground",
+                          (user as LobbyPlayer).isDisconnected 
+                            ? "bg-red-500" 
+                            : "bg-primary"
+                        )}>
                           {user.name.charAt(0)}
                         </div>
                       )}
                       <div
-                        className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
-                          user.isOnline ? "bg-green-500" : "bg-gray-400"
-                        }`}
-                        title={user.isOnline ? "En ligne" : "Hors ligne"}
+                        className={cn(
+                          "absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white",
+                          (user as LobbyPlayer).isDisconnected 
+                            ? "bg-red-500" 
+                            : user.isOnline 
+                              ? "bg-green-500" 
+                              : "bg-gray-400"
+                        )}
+                        title={
+                          (user as LobbyPlayer).isDisconnected 
+                            ? "Déconnecté" 
+                            : user.isOnline 
+                              ? "En ligne" 
+                              : "Hors ligne"
+                        }
                       />
                     </div>
 
                     <div className="flex flex-col">
-                      <span className="font-medium">{user.name}</span>
-                      {!user.isOnline && user.lastSeen && (
+                      <span className={cn(
+                        "font-medium",
+                        (user as LobbyPlayer).isDisconnected && "text-red-800"
+                      )}>
+                        {user.name}
+                      </span>
+                      {(user as LobbyPlayer).isDisconnected && (user as LobbyPlayer).disconnectedAt ? (
+                        <span className="text-xs text-red-600">
+                          Déconnecté le {new Date((user as LobbyPlayer).disconnectedAt!).toLocaleString()}
+                        </span>
+                      ) : !user.isOnline && user.lastSeen ? (
                         <span className="text-xs text-gray-500">
                           Vu {new Date(user.lastSeen).toLocaleDateString()}
                         </span>
-                      )}
+                      ) : null}
                     </div>
                   </section>
 
-                  {/* Bouton d'invitation */}
+                  {/* Bouton d'invitation et actions */}
                   <div className="flex items-center space-x-2">
                     {showStatus && hostId && user.id === hostId && (
                       <span className="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-800">
@@ -156,6 +198,24 @@ export const UserList = ({
                           </span>
                         );
                       })()}
+                    
+                    {/* Bouton de suppression pour l'hôte */}
+                    {isHost && onRemovePlayer && user.id !== hostId && (
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => onRemovePlayer(user.id)}
+                        className="ml-2"
+                        title={
+                          (user as LobbyPlayer).isDisconnected 
+                            ? "Supprimer le joueur déconnecté" 
+                            : "Expulser le joueur"
+                        }
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    )}
+                    
                     {onInvite &&
                       (user.isOnline || showInviteForOffline) &&
                       (invitedUsers[user.id] ? (

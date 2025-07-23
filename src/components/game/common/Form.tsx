@@ -57,7 +57,7 @@ export const Form = ({ className }: FormProps) => {
           onClick={() => changeIndex()}
           className="w-full lg:w-auto flex mt-3 gap-1 "
         >
-          Passer ( Ctrl + <Delete strokeWidth={1.5} size={20} />)
+          Passer Ctrl <Delete strokeWidth={1.5} size={20} />
         </Button>
       </CardContent>
     </Card>

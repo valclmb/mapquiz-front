@@ -390,6 +390,20 @@ export function useWebSocket({
           externalCallbacksRef.current.onLobbyJoined?.(""); // Redirige vers l'accueil si besoin
           break;
 
+        case "remove_player_success":
+          toast.success("Joueur supprimé avec succès");
+          break;
+
+        case "player_removed":
+          toast.error("Vous avez été expulsé du lobby par l'hôte");
+          // Rediriger vers l'accueil
+          externalCallbacksRef.current.onLobbyJoined?.("");
+          break;
+
+        case "get_disconnected_players_success":
+          // Ce message sera traité directement par useDisconnectedPlayers
+          break;
+
         case "game_start": {
           console.log("Partie démarrée:", message.data);
           const gameStateData = message.data?.gameState as
@@ -418,7 +432,10 @@ export function useWebSocket({
           }
 
           // Rediriger vers la page du jeu
-          if (message.data?.lobbyId) {
+          if (
+            message.data?.lobbyId &&
+            typeof message.data.lobbyId === "string"
+          ) {
             externalCallbacksRef.current.onGameStart?.(message.data.lobbyId);
           }
           break;

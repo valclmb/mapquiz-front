@@ -1,6 +1,7 @@
 import { useWebSocketContext } from "@/context/WebSocketContext";
 import { useEffect, useState } from "react";
 import { z } from "zod";
+import { toast } from "sonner";
 
 export const LobbyPlayerSchema = z.object({
   id: z.string(),
@@ -147,13 +148,13 @@ export function useLobbyStatus(lobbyId: string) {
         }
       );
 
-      // Sur la page lobby, d'abord essayer de rejoindre le lobby
+      // Sur la page lobby, d'abord vérifier si le lobby existe
       if (isOnLobbyPage) {
         console.log(
-          "useLobbyStatus - Envoi join_lobby pour rejoindre le lobby"
+          "useLobbyStatus - Envoi get_lobby_state pour vérifier l'existence du lobby"
         );
         sendMessage({
-          type: "join_lobby",
+          type: "get_lobby_state",
           payload: { lobbyId },
         });
       } else if (isOnResultPage) {
@@ -196,6 +197,38 @@ export function useLobbyStatus(lobbyId: string) {
         setShouldRedirect({ to: "result", reason: "Partie terminée" });
         return;
       }
+
+      // Si le lobby n'existe pas, rediriger vers l'accueil
+      if (errorMessage.includes("Lobby non trouvé") || errorMessage.includes("n'existe pas")) {
+        console.log("useLobbyStatus - Lobby non trouvé, redirection vers l'accueil");
+        setShouldRedirect({ to: "home", reason: "Lobby non trouvé" });
+        return;
+      }
+
+      // Si l'utilisateur n'est pas autorisé, essayer de rejoindre le lobby automatiquement
+      if (errorMessage.includes("pas autorisé") || errorMessage.includes("rejoindre le lobby")) {
+        console.log("useLobbyStatus - Utilisateur non autorisé, tentative de join_lobby automatique");
+        sendMessage({
+          type: "join_lobby",
+          payload: { lobbyId },
+        });
+        return;
+      }
+
+      // Pour les autres erreurs, afficher un message et rediriger vers l'accueil
+      console.log("useLobbyStatus - Erreur non gérée, redirection vers l'accueil");
+      setShouldRedirect({ to: "home", reason: errorMessage });
+      return;
+    }
+
+    // Gérer la réponse de get_lobby_state
+    if (lastMessage.type === "get_lobby_state_success") {
+      console.log("useLobbyStatus - Lobby trouvé, envoi de join_lobby");
+      sendMessage({
+        type: "join_lobby",
+        payload: { lobbyId },
+      });
+      return;
     }
 
     // Log spécifique pour les messages lobby_update
@@ -211,6 +244,23 @@ export function useLobbyStatus(lobbyId: string) {
     const state = extractLobbyStateZod(lastMessage as WebSocketMsg, lobbyId);
     if (state) {
       console.log("useLobbyStatus - État du lobby reçu:", state);
+      
+      // Vérifier si l'utilisateur était déconnecté et s'est reconnecté
+      if (lobby && state.players) {
+        const currentPlayer = state.players.find(
+          (p) => p.status === "joined"
+        );
+        if (currentPlayer) {
+          // Vérifier si le joueur était précédemment déconnecté
+          const wasDisconnected = lobby.players.find(
+            (p) => p.id === currentPlayer.id && p.status === "disconnected"
+          );
+          if (wasDisconnected) {
+            toast.success("Vous avez été reconnecté au lobby !");
+          }
+        }
+      }
+      
       setLobby(state);
     } else {
       console.log("useLobbyStatus - Aucun état de lobby extrait du message");

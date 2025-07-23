@@ -2,6 +2,8 @@ export interface Player {
   id: string;
   name: string;
   status: string;
+  isDisconnected?: boolean;
+  disconnectedAt?: string | null;
 }
 
 export interface PlayerScore extends Player {

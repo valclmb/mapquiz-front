@@ -65,6 +65,8 @@ function LobbyParentPage() {
         navigate({ to: `${basePath}/result`, params: { lobbyId } });
       } else if (shouldRedirect.to === "lobby") {
         navigate({ to: basePath, params: { lobbyId } });
+      } else if (shouldRedirect.to === "home") {
+        navigate({ to: "/" });
       }
     }
   }, [shouldRedirect, lobbyId, navigate, location.pathname]);

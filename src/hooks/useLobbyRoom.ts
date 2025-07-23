@@ -23,13 +23,119 @@ export function useLobbyRoom(lobbyId: string) {
   // Utiliser le contexte WebSocket au lieu du hook useWebSocket
   const { sendMessage, lastMessage } = useWebSocketContext();
 
-  // Note: join_lobby est maintenant géré par useLobbyStatus
-  // Pas besoin d'envoyer join_lobby ici car useLobbyStatus s'en charge
+  // Gestion de la présence dans le lobby
+  useEffect(() => {
+    if (!currentUserId || !lobbyId) {
+      console.log("useLobbyRoom - currentUserId ou lobbyId manquant:", {
+        currentUserId,
+        lobbyId,
+      });
+      return;
+    }
+
+    console.log(
+      "useLobbyRoom - Initialisation de la gestion de présence pour:",
+      { currentUserId, lobbyId }
+    );
+
+    // Marquer l'utilisateur comme présent dans le lobby
+    const markAsPresent = () => {
+      if (!currentUserId) {
+        console.log(
+          "useLobbyRoom - currentUserId manquant lors de markAsPresent"
+        );
+        return;
+      }
+      console.log("useLobbyRoom - Marquer comme présent");
+      sendMessage({
+        type: "set_player_absent",
+        payload: {
+          lobbyId,
+          absent: false,
+        },
+      });
+    };
+
+    // Marquer l'utilisateur comme absent du lobby
+    const markAsAbsent = () => {
+      if (!currentUserId) {
+        console.log(
+          "useLobbyRoom - currentUserId manquant lors de markAsAbsent"
+        );
+        return;
+      }
+      console.log("useLobbyRoom - Marquer comme absent");
+      sendMessage({
+        type: "set_player_absent",
+        payload: {
+          lobbyId,
+          absent: true,
+        },
+      });
+    };
+
+    // Marquer comme présent quand on entre dans le lobby
+    markAsPresent();
+
+    // Gestionnaire pour détecter quand l'utilisateur quitte la page
+    const handleBeforeUnload = () => {
+      markAsAbsent();
+    };
+
+    // Gestionnaire pour détecter quand l'utilisateur change de page
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        markAsAbsent();
+      } else {
+        markAsPresent();
+      }
+    };
+
+    // Gestionnaire pour détecter quand l'utilisateur perd le focus de la fenêtre
+    const handleBlur = () => {
+      markAsAbsent();
+    };
+
+    // Gestionnaire pour détecter quand l'utilisateur reprend le focus
+    const handleFocus = () => {
+      markAsPresent();
+    };
+
+    // Ajouter les écouteurs d'événements
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("blur", handleBlur);
+    window.addEventListener("focus", handleFocus);
+
+    // Cleanup des écouteurs d'événements
+    return () => {
+      markAsAbsent(); // Marquer comme absent lors du démontage
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("blur", handleBlur);
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, [currentUserId, lobbyId, sendMessage]);
 
   // Écouter les mises à jour du lobby
   useEffect(() => {
     // Ajouter un log pour voir tous les messages reçus
     console.log("Message reçu dans useLobbyRoom:", lastMessage);
+
+    // Gérer le message player_left_game
+    if (
+      lastMessage?.type === "player_left_game" &&
+      lastMessage.payload?.lobbyId === lobbyId
+    ) {
+      console.log(
+        "Un joueur a quitté le lobby:",
+        lastMessage.payload?.playerName
+      );
+      setPlayers((prev) =>
+        prev.filter((p) => p.id !== lastMessage.payload!.playerId)
+      );
+      return;
+    }
 
     if (
       lastMessage?.type === "lobby_update" &&

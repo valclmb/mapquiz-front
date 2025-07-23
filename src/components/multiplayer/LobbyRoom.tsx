@@ -33,6 +33,28 @@ export const LobbyRoom = ({ lobbyId }: LobbyRoomProps) => {
 
   const [isLoading, setIsLoading] = useState(false);
 
+  // Les joueurs du message lobby_update incluent maintenant les joueurs déconnectés
+  // avec les propriétés isDisconnected et disconnectedAt
+  const allPlayers = players;
+
+  // Fonction pour supprimer un joueur (connecté ou déconnecté)
+  const handleRemovePlayer = async (playerId: string) => {
+    if (!isHost) return;
+
+    try {
+      // Envoyer un message WebSocket pour supprimer le joueur
+      sendMessage({
+        type: "remove_player",
+        payload: {
+          lobbyId,
+          playerId,
+        },
+      });
+    } catch (error) {
+      console.error("Erreur lors de la suppression du joueur:", error);
+    }
+  };
+
   useEffect(() => {
     // Arrêt du loading si on reçoit la confirmation du backend
     if (
@@ -92,17 +114,23 @@ export const LobbyRoom = ({ lobbyId }: LobbyRoomProps) => {
               <UserList
                 className="w-full md:w-1/3 "
                 title="Joueurs dans le lobby"
-                customUsers={players.map((player) => ({
+                customUsers={allPlayers.map((player) => ({
                   id: player.id,
                   name: player.name,
                   image: null,
                   tag: null,
-                  isOnline: true,
-                  lastSeen: "",
+                  isOnline: !player.isDisconnected,
+                  lastSeen: player.disconnectedAt
+                    ? new Date(player.disconnectedAt).toLocaleString()
+                    : "",
                   status: player.status,
+                  isDisconnected: player.isDisconnected,
+                  disconnectedAt: player.disconnectedAt,
                 }))}
                 showStatus={true}
                 hostId={hostId}
+                isHost={isHost}
+                onRemovePlayer={handleRemovePlayer}
               />
 
               <UserList
@@ -122,6 +150,15 @@ export const LobbyRoom = ({ lobbyId }: LobbyRoomProps) => {
                 }}
               />
             </div>
+
+            {/* Supprimer le composant DisconnectedPlayerActions car les joueurs déconnectés sont maintenant dans la liste principale */}
+            {/* <DisconnectedPlayerActions
+              disconnectedPlayers={disconnectedPlayers}
+              lobbyId={lobbyId}
+              isHost={isHost}
+              onRemovePlayer={removeDisconnectedPlayer}
+              className="mt-6"
+            /> */}
 
             <div className="flex gap-2">
               <Button
