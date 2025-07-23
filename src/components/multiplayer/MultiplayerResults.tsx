@@ -107,19 +107,10 @@ export const MultiplayerResults = ({
 
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-3 pt-4">
-            <Button
-              onClick={onRestart}
-              className="flex-1 bg-blue-600 hover:bg-blue-700"
-            >
+            <Button onClick={onRestart} className="flex-1 ">
               Rejouer
             </Button>
-            <Button
-              onClick={() => navigate({ to: "/multiplayer" })}
-              variant="outline"
-              className="flex-1"
-            >
-              Nouveau lobby
-            </Button>
+
             <Button
               onClick={() => navigate({ to: "/" })}
               variant="outline"
