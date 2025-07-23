@@ -34,6 +34,7 @@ export const Form = ({ className }: FormProps) => {
             disabled={currentCountry.name.valid}
             id="name"
             type="text"
+            autoComplete="off"
             className={inputClass}
             value={currentCountry.name.value}
             onChange={handleChange}
@@ -46,6 +47,7 @@ export const Form = ({ className }: FormProps) => {
             disabled={currentCountry.capital.valid}
             id="capital"
             type="text"
+            autoComplete="off"
             className={inputClass}
             value={currentCountry.capital.value}
             onChange={handleChange}
