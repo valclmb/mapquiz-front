@@ -29,13 +29,13 @@ export const LobbyRoom = ({ lobbyId }: LobbyRoomProps) => {
 
   const { sendMessage } = useWebSocketContext();
 
-  const currentPlayerIds = players.map((player) => player.id);
-
   const [isLoading, setIsLoading] = useState(false);
 
   // Les joueurs du message lobby_update incluent maintenant les joueurs déconnectés
   // avec les propriétés isDisconnected et disconnectedAt
   const allPlayers = players;
+
+  const currentPlayerIds = allPlayers.map((player) => player.id);
 
   // Fonction pour supprimer un joueur (connecté ou déconnecté)
   const handleRemovePlayer = async (playerId: string) => {
@@ -119,13 +119,13 @@ export const LobbyRoom = ({ lobbyId }: LobbyRoomProps) => {
                   name: player.name,
                   image: null,
                   tag: null,
-                  isOnline: !player.isDisconnected,
-                  lastSeen: player.disconnectedAt
-                    ? new Date(player.disconnectedAt).toLocaleString()
+                  isOnline: player.isPresentInLobby !== false, // En ligne si présent dans le lobby ou non défini
+                  lastSeen: player.leftLobbyAt
+                    ? new Date(player.leftLobbyAt).toLocaleString()
                     : "",
                   status: player.status,
-                  isDisconnected: player.isDisconnected,
-                  disconnectedAt: player.disconnectedAt,
+                  isPresentInLobby: player.isPresentInLobby,
+                  leftLobbyAt: player.leftLobbyAt,
                 }))}
                 showStatus={true}
                 hostId={hostId}

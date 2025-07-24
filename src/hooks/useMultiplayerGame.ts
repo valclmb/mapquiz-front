@@ -12,7 +12,8 @@ export function useMultiplayerGame(
       name: string;
       score: number;
       progress: number;
-      status: string;
+      // Suppression du statut pendant le jeu - pas besoin de l'afficher
+      // status: string;
       validatedCountries: string[];
       incorrectCountries: string[];
     }>;
@@ -25,7 +26,8 @@ export function useMultiplayerGame(
       name: p.name,
       score: p.score,
       progress: p.progress,
-      status: p.status,
+      // Suppression du statut pendant le jeu - pas besoin de l'afficher
+      // status: p.status,
       validatedCountries: p.validatedCountries,
       incorrectCountries: p.incorrectCountries,
     })) || []
@@ -78,7 +80,8 @@ export function useMultiplayerGame(
         name: p.name,
         score: p.score,
         progress: p.progress,
-        status: p.status,
+        // Suppression du statut pendant le jeu - pas besoin de l'afficher
+        // status: p.status,
         validatedCountries: p.validatedCountries,
         incorrectCountries: p.incorrectCountries,
       }));
@@ -87,8 +90,25 @@ export function useMultiplayerGame(
         "PlayerScores mis à jour depuis le gameState:",
         updatedPlayerScores
       );
+
+      // Mettre à jour myProgress avec les données du joueur actuel
+      if (currentUserId) {
+        const myPlayerData = updatedPlayerScores.find(
+          (p) => p.id === currentUserId
+        );
+        if (myPlayerData) {
+          setMyProgress({
+            validatedCountries: myPlayerData.validatedCountries || [],
+            incorrectCountries: myPlayerData.incorrectCountries || [],
+          });
+          console.log("myProgress mis à jour depuis le gameState:", {
+            validatedCountries: myPlayerData.validatedCountries || [],
+            incorrectCountries: myPlayerData.incorrectCountries || [],
+          });
+        }
+      }
     }
-  }, [initialGameState?.players]);
+  }, [initialGameState?.players, currentUserId]);
 
   // Écouter les mises à jour des joueurs
   useEffect(() => {
@@ -109,10 +129,29 @@ export function useMultiplayerGame(
       if (players && Array.isArray(players)) {
         const playerScoresData = players as PlayerScore[];
         console.log(
-          "useMultiplayerGame - Mise à jour des scores (progress):",
-          playerScoresData
+          "🔍 Frontend - Données reçues (player_progress_update):",
+          playerScoresData.map((p) => ({
+            id: p.id,
+            name: p.name,
+            status: p.status,
+            score: p.score,
+            progress: p.progress,
+          }))
         );
         setPlayerScores(playerScoresData);
+
+        // Mettre à jour myProgress avec les données du joueur actuel
+        if (currentUserId) {
+          const myPlayerData = playerScoresData.find(
+            (p) => p.id === currentUserId
+          );
+          if (myPlayerData) {
+            setMyProgress({
+              validatedCountries: myPlayerData.validatedCountries || [],
+              incorrectCountries: myPlayerData.incorrectCountries || [],
+            });
+          }
+        }
 
         // Vérifier si le jeu est terminé (tous les joueurs ont 100% de progression)
         const allFinished = playerScoresData.every(
@@ -285,6 +324,44 @@ export function useMultiplayerGame(
       );
     }
   }, [gameFinished, currentUserId, lobbyId]);
+
+  // Gérer la déconnexion pendant la game
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (currentUserId && lobbyId) {
+        console.log(
+          "useMultiplayerGame - Marquage comme absent avant fermeture"
+        );
+        sendMessage({
+          type: "set_player_absent",
+          payload: {
+            lobbyId,
+            absent: true,
+          },
+        });
+      }
+    };
+
+    // PENDANT UNE PARTIE, on ne marque PAS les joueurs comme absents
+    // quand ils changent d'onglet ou minimisent la fenêtre
+    // Ils restent en statut 'playing' même s'ils ne sont pas visibles
+    const handleVisibilityChange = () => {
+      if (currentUserId && lobbyId) {
+        // Ne rien faire pendant la partie - les joueurs restent "playing"
+        console.log(
+          `useMultiplayerGame - Changement de visibilité ignoré pendant la partie (hidden: ${document.hidden})`
+        );
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [currentUserId, lobbyId, sendMessage]);
 
   return {
     gameFinished,

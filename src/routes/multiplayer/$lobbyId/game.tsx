@@ -2,6 +2,7 @@ import { MultiplayerGame } from "@/components/multiplayer/MultiplayerGame";
 import { useWebSocketContext } from "@/context/WebSocketContext";
 import type { Country } from "@/hooks/useMapGame";
 import type { WebSocketMessage } from "@/hooks/useWebSocket";
+import { authClient } from "@/lib/auth-client";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
@@ -19,7 +20,8 @@ type GameState = {
     name: string;
     score: number;
     progress: number;
-    status: string;
+    // Le statut est optionnel car on ne l'affiche plus pendant le jeu
+    status?: string;
     validatedCountries: string[];
     incorrectCountries: string[];
   }>;
@@ -32,15 +34,83 @@ function MultiplayerGamePage() {
   const [error, setError] = useState<string | null>(null);
   const { sendMessage, lastMessage, isConnected } = useWebSocketContext();
 
+  // Récupérer l'ID de l'utilisateur actuel
+  const { data: session } = authClient.useSession();
+  const currentUserId = session?.user?.id;
+
+  // Gestion de la présence dans le jeu
   useEffect(() => {
-    if (isConnected && !gameState) {
+    if (!currentUserId || !lobbyId) {
+      console.log("MultiplayerGamePage - currentUserId ou lobbyId manquant:", {
+        currentUserId,
+        lobbyId,
+      });
+      return;
+    }
+
+    // Marquer l'utilisateur comme présent dans le lobby (une seule fois)
+    const markAsPresent = () => {
+      if (!currentUserId) {
+        console.log(
+          "MultiplayerGamePage - currentUserId manquant lors de markAsPresent"
+        );
+        return;
+      }
+      console.log("MultiplayerGamePage - Marquer comme présent");
+      sendMessage({
+        type: "set_player_absent",
+        payload: {
+          lobbyId,
+          absent: false,
+        },
+      });
+    };
+
+    // Marquer l'utilisateur comme absent du lobby
+    const markAsAbsent = () => {
+      if (!currentUserId) {
+        console.log(
+          "MultiplayerGamePage - currentUserId manquant lors de markAsAbsent"
+        );
+        return;
+      }
+      console.log("MultiplayerGamePage - Marquer comme absent");
+      sendMessage({
+        type: "set_player_absent",
+        payload: {
+          lobbyId,
+          absent: true,
+        },
+      });
+    };
+
+    // Marquer comme présent quand on entre dans le jeu (une seule fois)
+    markAsPresent();
+
+    // Gestionnaire pour détecter quand l'utilisateur quitte la page
+    const handleBeforeUnload = () => {
+      markAsAbsent();
+    };
+
+    // Ajouter les écouteurs d'événements
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    // Nettoyer les écouteurs d'événements
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [currentUserId, lobbyId, sendMessage]);
+
+  // Vérifier si l'utilisateur est autorisé avant d'envoyer des messages WebSocket
+  useEffect(() => {
+    if (isConnected && !gameState && !error) {
       sendMessage({
         type: "get_game_state",
         payload: { lobbyId },
       });
       setLoading(false);
     }
-  }, [isConnected, gameState, lobbyId, sendMessage]);
+  }, [isConnected, gameState, lobbyId, sendMessage, error]);
 
   const handleGameStateMessage = (message: WebSocketMessage) => {
     if (message.payload?.gameState) {

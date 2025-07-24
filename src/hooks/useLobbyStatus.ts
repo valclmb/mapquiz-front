@@ -205,13 +205,10 @@ export function useLobbyStatus(lobbyId: string) {
         return;
       }
 
-      // Si l'utilisateur n'est pas autorisé, essayer de rejoindre le lobby automatiquement
-      if (errorMessage.includes("pas autorisé") || errorMessage.includes("rejoindre le lobby")) {
-        console.log("useLobbyStatus - Utilisateur non autorisé, tentative de join_lobby automatique");
-        sendMessage({
-          type: "join_lobby",
-          payload: { lobbyId },
-        });
+      // Si l'utilisateur n'est pas autorisé, rediriger vers l'accueil
+      if (errorMessage.includes("pas autorisé") || errorMessage.includes("rejoindre le lobby") || errorMessage.includes("non autorisé")) {
+        console.log("useLobbyStatus - Utilisateur non autorisé, redirection vers l'accueil");
+        setShouldRedirect({ to: "home", reason: "Vous n'êtes pas autorisé à accéder à ce lobby" });
         return;
       }
 
@@ -224,10 +221,13 @@ export function useLobbyStatus(lobbyId: string) {
     // Gérer la réponse de get_lobby_state
     if (lastMessage.type === "get_lobby_state_success") {
       console.log("useLobbyStatus - Lobby trouvé, envoi de join_lobby");
-      sendMessage({
-        type: "join_lobby",
-        payload: { lobbyId },
-      });
+      // Ne pas envoyer join_lobby si on a déjà une redirection en cours
+      if (!shouldRedirect) {
+        sendMessage({
+          type: "join_lobby",
+          payload: { lobbyId },
+        });
+      }
       return;
     }
 

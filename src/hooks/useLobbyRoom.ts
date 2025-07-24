@@ -12,6 +12,7 @@ export function useLobbyRoom(lobbyId: string) {
     gameMode: "quiz",
   });
   const [isReady, setIsReady] = useState(false);
+  const [hasMarkedAsPresent, setHasMarkedAsPresent] = useState(false);
 
   // To this
   const [hostId, setHostId] = useState<string | undefined>(undefined);
@@ -33,29 +34,6 @@ export function useLobbyRoom(lobbyId: string) {
       return;
     }
 
-    console.log(
-      "useLobbyRoom - Initialisation de la gestion de présence pour:",
-      { currentUserId, lobbyId }
-    );
-
-    // Marquer l'utilisateur comme présent dans le lobby
-    const markAsPresent = () => {
-      if (!currentUserId) {
-        console.log(
-          "useLobbyRoom - currentUserId manquant lors de markAsPresent"
-        );
-        return;
-      }
-      console.log("useLobbyRoom - Marquer comme présent");
-      sendMessage({
-        type: "set_player_absent",
-        payload: {
-          lobbyId,
-          absent: false,
-        },
-      });
-    };
-
     // Marquer l'utilisateur comme absent du lobby
     const markAsAbsent = () => {
       if (!currentUserId) {
@@ -74,46 +52,21 @@ export function useLobbyRoom(lobbyId: string) {
       });
     };
 
-    // Marquer comme présent quand on entre dans le lobby
-    markAsPresent();
+    // Ne pas marquer automatiquement comme présent - attendre de confirmer que l'utilisateur est dans le lobby
+    // Le statut sera envoyé une fois que l'utilisateur aura rejoint le lobby avec succès
 
     // Gestionnaire pour détecter quand l'utilisateur quitte la page
     const handleBeforeUnload = () => {
       markAsAbsent();
     };
 
-    // Gestionnaire pour détecter quand l'utilisateur change de page
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        markAsAbsent();
-      } else {
-        markAsPresent();
-      }
-    };
-
-    // Gestionnaire pour détecter quand l'utilisateur perd le focus de la fenêtre
-    const handleBlur = () => {
-      markAsAbsent();
-    };
-
-    // Gestionnaire pour détecter quand l'utilisateur reprend le focus
-    const handleFocus = () => {
-      markAsPresent();
-    };
-
     // Ajouter les écouteurs d'événements
     window.addEventListener("beforeunload", handleBeforeUnload);
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("blur", handleBlur);
-    window.addEventListener("focus", handleFocus);
 
     // Cleanup des écouteurs d'événements
     return () => {
       markAsAbsent(); // Marquer comme absent lors du démontage
       window.removeEventListener("beforeunload", handleBeforeUnload);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("blur", handleBlur);
-      window.removeEventListener("focus", handleFocus);
     };
   }, [currentUserId, lobbyId, sendMessage]);
 
@@ -149,7 +102,11 @@ export function useLobbyRoom(lobbyId: string) {
       console.log("Mise à jour du lobby détectée:", lastMessage.payload);
       // Vérifier que players existe avant de l'assigner
       if (lastMessage.payload.players) {
-        console.log("Mise à jour des joueurs:", lastMessage.payload.players);
+        console.log(
+          "Mise à jour des joueurs:",
+          lastMessage.payload.players.length,
+          "joueurs"
+        );
         setPlayers(lastMessage.payload.players);
 
         // Mettre à jour l'état isReady en fonction du statut du joueur actuel
@@ -159,6 +116,17 @@ export function useLobbyRoom(lobbyId: string) {
           );
           if (currentPlayer) {
             setIsReady(currentPlayer.status === "ready");
+            // Marquer comme présent seulement une fois, quand l'utilisateur est confirmé dans le lobby
+            if (!hasMarkedAsPresent) {
+              sendMessage({
+                type: "set_player_absent",
+                payload: {
+                  lobbyId,
+                  absent: false,
+                },
+              });
+              setHasMarkedAsPresent(true);
+            }
           }
         }
       }
@@ -171,7 +139,7 @@ export function useLobbyRoom(lobbyId: string) {
         setHostId(lastMessage.payload.hostId);
       }
     }
-  }, [lastMessage, lobbyId, currentUserId]);
+  }, [lastMessage, lobbyId, currentUserId, hasMarkedAsPresent, sendMessage]);
 
   // Déterminer si l'utilisateur actuel est l'hôte
   const isHost = currentUserId && hostId ? currentUserId === hostId : false;

@@ -22,7 +22,8 @@ type MultiplayerGameProps = {
       name: string;
       score: number;
       progress: number;
-      status: string;
+      // Le statut est optionnel car on ne l'affiche plus pendant le jeu
+      status?: string;
       validatedCountries: string[];
       incorrectCountries: string[];
     }>;

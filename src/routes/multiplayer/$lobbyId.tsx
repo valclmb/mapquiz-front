@@ -7,6 +7,7 @@ import {
   useNavigate,
 } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/multiplayer/$lobbyId")({
   component: LobbyParentPage,
@@ -54,10 +55,27 @@ function LobbyParentPage() {
       console.log(
         `LobbyParentPage - Redirection forcée vers ${shouldRedirect.to}: ${shouldRedirect.reason}`
       );
-      console.log("LobbyParentPage - shouldRedirect", {
-        shouldRedirect,
-        pathname: location.pathname,
-      });
+
+      // Afficher une notification toast pour les redirections vers l'accueil
+      if (shouldRedirect.to === "home") {
+        if (
+          shouldRedirect.reason.includes("pas autorisé") ||
+          shouldRedirect.reason.includes("non autorisé")
+        ) {
+          toast.error("Accès refusé", {
+            description:
+              "Vous n'êtes pas autorisé à accéder à ce lobby. Veuillez demander une invitation à l'hôte.",
+          });
+        } else if (shouldRedirect.reason.includes("Lobby non trouvé")) {
+          toast.error("Lobby introuvable", {
+            description: "Ce lobby n'existe pas ou a été supprimé.",
+          });
+        } else {
+          toast.error("Erreur", {
+            description: shouldRedirect.reason,
+          });
+        }
+      }
 
       if (shouldRedirect.to === "game") {
         navigate({ to: `${basePath}/game`, params: { lobbyId } });
@@ -77,19 +95,8 @@ function LobbyParentPage() {
     const currentPath = location.pathname;
     const isOnLobbyRoute = currentPath.startsWith(basePath);
 
-    console.log("LobbyParentPage - Redirection check:", {
-      lobbyStatus: lobby?.status,
-      currentPath,
-      basePath,
-      gamePath: `${basePath}/game`,
-      resultPath: `${basePath}/result`,
-      hasLobbyData: !!lobby,
-      isOnLobbyRoute,
-    });
-
     // Ne faire la redirection que si on est sur une route de lobby
     if (lobby && isOnLobbyRoute) {
-      console.log("lobby", lobby);
       // Si on est en train de jouer, rediriger vers la partie
       if (lobby.status === "playing") {
         if (currentPath !== `${basePath}/game`) {
@@ -123,15 +130,6 @@ function LobbyParentPage() {
   const isOnLobbyPage =
     location.pathname === `/multiplayer/${lobbyId}` ||
     location.pathname === `/multiplayer/${lobbyId}/`;
-
-  console.log("LobbyParentPage - Vérification affichage lobby:", {
-    pathname: location.pathname,
-    expectedPath: `/multiplayer/${lobbyId}`,
-    lobbyStatus: lobby?.status,
-    hasLobby: !!lobby,
-    isOnLobbyPage,
-    shouldShowLobby: isOnLobbyPage && lobby?.status === "waiting",
-  });
 
   if (isOnLobbyPage && lobby?.status === "waiting") {
     console.log("LobbyParentPage - Affichage du LobbyRoom");

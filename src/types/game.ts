@@ -1,9 +1,10 @@
 export interface Player {
   id: string;
   name: string;
-  status: string;
-  isDisconnected?: boolean;
-  disconnectedAt?: string | null;
+  // Le statut est optionnel car on ne l'affiche plus pendant le jeu
+  status?: string;
+  isPresentInLobby?: boolean;
+  leftLobbyAt?: string | null;
 }
 
 export interface PlayerScore extends Player {

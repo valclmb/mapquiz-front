@@ -182,6 +182,36 @@ export function useWebSocket({
         case "authenticated":
           setIsAuthenticated(true);
           console.log("Authentifié via WebSocket");
+
+          // Envoyer automatiquement le statut de présence si on est sur une page de lobby ou de jeu
+          const currentPath = window.location.pathname;
+          if (
+            currentPath.includes("/multiplayer/") &&
+            currentPath.includes("/game")
+          ) {
+            // On est sur une page de jeu, envoyer le statut de présence
+            const lobbyId = currentPath.split("/")[2]; // /multiplayer/{lobbyId}/game
+            if (lobbyId) {
+              console.log(
+                "Envoi automatique du statut de présence après authentification pour le jeu"
+              );
+              // Ne pas envoyer set_player_absent automatiquement car l'utilisateur pourrait ne pas être autorisé
+              // Le hook useMultiplayerGame gérera l'autorisation et l'envoi du statut si nécessaire
+            }
+          } else if (
+            currentPath.includes("/multiplayer/") &&
+            !currentPath.includes("/game")
+          ) {
+            // On est sur une page de lobby, envoyer le statut de présence
+            const lobbyId = currentPath.split("/")[2]; // /multiplayer/{lobbyId}
+            if (lobbyId) {
+              console.log(
+                "Envoi automatique du statut de présence après authentification pour le lobby"
+              );
+              // Ne pas envoyer set_player_absent automatiquement car l'utilisateur pourrait ne pas être autorisé
+              // Le hook useLobbyStatus gérera l'autorisation et l'envoi du statut si nécessaire
+            }
+          }
           break;
 
         case "auth_error":

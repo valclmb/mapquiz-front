@@ -1,10 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { useFriendsList, type Friend } from "@/hooks/queries/useFriends";
 import { cn } from "@/lib/utils";
-import { Check } from "lucide-react";
+import { Check, Trash2 } from "lucide-react";
 import Typography from "../ui/Typography";
 import { Card, CardContent } from "../ui/card";
-import { Trash2 } from "lucide-react";
 
 // Type pour les joueurs de lobby avec statut
 type LobbyPlayer = {
@@ -12,11 +11,11 @@ type LobbyPlayer = {
   name: string;
   image: string | null;
   tag: string | null;
-  isOnline: boolean;
+  isOnline: boolean; // Statut général de l'utilisateur (connecté à l'app)
   lastSeen: string;
-  status?: string; // Statut optionnel pour les joueurs de lobby
-  isDisconnected?: boolean; // Nouveau: indique si le joueur est déconnecté
-  disconnectedAt?: string | null; // Nouveau: timestamp de déconnexion
+  status?: string; // Statut de jeu dans le lobby (joined, ready, playing)
+  isPresentInLobby?: boolean; // Nouveau: indique si le joueur est présent dans le lobby
+  leftLobbyAt?: string | null; // Nouveau: timestamp de départ du lobby
 };
 
 // Type union pour supporter les deux cas
@@ -108,11 +107,12 @@ export const UserList = ({
             </p>
           ) : (
             filteredUsers.map((user) => (
-              <Card 
-                key={user.id} 
+              <Card
+                key={user.id}
                 className={cn(
                   "rounded-xl p-0",
-                  (user as LobbyPlayer).isDisconnected && "border-red-200 bg-red-50"
+                  (user as LobbyPlayer).isPresentInLobby === false &&
+                    "border-red-200 bg-red-50"
                 )}
               >
                 <CardContent className="flex items-center justify-between gap-2 p-4">
@@ -128,44 +128,53 @@ export const UserList = ({
                           />
                         </div>
                       ) : (
-                        <div className={cn(
-                          "w-8 h-8 rounded-full flex items-center justify-center text-primary-foreground",
-                          (user as LobbyPlayer).isDisconnected 
-                            ? "bg-red-500" 
-                            : "bg-primary"
-                        )}>
+                        <div
+                          className={cn(
+                            "w-8 h-8 rounded-full flex items-center justify-center text-primary-foreground",
+                            (user as LobbyPlayer).isPresentInLobby === false
+                              ? "bg-red-500"
+                              : "bg-primary"
+                          )}
+                        >
                           {user.name.charAt(0)}
                         </div>
                       )}
                       <div
                         className={cn(
                           "absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white",
-                          (user as LobbyPlayer).isDisconnected 
-                            ? "bg-red-500" 
-                            : user.isOnline 
-                              ? "bg-green-500" 
+                          (user as LobbyPlayer).isPresentInLobby === false
+                            ? "bg-red-500"
+                            : user.isOnline
+                              ? "bg-green-500"
                               : "bg-gray-400"
                         )}
                         title={
-                          (user as LobbyPlayer).isDisconnected 
-                            ? "Déconnecté" 
-                            : user.isOnline 
-                              ? "En ligne" 
+                          (user as LobbyPlayer).isPresentInLobby === false
+                            ? "Absent du lobby"
+                            : user.isOnline
+                              ? "En ligne"
                               : "Hors ligne"
                         }
                       />
                     </div>
 
                     <div className="flex flex-col">
-                      <span className={cn(
-                        "font-medium",
-                        (user as LobbyPlayer).isDisconnected && "text-red-800"
-                      )}>
+                      <span
+                        className={cn(
+                          "font-medium",
+                          (user as LobbyPlayer).isPresentInLobby === false &&
+                            "text-red-800"
+                        )}
+                      >
                         {user.name}
                       </span>
-                      {(user as LobbyPlayer).isDisconnected && (user as LobbyPlayer).disconnectedAt ? (
+                      {(user as LobbyPlayer).isPresentInLobby === false &&
+                      (user as LobbyPlayer).leftLobbyAt ? (
                         <span className="text-xs text-red-600">
-                          Déconnecté le {new Date((user as LobbyPlayer).disconnectedAt!).toLocaleString()}
+                          Absent depuis{" "}
+                          {new Date(
+                            (user as LobbyPlayer).leftLobbyAt!
+                          ).toLocaleString()}
                         </span>
                       ) : !user.isOnline && user.lastSeen ? (
                         <span className="text-xs text-gray-500">
@@ -182,6 +191,15 @@ export const UserList = ({
                         Hôte
                       </span>
                     )}
+                    {/* Statut de présence */}
+                    {showStatus &&
+                      (user as LobbyPlayer).isPresentInLobby === false && (
+                        <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">
+                          Absent
+                        </span>
+                      )}
+
+                    {/* Statut de jeu - seulement dans les lobbies, pas pendant le jeu */}
                     {showStatus &&
                       user.status &&
                       (() => {
@@ -198,7 +216,7 @@ export const UserList = ({
                           </span>
                         );
                       })()}
-                    
+
                     {/* Bouton de suppression pour l'hôte */}
                     {isHost && onRemovePlayer && user.id !== hostId && (
                       <Button
@@ -207,15 +225,15 @@ export const UserList = ({
                         onClick={() => onRemovePlayer(user.id)}
                         className="ml-2"
                         title={
-                          (user as LobbyPlayer).isDisconnected 
-                            ? "Supprimer le joueur déconnecté" 
+                          (user as LobbyPlayer).isPresentInLobby === false
+                            ? "Supprimer le joueur absent"
                             : "Expulser le joueur"
                         }
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     )}
-                    
+
                     {onInvite &&
                       (user.isOnline || showInviteForOffline) &&
                       (invitedUsers[user.id] ? (
