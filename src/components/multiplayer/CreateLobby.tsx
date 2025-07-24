@@ -1,16 +1,19 @@
-import { RegionSelector } from "@/components/game/common/RegionSelector";
+import { ContinentSelector } from "@/components/game/common/ContinentSelector";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useWebSocketContext } from "@/context/WebSocketContext";
 import { DEFAULT_CONTINENT } from "@/lib/constants";
+import type { Continent } from "@/types/continent";
 import { useState } from "react";
 import { toast } from "sonner";
 
 export const CreateLobby = () => {
   const [lobbyName, setLobbyName] = useState("");
-  const [selectedRegions, setSelectedRegions] = useState([DEFAULT_CONTINENT]);
+  const [selectedContinents, setSelectedContinents] = useState<Continent[]>([
+    DEFAULT_CONTINENT,
+  ]);
 
   // Utiliser uniquement le contexte WebSocket
   const { isAuthenticated, isConnected, sendMessage } = useWebSocketContext();
@@ -28,7 +31,7 @@ export const CreateLobby = () => {
       payload: {
         name: lobbyName || "Mon lobby",
         settings: {
-          selectedRegions,
+          selectedRegions: selectedContinents,
           gameMode: "quiz",
         },
       },
@@ -54,9 +57,9 @@ export const CreateLobby = () => {
 
           <div className="space-y-2">
             <Label>Sélectionner les continents</Label>
-            <RegionSelector
-              selectedRegions={selectedRegions}
-              onChange={setSelectedRegions}
+            <ContinentSelector
+              selectedContinents={selectedContinents}
+              onChange={setSelectedContinents}
             />
           </div>
 

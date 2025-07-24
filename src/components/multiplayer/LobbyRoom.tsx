@@ -2,11 +2,10 @@ import { UserList } from "@/components/social/UserList";
 import { useLobby } from "@/context/LobbyProvider";
 import { useWebSocketContext } from "@/context/WebSocketContext";
 import { authClient } from "@/lib/auth-client";
-import type { PlayerScore } from "@/types/game";
+import type { Continent } from "@/types/continent";
+import type { Player } from "@/types/game";
 import { useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { RegionSelector } from "../game/common/RegionSelector";
-import { Badge } from "../ui/badge";
+import { ContinentSelector } from "../game/common/ContinentSelector";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import Typography from "../ui/Typography";
@@ -31,7 +30,7 @@ export const LobbyRoom = ({ lobbyId }: LobbyRoomProps) => {
   const navigate = useNavigate();
 
   // Trouver le joueur courant
-  const me = players.find((p: PlayerScore) => p.id === currentUserId);
+  const me = players.find((p: Player) => p.id === currentUserId);
   const isReady = me?.status === "ready";
 
   // Fonction pour changer le statut prêt/pas prêt
@@ -54,12 +53,9 @@ export const LobbyRoom = ({ lobbyId }: LobbyRoomProps) => {
     navigate({ to: "/" });
   };
 
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Les joueurs du message lobby_update incluent maintenant les joueurs déconnectés
-  // avec les propriétés isDisconnected et disconnectedAt
-  const allPlayers: PlayerScore[] = players;
-  const currentPlayerIds = allPlayers.map((player: PlayerScore) => player.id);
+  // Les joueurs du message lobby_update incluent maintenant les joueurs
+  const allPlayers: Player[] = players;
+  const currentPlayerIds = allPlayers.map((player: Player) => player.id);
 
   // Fonction pour supprimer un joueur (connecté ou déconnecté)
   const handleRemovePlayer = async (playerId: string) => {
@@ -78,6 +74,20 @@ export const LobbyRoom = ({ lobbyId }: LobbyRoomProps) => {
       console.error("Erreur lors de la suppression du joueur:", error);
     }
   };
+  console.log("settings", settings);
+
+  const handleUpdateContinents = (continents: Continent[]) => {
+    sendMessage({
+      type: "update_lobby_settings",
+      payload: {
+        lobbyId,
+        settings: {
+          selectedRegions: continents,
+          gameMode: settings.gameMode,
+        },
+      },
+    });
+  };
 
   // Suppression de l'effet lié à lastMessage (plus utilisé)
 
@@ -89,47 +99,19 @@ export const LobbyRoom = ({ lobbyId }: LobbyRoomProps) => {
           <CardContent className="space-y-3">
             <div className="space-y-4 ">
               <Typography variant="h3">Continents </Typography>
-
-              {isHost ? (
-                <RegionSelector
-                  key={settings.selectedRegions.join(",")}
-                  selectedRegions={settings.selectedRegions}
-                  isLoading={isLoading}
-                  onChange={() => {
-                    setIsLoading(true); // Active le loading dès le clic
-                    // TODO: implémenter updateSettings si besoin, sinon désactiver le bouton côté UI
-                  }}
-                />
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {settings.selectedRegions.map((region: string) => (
-                    <Badge
-                      key={region}
-                      className="text-sm px-4 py-2 rounded-xl"
-                      variant="secondary"
-                    >
-                      {region}
-                    </Badge>
-                  ))}
-                </div>
-              )}
+              <ContinentSelector
+                isEditable={isHost}
+                selectedContinents={settings.selectedRegions}
+                onChange={handleUpdateContinents}
+              />
             </div>
 
             {/* Colonne 1: Liste des joueurs */}
             <div className="flex flex-col md:flex-row gap-10 mt-14">
               <UserList
-                className="w-full md:w-1/3 "
                 title="Joueurs dans le lobby"
-                customUsers={allPlayers.map((player) => ({
-                  id: player.id,
-                  name: player.name,
-                  image: null,
-                  tag: null,
-                  isOnline: true, // Toujours en ligne tant qu'il est dans le lobby
-                  lastSeen: "",
-                  status: player.status,
-                  // isPresentInLobby, leftLobbyAt supprimés
-                }))}
+                className="w-full md:w-1/3 "
+                customUsers={allPlayers}
                 showStatus={true}
                 hostId={hostId}
                 isHost={isHost}
@@ -155,13 +137,6 @@ export const LobbyRoom = ({ lobbyId }: LobbyRoomProps) => {
             </div>
 
             {/* Supprimer le composant DisconnectedPlayerActions car les joueurs déconnectés sont maintenant dans la liste principale */}
-            {/* <DisconnectedPlayerActions
-              disconnectedPlayers={disconnectedPlayers}
-              lobbyId={lobbyId}
-              isHost={isHost}
-              onRemovePlayer={removeDisconnectedPlayer}
-              className="mt-6"
-            /> */}
 
             <div className="flex gap-2">
               <Button

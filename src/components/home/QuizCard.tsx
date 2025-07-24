@@ -1,4 +1,4 @@
-import { RegionSelector } from "@/components/game/common/RegionSelector";
+import { ContinentSelector } from "@/components/game/common/ContinentSelector";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -47,8 +47,8 @@ export const QuizCard = () => {
         <Typography variant="h4" className="text-base sm:text-lg">
           Sélectionnez vos régions
         </Typography>
-        <RegionSelector
-          selectedRegions={selectedRegions}
+        <ContinentSelector
+          selectedContinents={selectedRegions}
           onChange={setSelectedRegions}
         />
         {data && (

@@ -1,19 +1,10 @@
 import { apiFetch } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
+import type { Player } from "@/types/game";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-
-export type Friend = {
-  id: string;
-  name: string;
-  image: string | null;
-  tag: string | null;
-  isOnline: boolean;
-  lastSeen: string;
-  status: "ready" | "joined" | "invited";
-};
 
 // Hook pour récupérer la liste des amis
 export function useFriendsList() {
@@ -42,8 +33,8 @@ export function useFriendsList() {
 
   const query = useQuery({
     queryKey: ["friends"],
-    queryFn: async (): Promise<Friend[]> => {
-      const data = await apiFetch<{ friends: Friend[] }>("friends/list");
+    queryFn: async (): Promise<Player[]> => {
+      const data = await apiFetch<{ friends: Player[] }>("friends/list");
       return data.friends || [];
     },
   });
