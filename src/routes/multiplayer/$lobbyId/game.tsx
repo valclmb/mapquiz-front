@@ -1,7 +1,9 @@
 import { MultiplayerGame } from "@/components/multiplayer/MultiplayerGame";
 import { useLobby } from "@/context/LobbyProvider";
+import { useWebSocketContext } from "@/context/WebSocketContext";
 import { getCountries } from "@/lib/data";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/multiplayer/$lobbyId/game")({
   component: MultiplayerGamePage,
@@ -14,6 +16,15 @@ export const Route = createFileRoute("/multiplayer/$lobbyId/game")({
 function MultiplayerGamePage() {
   const { lobby, loading } = useLobby();
   const { countries } = Route.useLoaderData();
+  const { lastMessage } = useWebSocketContext();
+  const navigate = useNavigate();
+  const { lobbyId } = Route.useParams();
+
+  useEffect(() => {
+    if (lastMessage?.type === "game_results") {
+      navigate({ to: `/multiplayer/${lobbyId}/result` });
+    }
+  }, [lastMessage, navigate, lobbyId]);
 
   if (loading) {
     return (

@@ -547,6 +547,10 @@ export function useWebSocket({
           }
           break;
 
+        case "game_results":
+          setLastMessage(message);
+          break;
+
         default:
           console.warn("Type de message WebSocket non géré:", message.type);
       }

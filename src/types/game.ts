@@ -23,6 +23,6 @@ export interface Ranking {
   id: string;
   name: string;
   score: number;
-  completionTime: number;
+  completionTime?: number | null;
   rank: number;
 }

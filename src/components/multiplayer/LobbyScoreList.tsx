@@ -78,7 +78,7 @@ export const LobbyScoreList = ({
               <Users /> Scores
             </Button>
           </PopoverTrigger>
-          <PopoverContent>
+          <PopoverContent className="w-full">
             <ScoreListContent
               players={players}
               totalCountries={totalCountries}

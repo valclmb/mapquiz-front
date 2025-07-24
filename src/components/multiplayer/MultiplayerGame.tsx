@@ -5,13 +5,13 @@ import { useMultiplayerGame } from "@/hooks/useMultiplayerGame";
 import { authClient } from "@/lib/auth-client";
 import type { Country } from "@/lib/data";
 import type { LobbyState, MultiplayerPlayer } from "@/types/lobby";
+import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Form } from "../game/common/Form";
 import { Map } from "../game/common/Map";
 import { Button } from "../ui/button";
 import Typography from "../ui/Typography";
 import { LobbyScoreList } from "./LobbyScoreList";
-import { MultiplayerResults } from "./MultiplayerResults";
 
 type MultiplayerGameProps = {
   lobby: LobbyState | null;
@@ -35,15 +35,10 @@ export const MultiplayerGame = ({
     countries,
     selectedRegions
   );
+  const navigate = useNavigate();
 
-  const {
-    gameFinished,
-    playerScores,
-    rankings,
-    sendMessage,
-    myProgress,
-    syncProgressWithBackend,
-  } = useMultiplayerGame(lobbyId, multiplayerLobby);
+  const { playerScores, sendMessage, myProgress, syncProgressWithBackend } =
+    useMultiplayerGame(lobbyId, multiplayerLobby);
 
   // Récupérer ma progression depuis les players si disponible
   const { data: session } = authClient.useSession();
@@ -137,10 +132,6 @@ export const MultiplayerGame = ({
         </div>
       </div>
     );
-  }
-
-  if (gameFinished) {
-    return <MultiplayerResults rankings={rankings} onRestart={() => {}} />;
   }
 
   return (

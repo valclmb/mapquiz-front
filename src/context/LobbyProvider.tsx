@@ -91,6 +91,22 @@ export function LobbyProvider({ lobbyId, children }: LobbyProviderProps) {
       navigate({ to: "/" });
       return;
     }
+    // Ajout : gestion du message game_results
+    if (lastMessage.type === "game_results" && lastMessage.payload?.rankings) {
+      setLobby((prev) => {
+        if (!prev) {
+          console.warn(
+            "[LobbyProvider] game_results reçu mais lobby précédent null, rankings ignorés"
+          );
+          return null;
+        }
+        const next = { ...prev, rankings: lastMessage.payload.rankings };
+        console.log("[LobbyProvider] setLobby (game_results):", next);
+        return next;
+      });
+      setLoading(false);
+      return;
+    }
     if (
       lastMessage.type === "get_game_results_success" &&
       lastMessage.data?.rankings
