@@ -83,10 +83,6 @@ export function useMultiplayerGame(
         incorrectCountries: p.incorrectCountries,
       }));
       setPlayerScores(updatedPlayerScores);
-      console.log(
-        "PlayerScores mis à jour depuis le gameState:",
-        updatedPlayerScores
-      );
     }
   }, [initialGameState?.players]);
 
@@ -98,17 +94,10 @@ export function useMultiplayerGame(
       (lastMessage.payload?.lobbyId === lobbyId ||
         lastMessage.data?.lobbyId === lobbyId)
     ) {
-      console.log("useMultiplayerGame - Traitement player_progress_update:", {
-        message: lastMessage,
-        payload: lastMessage.payload,
-        data: lastMessage.data,
-        players: lastMessage.payload?.players || lastMessage.data?.players,
-      });
 
       const { players } = lastMessage.payload || lastMessage.data || {};
       if (players && Array.isArray(players)) {
         const playerScoresData = players as PlayerScore[];
-        console.log(
           "useMultiplayerGame - Mise à jour des scores (progress):",
           playerScoresData
         );
@@ -118,7 +107,6 @@ export function useMultiplayerGame(
         const allFinished = playerScoresData.every(
           (player) => player.progress >= 100
         );
-        console.log("useMultiplayerGame - Vérification fin de jeu:", {
           playerScoresData: playerScoresData.map((p) => ({
             id: p.id,
             name: p.name,
@@ -128,7 +116,6 @@ export function useMultiplayerGame(
           gameFinished,
         });
         if (allFinished && !gameFinished) {
-          console.log("useMultiplayerGame - Fin de jeu déclenchée !");
           setGameFinished(true);
           toast.success("Partie terminée !");
         }
@@ -140,7 +127,6 @@ export function useMultiplayerGame(
       lastMessage?.type === "score_update" &&
       lastMessage.data?.lobbyId === lobbyId
     ) {
-      console.log("useMultiplayerGame - Traitement score_update:", {
         message: lastMessage,
         data: lastMessage.data,
         players: lastMessage.data?.players,
@@ -149,7 +135,6 @@ export function useMultiplayerGame(
       const { players } = lastMessage.data;
       if (players && Array.isArray(players)) {
         const playerScoresData = players as PlayerScore[];
-        console.log(
           "useMultiplayerGame - Mise à jour des scores:",
           playerScoresData
         );
@@ -159,7 +144,6 @@ export function useMultiplayerGame(
         const allFinished = playerScoresData.every(
           (player) => player.progress >= 100
         );
-        console.log(
           "useMultiplayerGame - Vérification fin de jeu (score_update):",
           {
             playerScoresData: playerScoresData.map((p) => ({
@@ -172,7 +156,6 @@ export function useMultiplayerGame(
           }
         );
         if (allFinished && !gameFinished) {
-          console.log(
             "useMultiplayerGame - Fin de jeu déclenchée (score_update) !"
           );
           setGameFinished(true);
@@ -189,7 +172,6 @@ export function useMultiplayerGame(
       const { rankings: gameRankings } =
         lastMessage.payload || lastMessage.data || {};
       if (gameRankings && Array.isArray(gameRankings)) {
-        console.log(
           "useMultiplayerGame - Rankings reçus (game_results):",
           gameRankings
         );
@@ -206,7 +188,6 @@ export function useMultiplayerGame(
       const { rankings: gameRankings } =
         lastMessage.payload || lastMessage.data || {};
       if (gameRankings && Array.isArray(gameRankings)) {
-        console.log(
           "useMultiplayerGame - Rankings reçus (game_end):",
           gameRankings
         );

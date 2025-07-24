@@ -8,7 +8,6 @@ type RegionSelectorProps = {
   className?: string;
   inverted?: boolean;
   isLoading?: boolean;
-  compact?: boolean;
 };
 
 export const RegionSelector = ({
@@ -17,7 +16,6 @@ export const RegionSelector = ({
   className,
   inverted = false,
   isLoading = false,
-  compact = false,
 }: RegionSelectorProps) => {
   const handleRegionToggle = (region: string) => {
     const newSelectedRegions = selectedRegions.includes(region)

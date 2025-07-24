@@ -47,7 +47,6 @@ export const getCountries = async (
 
     return countriesCache || [];
   } catch (error) {
-    console.log("Erreur lors de la récupération des données:", error);
     throw error;
   }
 };

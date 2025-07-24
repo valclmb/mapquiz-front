@@ -16,7 +16,6 @@ export const MultiplayerResults = ({
 }: MultiplayerResultsProps) => {
   const navigate = useNavigate();
 
-  console.log("MultiplayerResults - Rankings reçus:", rankings);
 
   const getRankIcon = (rank: number) => {
     switch (rank) {

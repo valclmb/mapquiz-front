@@ -39,21 +39,13 @@ export function useLobbyRoom(lobbyId: string) {
   // Écouter les mises à jour du lobby
   useEffect(() => {
     // Ajouter un log pour voir tous les messages reçus
-    console.log("Message reçu dans useLobbyRoom:", lastMessage);
 
     if (
       lastMessage?.type === "lobby_update" &&
       lastMessage.payload?.lobbyId === lobbyId
     ) {
-      console.log("LOBBY_UPDATE PAYLOAD:", lastMessage.payload);
-      console.log(
-        "LobbyRoom - settings reçus du backend :",
-        lastMessage.payload.settings
-      );
-      console.log("Mise à jour du lobby détectée:", lastMessage.payload);
       // Vérifier que players existe avant de l'assigner
       if (lastMessage.payload.players) {
-        console.log("Mise à jour des joueurs:", lastMessage.payload.players);
         setPlayers(lastMessage.payload.players);
 
         // Mettre à jour l'état isReady en fonction du statut du joueur actuel

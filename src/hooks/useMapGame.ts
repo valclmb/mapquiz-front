@@ -7,6 +7,7 @@ import {
   type ChangeEvent,
 } from "react";
 import { toast } from "sonner";
+import { useGameLogic, type Country } from "./game/useGameLogic";
 
 type Value = {
   value: string;
@@ -18,17 +19,6 @@ type Values = {
   capital: Value;
 };
 
-type CountryProperties = {
-  name: string;
-  capital: string;
-  code: string;
-  continent: string;
-};
-
-export type Country = {
-  properties: CountryProperties;
-};
-
 type GameMode = "quiz" | "practice";
 
 type GameOptions = {
@@ -38,8 +28,8 @@ type GameOptions = {
   onIncorrectAnswer?: () => void;
   initialValidatedCountries?: string[];
   initialIncorrectCountries?: string[];
-  isMultiplayer?: boolean; // Nouveau paramètre pour différencier le mode multijoueur
-  onMultiplayerGameEnd?: () => void; // Callback spécifique pour la fin de jeu multijoueur
+  isMultiplayer?: boolean;
+  onMultiplayerGameEnd?: () => void;
   onProgressSync?: (
     validatedCountries: string[],
     incorrectCountries: string[],
@@ -57,14 +47,8 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
     initialValidatedCountries = [],
     initialIncorrectCountries = [],
     onProgressSync,
+    isMultiplayer = false,
   } = options;
-
-  // Filtrer les pays pour ne garder que ceux qui ne sont pas marqués comme filtrés
-  const activeCountries = useMemo(() => {
-    return countries.filter(
-      (country) => !("filtered" in country && country.filtered)
-    );
-  }, [countries]);
 
   const [validatedCountries, setValidatedCountries] = useState<string[]>(
     initialValidatedCountries
@@ -73,6 +57,7 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
     initialIncorrectCountries
   );
   const [gameEnded, setGameEnded] = useState(false);
+  const [randomIndex, setRandomIndex] = useState(0);
   const hasRestoredState = useRef(false);
 
   const defaultValues = useMemo(
@@ -84,32 +69,22 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
   );
 
   const [currentCountry, setCurrentCountry] = useState<Values>(defaultValues);
-  const [randomIndex, setRandomIndex] = useState(0);
 
   const countryRef = useRef<HTMLInputElement>(null);
   const capitalRef = useRef<HTMLInputElement>(null);
 
+  // Utiliser la logique de jeu séparée
+  const {
+    activeCountries,
+    shouldEndGame,
+    findNextRandomIndex,
+    validateAnswer,
+  } = useGameLogic(countries, validatedCountries, incorrectCountries, mode, isMultiplayer);
+
   const score = validatedCountries.length;
 
-  const defineRandomIndex = useCallback(() => {
-    if (validatedCountries.length === activeCountries.length) {
-      return mode === "quiz" ? -1 : 404;
-    }
-
-    let index;
-    do {
-      index = Math.floor(Math.random() * activeCountries.length);
-    } while (
-      validatedCountries.includes(activeCountries[index]?.properties.code)
-    );
-
-    return index;
-  }, [activeCountries, validatedCountries, mode]);
-
   const endGame = useCallback(() => {
-    if (options.isMultiplayer) {
-      // Mode multijoueur : appeler le callback spécifique
-      console.log("Fin de jeu multijoueur - appel du callback");
+    if (isMultiplayer) {
       options.onMultiplayerGameEnd?.();
     } else if (mode === "quiz" && !gameEnded) {
       setGameEnded(true);
@@ -123,288 +98,184 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
     activeCountries.length,
     onGameEnd,
     mode,
-    options.isMultiplayer,
-    options.onMultiplayerGameEnd,
+    isMultiplayer,
+    options,
   ]);
 
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const target = event.currentTarget;
-    const id = target.id as keyof CountryProperties;
-    const country = activeCountries[randomIndex];
-    const propertyValue = country?.properties?.[id]?.toLowerCase();
-    const valid = propertyValue === target.value.toLowerCase();
+    const field = target.id;
+    const value = target.value;
+    const currentCountryCode = activeCountries[randomIndex]?.properties.code;
+    
+    if (!currentCountryCode) return;
+
+    const isValid = validateAnswer(currentCountryCode, field, value);
 
     setCurrentCountry((curr) => ({
       ...curr,
-      [id]: {
-        value: target.value,
-        valid: valid,
+      [field]: {
+        value,
+        valid: isValid,
       },
     }));
 
-    if (id === "name" && valid) {
+    if (field === "name" && isValid) {
       setTimeout(() => {
         capitalRef.current?.focus();
       }, 100);
     }
+  }, [activeCountries, randomIndex, validateAnswer]);
 
-    // Vérifier si les deux réponses sont correctes
-    const countryValid = id === "name" ? valid : currentCountry.name.valid;
-    const capitalValid =
-      id === "capital" ? valid : currentCountry.capital.valid;
+  const handleSubmit = useCallback(() => {
+    const currentCountryCode = activeCountries[randomIndex]?.properties.code;
+    if (!currentCountryCode) return;
 
-    if (countryValid && capitalValid) {
-      const countryName = country.properties.name;
-      const capitalName = country.properties.capital;
-      const countryCode = country.properties.code;
+    const isNameValid = currentCountry.name.valid;
+    const isCapitalValid = currentCountry.capital.valid;
 
-      const message =
-        mode === "quiz"
-          ? `Bravo ! ${countryName} - ${capitalName} 🎉`
-          : `Bravo ! Vous avez trouvé ${countryName} - ${capitalName} 🎉🎉🎉`;
-
-      toast.success(message);
-
-      // Ajouter le pays aux validés immédiatement pour éviter qu'il soit sélectionné à nouveau
-      const newValidatedCountries = [...validatedCountries, countryCode];
-      setValidatedCountries(newValidatedCountries);
+    if (isNameValid && isCapitalValid) {
+      const updatedValidatedCountries = [...validatedCountries, currentCountryCode];
+      setValidatedCountries(updatedValidatedCountries);
+      onCorrectAnswer?.(currentCountryCode);
 
       // Synchroniser avec le backend si nécessaire
       if (onProgressSync) {
         onProgressSync(
-          newValidatedCountries,
+          updatedValidatedCountries,
           incorrectCountries,
-          newValidatedCountries.length,
-          activeCountries.length // Utiliser les pays actifs, pas tous les pays
+          updatedValidatedCountries.length,
+          activeCountries.length
         );
       }
 
-      // Appeler le callback pour réponse correcte
-      onCorrectAnswer?.(countryCode);
-
-      setTimeout(
-        () => {
-          // Utiliser la nouvelle liste de pays validés pour la sélection du prochain pays
-          changeIndexWithValidated(true, newValidatedCountries);
-        },
-        mode === "quiz" ? 500 : 200
-      );
-    }
-  };
-
-  // Nouvelle fonction pour changer l'index avec une liste de pays validés à jour
-  const changeIndexWithValidated = useCallback(
-    (valid = false, updatedValidatedCountries = validatedCountries) => {
-      // Logique de fin de jeu différente selon le mode
-      let shouldEndGame = false;
-
-      if (options.isMultiplayer) {
-        // Mode multijoueur : finir quand tous les pays actifs sont traités
-        const allActiveCountriesProcessed = activeCountries.every(
-          (country) =>
-            updatedValidatedCountries.includes(country.properties.code) ||
-            incorrectCountries.includes(country.properties.code)
-        );
-
-        const totalAnswered =
-          updatedValidatedCountries.length + incorrectCountries.length;
-        const allAnswered = totalAnswered >= activeCountries.length;
-
-        shouldEndGame = allActiveCountriesProcessed || allAnswered;
-
-        if (shouldEndGame) {
-          console.log(
-            "Fin de jeu multijoueur détectée - tous les pays actifs traités"
-          );
-        }
-      } else {
-        // Mode solo : finir quand tous les pays (validés + incorrects) sont traités
-        const allCountriesProcessed = countries.every(
-          (country) =>
-            updatedValidatedCountries.includes(country.properties.code) ||
-            incorrectCountries.includes(country.properties.code)
-        );
-
-        shouldEndGame =
-          allCountriesProcessed ||
-          updatedValidatedCountries.length === countries.length;
-
-        if (shouldEndGame) {
-          console.log("Fin de jeu solo détectée - tous les pays traités");
-        }
-      }
-
+      // Vérifier si le jeu doit se terminer
       if (shouldEndGame) {
         endGame();
         return;
       }
 
-      let newIndex;
-      let attempts = 0;
-      const maxAttempts = activeCountries.length * 2; // Éviter une boucle infinie
-
-      do {
-        newIndex = Math.floor(Math.random() * activeCountries.length);
-        attempts++;
-        if (attempts > maxAttempts) {
-          console.error(
-            "Impossible de trouver un pays non validé après plusieurs tentatives"
-          );
-          endGame(); // Terminer le jeu si on ne trouve pas de pays disponible
-          return;
-        }
-      } while (
-        updatedValidatedCountries.includes(
-          activeCountries[newIndex]?.properties.code
-        ) ||
-        (mode === "quiz" &&
-          incorrectCountries.includes(
-            activeCountries[newIndex]?.properties.code
-          ))
-      );
-
-      // Ajouter le pays actuel aux incorrects si la réponse est fausse
-      if (!valid && activeCountries[randomIndex] && mode === "quiz") {
-        setIncorrectCountries((prev) => {
-          const code = activeCountries[randomIndex].properties.code;
-          const newIncorrectCountries = prev.includes(code)
-            ? prev
-            : [...prev, code];
-
-          // Synchroniser avec le backend si nécessaire
-          if (onProgressSync) {
-            onProgressSync(
-              validatedCountries,
-              newIncorrectCountries,
-              validatedCountries.length,
-              activeCountries.length // Utiliser les pays actifs, pas tous les pays
-            );
-          }
-
-          return newIncorrectCountries;
-        });
-
-        // Appeler le callback pour réponse incorrecte
-        onIncorrectAnswer?.();
+      const newIndex = findNextRandomIndex();
+      if (newIndex === -1 || newIndex === 404) {
+        endGame();
+        return;
       }
 
       setRandomIndex(newIndex);
       setCurrentCountry(defaultValues);
-
+      
       setTimeout(() => {
         countryRef.current?.focus();
       }, 100);
+    } else {
+      const updatedIncorrectCountries = [...incorrectCountries, currentCountryCode];
+      setIncorrectCountries(updatedIncorrectCountries);
+      onIncorrectAnswer?.();
 
-      if (!valid && activeCountries[randomIndex]) {
-        const country = activeCountries[randomIndex];
-        toast.error(
-          `La bonne réponse était ${country.properties.name} - ${country.properties.capital}`
+      if (mode === "quiz") {
+        toast.error("Mauvaise réponse !");
+      }
+
+      // Synchroniser avec le backend si nécessaire
+      if (onProgressSync) {
+        onProgressSync(
+          validatedCountries,
+          updatedIncorrectCountries,
+          validatedCountries.length,
+          activeCountries.length
         );
       }
-    },
-    [
-      countries,
-      activeCountries,
-      validatedCountries,
-      incorrectCountries,
-      randomIndex,
-      defaultValues,
-      mode,
-      endGame,
-      onIncorrectAnswer,
-      onProgressSync,
-      options.isMultiplayer,
-    ]
-  );
 
-  const resetGame = () => {
-    setValidatedCountries([]);
-    setIncorrectCountries([]);
-    setCurrentCountry(defaultValues);
-    setGameEnded(false);
-    setRandomIndex(defineRandomIndex());
-  };
-
-  const changeIndex = useCallback(
-    (valid = false) => {
-      changeIndexWithValidated(valid);
-    },
-    [changeIndexWithValidated]
-  );
-
-  // Raccourcis clavier
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Backspace" && e.ctrlKey) {
-        changeIndex();
+      // Passer au pays suivant
+      const newIndex = findNextRandomIndex();
+      if (newIndex === -1 || newIndex === 404) {
+        endGame();
+        return;
       }
-    };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [changeIndex]);
-
-  // Corriger le useEffect d'initialisation
-  useEffect(() => {
-    if (activeCountries.length > 0 && !hasRestoredState.current) {
-      // Appeler directement la logique au lieu de defineRandomIndex()
-      const index = Math.floor(Math.random() * activeCountries.length);
-      setRandomIndex(index);
+      setRandomIndex(newIndex);
+      setCurrentCountry(defaultValues);
+      
+      setTimeout(() => {
+        countryRef.current?.focus();
+      }, 100);
     }
-  }, [activeCountries.length]); // Utiliser activeCountries.length au lieu de countries
-
-  // Synchroniser l'état avec les données initiales
-  useEffect(() => {
-    if (
-      !hasRestoredState.current &&
-      (initialValidatedCountries.length > 0 ||
-        initialIncorrectCountries.length > 0)
-    ) {
-      hasRestoredState.current = true;
-      setValidatedCountries(initialValidatedCountries);
-      setIncorrectCountries(initialIncorrectCountries);
-
-      // Si on a des pays validés, calculer le prochain index en conséquence
-      if (activeCountries.length > 0) {
-        const availableCountries = activeCountries.filter(
-          (country) =>
-            !initialValidatedCountries.includes(country.properties.code) &&
-            !initialIncorrectCountries.includes(country.properties.code)
-        );
-
-        if (availableCountries.length > 0) {
-          const randomIndex = Math.floor(
-            Math.random() * availableCountries.length
-          );
-          const countryIndex = activeCountries.findIndex(
-            (country) =>
-              country.properties.code ===
-              availableCountries[randomIndex].properties.code
-          );
-          setRandomIndex(countryIndex);
-        } else {
-          // Tous les pays ont été traités
-          setGameEnded(true);
-        }
-      }
-    }
-  }, [initialValidatedCountries, initialIncorrectCountries, activeCountries]);
-
-  return {
-    countries,
+  }, [
     activeCountries,
     randomIndex,
     currentCountry,
-    changeIndex,
-    handleChange,
-    refs: {
-      capitalRef,
-      countryRef,
+    validatedCountries,
+    incorrectCountries,
+    onCorrectAnswer,
+    onIncorrectAnswer,
+    onProgressSync,
+    shouldEndGame,
+    endGame,
+    findNextRandomIndex,
+    defaultValues,
+    mode,
+  ]);
+
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === "Enter") {
+        handleSubmit();
+      }
     },
+    [handleSubmit]
+  );
+
+  const reset = useCallback(() => {
+    setValidatedCountries([]);
+    setIncorrectCountries([]);
+    setGameEnded(false);
+    setCurrentCountry(defaultValues);
+    
+    const newIndex = findNextRandomIndex();
+    setRandomIndex(newIndex !== -1 && newIndex !== 404 ? newIndex : 0);
+    
+    setTimeout(() => {
+      countryRef.current?.focus();
+    }, 100);
+  }, [defaultValues, findNextRandomIndex]);
+
+  // Initialisation du jeu
+  useEffect(() => {
+    if (activeCountries.length > 0 && !hasRestoredState.current) {
+      const newIndex = findNextRandomIndex();
+      setRandomIndex(newIndex !== -1 && newIndex !== 404 ? newIndex : 0);
+      hasRestoredState.current = true;
+    }
+  }, [activeCountries, findNextRandomIndex]);
+
+  // Synchronisation des états restaurés
+  useEffect(() => {
+    if (initialValidatedCountries.length > 0 || initialIncorrectCountries.length > 0) {
+      const newIndex = findNextRandomIndex();
+      if (newIndex !== -1 && newIndex !== 404) {
+        setRandomIndex(newIndex);
+      } else {
+        endGame();
+      }
+    }
+  }, [initialValidatedCountries, initialIncorrectCountries, findNextRandomIndex, endGame]);
+
+  return {
+    currentCountry,
+    randomIndex,
     validatedCountries,
     incorrectCountries,
     score,
-    resetGame,
     gameEnded,
+    activeCountries,
+    handleChange,
+    handleSubmit,
+    handleKeyDown,
+    reset,
+    countryRef,
+    capitalRef,
   };
 };
+
+// Re-export types
+export type { Country };

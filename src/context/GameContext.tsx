@@ -5,9 +5,8 @@ import { createContext, type ChangeEvent } from "react";
 type FilteredCountry = Country & { filtered?: boolean };
 
 type GameContext = {
-  countries: FilteredCountry[]; // Mise à jour du type
+  countries: FilteredCountry[];
   activeCountries: Country[];
-  changeIndex: (valid?: boolean) => void;
   validatedCountries: string[];
   incorrectCountries: string[];
   randomIndex: number;
@@ -15,12 +14,14 @@ type GameContext = {
     name: { value: string; valid: boolean };
     capital: { value: string; valid: boolean };
   };
-  refs: {
-    countryRef: React.RefObject<HTMLInputElement | null>;
-    capitalRef: React.RefObject<HTMLInputElement | null>;
-  };
+  countryRef: React.RefObject<HTMLInputElement | null>;
+  capitalRef: React.RefObject<HTMLInputElement | null>;
   handleChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  handleSubmit: () => void;
+  handleKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => void;
   score: number;
+  gameEnded: boolean;
+  reset: () => void;
 };
 
 export const GameContext = createContext<GameContext | null>(null);

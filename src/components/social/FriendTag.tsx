@@ -16,7 +16,6 @@ export const FriendTag = () => {
 
   // Copier le tag dans le presse-papier
   const copyTag = () => {
-    console.log("test");
     navigator.clipboard.writeText(tag);
     toast("Tag copié", {
       description: "Votre tag a été copié dans le presse-papier",

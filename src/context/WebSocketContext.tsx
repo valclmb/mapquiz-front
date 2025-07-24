@@ -32,7 +32,6 @@ export function WebSocketProvider({
   onGameStart,
 }: WebSocketProviderProps) {
   const { data: session } = authClient.useSession();
-  console.log("WebSocketProvider MOUNT", session);
   const queryClient = useQueryClient();
 
   // Vérifier si l'utilisateur est authentifié via better-auth
@@ -49,12 +48,10 @@ export function WebSocketProvider({
     setExternalCallbacks,
   } = useWebSocket({
     userId: isUserLoggedIn ? session?.user?.id : undefined,
-    onFriendRequestReceived: (request) => {
-      console.log("Nouvelle demande d'ami reçue:", request);
+    onFriendRequestReceived: () => {
       queryClient.invalidateQueries({ queryKey: ["friendRequests"] });
     },
     onFriendStatusChange: (friendId, isOnline, lastSeen) => {
-      console.log(`Ami ${friendId} ${isOnline ? "connecté" : "déconnecté"}`);
       queryClient.setQueryData(["friends"], (oldData: Friend[] | undefined) => {
         if (!oldData) return oldData;
         return oldData.map((friend: Friend) => {

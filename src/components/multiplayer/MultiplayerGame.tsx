@@ -83,7 +83,6 @@ export const MultiplayerGame = ({
           totalQuestions: activeCountries.length, // Utiliser les pays actifs
         },
       });
-      console.log("Fin de jeu multijoueur - message envoyé au backend");
     },
     onGameEnd: (score: number) => {
       // Envoyer le score final avec la progression complète
@@ -111,9 +110,6 @@ export const MultiplayerGame = ({
     return () => {
       // Ne plus envoyer automatiquement le message leave_game
       // Cela causait des problèmes de synchronisation
-      console.log(
-        "MultiplayerGame - Composant démonté sans envoyer leave_game"
-      );
     };
   }, []);
 

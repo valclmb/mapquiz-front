@@ -17,7 +17,6 @@ export const FriendRequests = () => {
   const { data: requests = [], isLoading } = useFriendRequests();
   const handleRequestMutation = useHandleFriendRequest();
 
-  console.log(requests);
   const handleRequest = async (
     requestId: string,
     action: "accept" | "reject"
