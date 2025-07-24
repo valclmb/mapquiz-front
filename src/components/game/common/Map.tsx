@@ -26,10 +26,10 @@ export const Map = () => {
   const countryStyle = (key: number) => {
     // Utiliser le code du pays au lieu de l'index
     if (countries[key]?.properties.code === currentCountryCode) {
-      return "#431407";
+      return "#60a5fa";
     }
     if (validatedCountries.includes(countries[key]?.properties.code)) {
-      return "#10b981";
+      return "#22c55e";
     }
     if (incorrectCountries.includes(countries[key]?.properties.code)) {
       return "var(--color-destructive)";
@@ -38,7 +38,7 @@ export const Map = () => {
       return "var(--color-secondary)";
     }
 
-    return "var(--color-primary)";
+    return theme === "light" ? "black" : "white";
   };
 
   return (
