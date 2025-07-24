@@ -74,7 +74,7 @@ export const QuizGame = ({ countries, selectedRegions }: QuizGameProps) => {
       <Typography variant="h2" className="text-center">
         QUIZ
       </Typography>
-      <Map />
+      <Map selectedRegions={selectedRegions} />
       <Form />
       <div className="flex items-center gap-4 ml-8 mt-4">
         <Score />

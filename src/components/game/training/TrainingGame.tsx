@@ -16,6 +16,19 @@ type GameProps = {
 
 export const TrainingGame = ({ countries }: GameProps) => {
   const { filteredCountries, filter, setFilter } = useFilter(countries);
+
+  const ALL_REGIONS = [
+    "Europe",
+    "Asie",
+    "Afrique",
+    "Océanie",
+    "Amérique du Sud",
+    "Amérique du Nord",
+  ];
+  const selectedRegions = ALL_REGIONS.filter(
+    (region) => !filter.includes(region)
+  );
+
   const map = useMapGame(filteredCountries, {
     mode: "practice",
   });
@@ -25,7 +38,7 @@ export const TrainingGame = ({ countries }: GameProps) => {
       <Typography variant="h2" className="text-center ">
         ENTRAINEMENT
       </Typography>
-      <Map />
+      <Map selectedRegions={selectedRegions} />
       <Form />
       <div className="flex items-center gap-4 ml-8 mt-4">
         <Filter filter={filter} setFilter={setFilter} />

@@ -167,7 +167,7 @@ export const MultiplayerGame = ({
           totalCountries={activeCountries.length}
           className="border-secondary rounded-none rounded-s-2xl translate-x-[2px] shadow-none z-0 mt-10"
         />
-        <Map />
+        <Map selectedRegions={selectedRegions} />
       </div>
 
       <Form />
