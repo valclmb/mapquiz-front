@@ -1,78 +1,76 @@
 import { GameContext } from "@/context/GameContext";
 import { useFilter } from "@/hooks/useFilter";
-import { useMapGame, type Country } from "@/hooks/useMapGame";
+import { useMapGame } from "@/hooks/useMapGame";
 import { useMultiplayerGame } from "@/hooks/useMultiplayerGame";
 import { authClient } from "@/lib/auth-client";
+import type { Country } from "@/lib/data";
+import type { LobbyState, MultiplayerPlayer } from "@/types/lobby";
+import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Form } from "../game/common/Form";
 import { Map } from "../game/common/Map";
+import { Button } from "../ui/button";
 import Typography from "../ui/Typography";
 import { LobbyScoreList } from "./LobbyScoreList";
-import { MultiplayerResults } from "./MultiplayerResults";
 
 type MultiplayerGameProps = {
-  lobbyId: string;
-  gameState: {
-    countries: Country[];
-    settings: {
-      selectedRegions: string[];
-    };
-    players?: Array<{
-      id: string;
-      name: string;
-      score: number;
-      progress: number;
-      status: string;
-      validatedCountries: string[];
-      incorrectCountries: string[];
-    }>;
-  };
+  lobby: LobbyState | null;
+  countries: Country[];
+  selectedRegions: string[];
 };
 
 export const MultiplayerGame = ({
-  lobbyId,
-  gameState,
+  lobby,
+  countries,
+  selectedRegions,
 }: MultiplayerGameProps) => {
-  const { countries } = gameState;
+  const lobbyId = lobby?.lobbyId || "";
+  // Cast les joueurs en MultiplayerPlayer (si le backend ne les fournit pas déjà typés)
+  const players: MultiplayerPlayer[] = (lobby?.players ??
+    []) as MultiplayerPlayer[];
+  // Crée un lobby adapté pour le hook
+  const multiplayerLobby = lobby ? { ...lobby, players } : { players: [] };
+
   const { filteredCountries, activeCountries } = useFilter(
-    countries || [],
-    gameState.settings.selectedRegions
+    countries,
+    selectedRegions
   );
+  const navigate = useNavigate();
 
-  const {
-    gameFinished,
-    playerScores,
-    rankings,
-    sendMessage,
-    myProgress,
-    syncProgressWithBackend,
-  } = useMultiplayerGame(lobbyId, gameState);
+  const { playerScores, sendMessage, myProgress, syncProgressWithBackend } =
+    useMultiplayerGame(lobbyId, multiplayerLobby);
 
-  // Récupérer ma progression depuis le gameState si disponible
+  // Récupérer ma progression depuis les players si disponible
   const { data: session } = authClient.useSession();
   const currentUserId = session?.user?.id;
-  const myGameStateProgress = gameState.players?.find(
-    (p) => p.id === currentUserId
-  );
+  const myGameStateProgress = players.find((p) => p.id === currentUserId);
 
-  // Utiliser la progression du hook en priorité, sinon celle du gameState
-  const initialValidatedCountries =
-    myProgress?.validatedCountries ||
-    myGameStateProgress?.validatedCountries ||
-    [];
-  const initialIncorrectCountries =
-    myProgress?.incorrectCountries ||
-    myGameStateProgress?.incorrectCountries ||
-    [];
+  const isGameActive =
+    lobby?.status === "playing" || lobby?.status === "waiting";
+
+  const initialValidatedCountries = isGameActive
+    ? myProgress?.validatedCountries ||
+      myGameStateProgress?.validatedCountries ||
+      []
+    : [];
+  const initialIncorrectCountries = isGameActive
+    ? myProgress?.incorrectCountries ||
+      myGameStateProgress?.incorrectCountries ||
+      []
+    : [];
+
+  console.log("[MultiplayerGame] status:", lobby?.status, {
+    initialValidatedCountries,
+    initialIncorrectCountries,
+  });
 
   const map = useMapGame(filteredCountries, {
     mode: "quiz",
-    isMultiplayer: true, // Activer la logique de fin de jeu multijoueur
+    isMultiplayer: true,
     initialValidatedCountries,
     initialIncorrectCountries,
     onProgressSync: syncProgressWithBackend,
     onMultiplayerGameEnd: () => {
-      // Envoyer le score final avec la progression complète
       sendMessage({
         type: "update_player_progress",
         payload: {
@@ -80,13 +78,12 @@ export const MultiplayerGame = ({
           validatedCountries: map.validatedCountries,
           incorrectCountries: map.incorrectCountries,
           score: map.validatedCountries.length,
-          totalQuestions: activeCountries.length, // Utiliser les pays actifs
+          totalQuestions: activeCountries.length,
         },
       });
       console.log("Fin de jeu multijoueur - message envoyé au backend");
     },
     onGameEnd: (score: number) => {
-      // Envoyer le score final avec la progression complète
       sendMessage({
         type: "update_player_progress",
         payload: {
@@ -94,7 +91,7 @@ export const MultiplayerGame = ({
           validatedCountries: map.validatedCountries,
           incorrectCountries: map.incorrectCountries,
           score,
-          totalQuestions: activeCountries.length, // Utiliser les pays actifs
+          totalQuestions: activeCountries.length,
         },
       });
     },
@@ -117,7 +114,17 @@ export const MultiplayerGame = ({
     };
   }, []);
 
-  // Protection contre countries undefined
+  if (!lobby) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-gray-600">Chargement de la partie...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!countries || !Array.isArray(countries)) {
     console.error("MultiplayerGame - countries invalide:", countries);
     return (
@@ -128,19 +135,25 @@ export const MultiplayerGame = ({
             Impossible de charger les données de pays. Veuillez rafraîchir la
             page.
           </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
+          <Button onClick={() => window.location.reload()}>
             Rafraîchir la page
-          </button>
+          </Button>
         </div>
       </div>
     );
   }
 
-  if (gameFinished) {
-    return <MultiplayerResults rankings={rankings} onRestart={() => {}} />;
+  if (!isGameActive) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-gray-600">
+            En attente du démarrage de la partie...
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -148,13 +161,13 @@ export const MultiplayerGame = ({
       <Typography variant="h2" className="text-center">
         MULTIJOUEUR
       </Typography>
-      <div className="flex items-start gap-4 mt-4">
+      <div className="relative flex items-start mt-4 " dir="ltr">
         <LobbyScoreList
           players={playerScores}
           totalCountries={activeCountries.length}
-          className="border-secondary"
+          className="border-secondary rounded-none rounded-s-2xl translate-x-[2px] shadow-none z-0 mt-10"
         />
-        <Map />
+        <Map selectedRegions={selectedRegions} />
       </div>
 
       <Form />

@@ -1,6 +1,8 @@
-import { LobbyRoom } from "@/components/multiplayer/LobbyRoom";
-import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { LobbyProvider } from "@/context/LobbyProvider";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { useWebSocketContext } from "@/context/WebSocketContext";
+import { useEffect } from "react";
+import { authClient } from "@/lib/auth-client";
 
 export const Route = createFileRoute("/multiplayer/$lobbyId")({
   component: LobbyParentPage,
@@ -8,19 +10,22 @@ export const Route = createFileRoute("/multiplayer/$lobbyId")({
 
 function LobbyParentPage() {
   const { lobbyId } = Route.useParams();
-  const [isHost, setIsHost] = useState(false);
-
-  const location = useLocation();
+  const { sendMessage } = useWebSocketContext();
+  const { data: session } = authClient.useSession();
 
   useEffect(() => {
-    setIsHost(true);
-  }, [lobbyId]);
+    if (lobbyId && session?.user?.id) {
+      sendMessage({
+        type: "join_lobby",
+        payload: { lobbyId },
+      });
+    }
+  }, [lobbyId, session?.user?.id, sendMessage]);
 
-  // // Affiche le lobby UNIQUEMENT sur la route exacte
-  if (location.pathname === `/multiplayer/${lobbyId}`) {
-    return <LobbyRoom lobbyId={lobbyId} isHost={isHost} />;
-  }
-
-  // Sinon, affiche la page enfant (game, result, etc.)
-  return <Outlet />;
+  console.log("LobbyParentPage MOUNT");
+  return (
+    <LobbyProvider lobbyId={lobbyId}>
+      <Outlet />
+    </LobbyProvider>
+  );
 }

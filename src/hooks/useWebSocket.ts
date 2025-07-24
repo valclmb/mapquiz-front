@@ -1,9 +1,8 @@
+import type { LobbySettings, Player } from "@/types/game";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { Friend } from "./queries/useFriends";
-
-import type { LobbySettings, Player } from "@/types/game";
 
 export interface WebSocketMessage {
   type: string;
@@ -27,8 +26,8 @@ export interface WebSocketMessage {
       id: string;
       [key: string]: unknown;
     };
-    players?: Player[]; // Ajouter cette ligne
-    settings?: LobbySettings; // Ajouter cette ligne
+    players?: Player[];
+    settings?: LobbySettings;
     [key: string]: unknown;
   };
 }
@@ -55,9 +54,7 @@ export function useWebSocket({
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [reconnectAttempts, setReconnectAttempts] = useState(0);
   const [lastMessage, setLastMessage] = useState<WebSocketMessage | null>(null);
-  // const maxReconnectAttempts = 5;
 
-  // Stocke les callbacks externes (navigation, etc.)
   const externalCallbacksRef = useRef<{
     onLobbyJoined?: (lobbyId: string) => void;
     onGameStart?: (lobbyId: string) => void;
@@ -72,183 +69,119 @@ export function useWebSocket({
     []
   );
 
-  // Fonction pour se déconnecter (déplacée avant connect)
   const disconnect = useCallback(() => {
-    console.log("Déconnexion WebSocket");
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
     }
-
     if (wsRef.current) {
       wsRef.current.close();
       wsRef.current = null;
     }
-
     setIsConnected(false);
     setIsAuthenticated(false);
   }, []);
 
-  // Ne pas établir de connexion si userId n'existe pas
   const connect = useCallback(() => {
-    console.log("OUVERTURE WEBSOCKET", new Date().toISOString());
     if (!userId) {
       setIsConnected(false);
       setIsAuthenticated(false);
       return;
     }
-
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       return;
     }
-
     try {
       const wsUrl =
         import.meta.env.VITE_WS_URL ||
         (process.env.NODE_ENV === "production"
           ? `wss://${window.location.host}/ws`
           : "ws://localhost:3000/ws");
-
       wsRef.current = new WebSocket(wsUrl);
-
       wsRef.current.onopen = () => {
-        console.log("WebSocket connecté");
         setIsConnected(true);
-        setReconnectAttempts(0); // Réinitialiser les tentatives de reconnexion
-
-        // Authentifier automatiquement si userId est disponible
+        setReconnectAttempts(0);
         if (userId) {
           authenticate(userId);
         } else {
-          // Si pas d'userId, fermer la connexion
           disconnect();
         }
       };
-
       wsRef.current.onmessage = (event) => {
         try {
           const message: WebSocketMessage = JSON.parse(event.data);
           handleMessage(message);
-        } catch (error) {
-          console.error("Erreur parsing message WebSocket:", error);
+        } catch {
+          // Erreur de parsing ignorée volontairement
         }
       };
-
       wsRef.current.onclose = () => {
-        console.log("WebSocket déconnecté");
         setIsConnected(false);
         setIsAuthenticated(false);
-
-        // Réactiver la reconnexion automatique
         const maxReconnectAttempts = 5;
         if (reconnectAttempts < maxReconnectAttempts) {
           const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000);
-          console.log(
-            `Tentative de reconnexion dans ${delay}ms... (${reconnectAttempts + 1}/${maxReconnectAttempts})`
-          );
-
           reconnectTimeoutRef.current = setTimeout(() => {
             setReconnectAttempts((prev) => prev + 1);
             connect();
           }, delay);
         } else {
-          console.error("Nombre maximum de tentatives de reconnexion atteint");
           toast.error(
             "Connexion WebSocket perdue. Veuillez rafraîchir la page."
           );
         }
       };
-
-      wsRef.current.onerror = (error) => {
-        console.error("Erreur WebSocket détaillée:", {
-          error,
-          readyState: wsRef.current?.readyState,
-          url: wsUrl,
-        });
+      wsRef.current.onerror = () => {
+        setIsConnected(false);
       };
-    } catch (error) {
-      console.error("Erreur lors de la connexion WebSocket:", error);
+    } catch {
+      toast.error("Erreur lors de la connexion WebSocket");
     }
   }, [userId, reconnectAttempts, disconnect]);
 
-  // Fonction pour gérer les messages reçus
   const handleMessage = useCallback(
     (message: WebSocketMessage) => {
-      // Ajouter un log pour tous les messages reçus
-      console.log("Message WebSocket reçu:", message);
-
-      // Mettre à jour le dernier message reçu
       setLastMessage(message);
       switch (message.type) {
         case "authenticated":
           setIsAuthenticated(true);
-          console.log("Authentifié via WebSocket");
           break;
-
         case "auth_error":
-          console.error("Erreur d'authentification:", message.message);
           setIsAuthenticated(false);
           break;
-
-        case "connected":
-          console.log("Connexion WebSocket établie:", message.message);
-          // Pas besoin de changer l'état ici, car setIsConnected(true) est déjà appelé dans onopen
-          break;
-
         case "friend_request_received":
-          console.log("Nouvelle demande d'ami reçue:", message.payload);
-          toast.success("Nouvelle demande d'ami reçue!");
-
-          // Invalider ET refetch immédiatement
-          queryClient.invalidateQueries({
-            queryKey: ["friendRequests"],
-            refetchType: "active",
+          toast("Nouvelle demande d'ami reçue !", {
+            action: {
+              label: "Voir",
+              onClick: () => {},
+            },
           });
-
-          // Alternative: refetch explicite
-          queryClient.refetchQueries({ queryKey: ["friendRequests"] });
-
-          if (onFriendRequestReceived) {
-            onFriendRequestReceived(message.payload?.request);
-          }
+          queryClient.invalidateQueries({ queryKey: ["friendRequests"] });
           break;
-
         case "friend_request_sent":
           toast.success("Invitation envoyée!");
           break;
-
         case "send_friend_request_success":
           toast.success("Demande d'ami envoyée avec succès!");
           break;
-
         case "friend_request_accepted":
           toast.success("Votre demande d'ami a été acceptée!");
-
-          // Invalider les requêtes pour mettre à jour l'UI
           queryClient.invalidateQueries({ queryKey: ["friends"] });
           queryClient.invalidateQueries({ queryKey: ["friendRequests"] });
           break;
-
         case "friend_request_responded": {
           const action = message.payload?.action;
           toast.success(message.payload?.message);
-
-          // Invalider les requêtes pour mettre à jour l'UI
           queryClient.invalidateQueries({ queryKey: ["friendRequests"] });
           if (action === "accepted") {
             queryClient.invalidateQueries({ queryKey: ["friends"] });
           }
           break;
         }
-
         case "friend_status_change": {
-          console.log("Changement de statut d'ami:", message.payload);
-
-          // Mettre à jour le cache des amis
           queryClient.setQueryData(
             ["friends"],
             (oldData: Friend[] | undefined) => {
               if (!oldData) return oldData;
-
               return oldData.map((friend: Friend) => {
                 if (friend.id === message.payload?.friendId) {
                   return {
@@ -261,7 +194,6 @@ export function useWebSocket({
               });
             }
           );
-
           if (
             onFriendStatusChange &&
             message.payload?.friendId &&
@@ -276,22 +208,13 @@ export function useWebSocket({
           }
           break;
         }
-
         case "pong":
-          // Réponse au ping, connexion active
           break;
-
         case "error":
-          console.error("Erreur WebSocket:", message.message);
           toast.error(message.message || "Erreur WebSocket");
           break;
-
         case "create_lobby_success":
-          console.log("Lobby créé avec succès:", message);
           toast.success("Lobby créé avec succès!");
-
-          // Transformer ce message en un message de type "lobby_update"
-          // pour que le hook useLobbyRoom puisse le traiter
           if (message.data?.lobby?.id) {
             setLastMessage({
               type: "lobby_update",
@@ -299,16 +222,14 @@ export function useWebSocket({
                 lobbyId: message.data.lobby.id,
                 players: message.data.players,
                 settings: message.data.settings,
-                hostId: message.data.hostId as string, // Ajouter le hostId
+                hostId: message.data.hostId as string,
+                status: message.data.lobby.status,
               },
             });
-            // Utilise le callback externe pour la navigation
             externalCallbacksRef.current.onLobbyJoined?.(message.data.lobby.id);
           }
           break;
-
         case "lobby_invitation":
-          console.log("Invitation à un lobby reçue:", message.payload);
           toast(
             `Vous avez été invité à rejoindre le lobby "${message.payload?.lobbyName}" par ${message.payload?.hostName}`,
             {
@@ -316,15 +237,12 @@ export function useWebSocket({
                 label: "Rejoindre",
                 onClick: () => {
                   if (message.payload?.lobbyId) {
-                    // Envoyer un message pour rejoindre le lobby
                     sendMessage({
                       type: "join_lobby",
                       payload: {
                         lobbyId: message.payload.lobbyId,
                       },
                     });
-
-                    // Rediriger vers la page du lobby
                     externalCallbacksRef.current.onLobbyJoined?.(
                       message.payload.lobbyId
                     );
@@ -335,8 +253,6 @@ export function useWebSocket({
           );
           break;
         case "invite_to_lobby_success":
-          // Transformer ce message en un message de type "lobby_update"
-          // pour que le hook useLobbyRoom puisse le traiter
           if (message.payload?.lobbyId && message.payload?.players) {
             setLastMessage({
               type: "lobby_update",
@@ -344,15 +260,13 @@ export function useWebSocket({
                 lobbyId: message.payload.lobbyId,
                 players: message.payload.players,
                 settings: message.payload.settings,
-                hostId: message.payload.hostId as string, // Ajouter le hostId
+                hostId: message.payload.hostId as string,
               },
             });
             toast.success("Invitation envoyée avec succès");
           }
           break;
-
         case "join_lobby_success":
-          // Ne faire le toast et la navigation que lors du join initial
           if (message.data?.lobby?.id) {
             setLastMessage({
               type: "lobby_update",
@@ -367,50 +281,34 @@ export function useWebSocket({
             externalCallbacksRef.current.onLobbyJoined?.(message.data.lobby.id);
           }
           break;
-
         case "lobby_update":
-          // Ne faire que la mise à jour d'état, pas de toast/navigation
           setLastMessage(message);
           break;
-
         case "set_player_ready_success":
-          // Afficher un toast de succès
           toast.success(String(message.data?.message || "Statut mis à jour"));
           break;
-
         case "start_game_success":
-          // Afficher un toast de succès
           toast.success("Partie démarrée avec succès!");
           break;
-
         case "leave_game_success":
           toast.success("Vous avez quitté la partie");
-          externalCallbacksRef.current.onLobbyJoined?.(""); // Redirige vers l'accueil si besoin
+          externalCallbacksRef.current.onLobbyJoined?.("");
           break;
-
         case "leave_lobby_success":
           toast.success("Vous avez quitté le lobby");
-          externalCallbacksRef.current.onLobbyJoined?.(""); // Redirige vers l'accueil si besoin
+          externalCallbacksRef.current.onLobbyJoined?.("");
           break;
-
+        case "remove_player_success":
+          toast.success("Joueur supprimé avec succès");
+          break;
+        case "player_removed":
+          toast.error("Vous avez été expulsé du lobby par l'hôte");
+          externalCallbacksRef.current.onLobbyJoined?.("");
+          break;
+        case "get_disconnected_players_success":
+          break;
         case "game_start": {
-          console.log("Partie démarrée:", message.data);
-          const gameStateData = message.data?.gameState as
-            | { countries?: unknown[]; settings?: unknown }
-            | undefined;
-          console.log("game_start - détails du message:", {
-            lobbyId: message.data?.lobbyId,
-            gameState: message.data?.gameState,
-            countriesCount: gameStateData?.countries?.length,
-            settings: gameStateData?.settings,
-          });
-
-          // Si le message contient l'état du jeu, le traiter directement
           if (message.data?.gameState) {
-            console.log(
-              "game_start - traitement du gameState:",
-              message.data.gameState
-            );
             setLastMessage({
               type: "game_state_update",
               payload: {
@@ -419,18 +317,15 @@ export function useWebSocket({
               },
             });
           }
-
-          // Rediriger vers la page du jeu
-          if (message.data?.lobbyId) {
+          if (
+            message.data?.lobbyId &&
+            typeof message.data.lobbyId === "string"
+          ) {
             externalCallbacksRef.current.onGameStart?.(message.data.lobbyId);
           }
           break;
         }
-
         case "get_game_state_success":
-          console.log("État du jeu reçu:", message.data);
-          // Transformer ce message en un message de type "game_state_update"
-          // pour que le hook useMultiplayerGame puisse le traiter
           if (message.data) {
             setLastMessage({
               type: "game_state_update",
@@ -441,11 +336,7 @@ export function useWebSocket({
             });
           }
           break;
-
         case "score_update":
-          console.log("Mise à jour de score reçue:", message.data);
-          // Transformer ce message en un message de type "player_progress_update"
-          // pour que le hook useMultiplayerGame puisse le traiter
           if (message.data) {
             setLastMessage({
               type: "player_progress_update",
@@ -457,23 +348,18 @@ export function useWebSocket({
             });
           }
           break;
-
-        case "update_game_progress_success":
-          console.log("Mise à jour de progression confirmée:", message.data);
-          // Ce message est juste une confirmation, pas besoin de traitement spécial
+        case "game_restarted": {
+          toast.success("Partie redémarrée par l'hôte !");
+          const lobbyId = message.payload?.lobbyId;
+          if (lobbyId && typeof lobbyId === "string") {
+            externalCallbacksRef.current.onLobbyJoined?.(lobbyId);
+          }
           break;
-
-        case "update_lobby_settings_success":
-          // toast.success("Paramètres du lobby mis à jour !");
-          break;
-
+        }
         case "player_left_game":
-          console.log("Un joueur a quitté la partie:", message.payload);
           toast.info(
             `${message.payload?.playerName || "Un joueur"} a quitté la partie`
           );
-
-          // Transformer ce message en un message de type "lobby_update" pour mettre à jour l'UI
           if (message.payload?.lobbyId) {
             setLastMessage({
               type: "lobby_update",
@@ -486,15 +372,16 @@ export function useWebSocket({
             });
           }
           break;
-
+        case "game_end":
+          setLastMessage(message);
+          break;
         default:
-          console.warn("Type de message WebSocket non géré:", message.type);
+          break;
       }
     },
     [queryClient, onFriendRequestReceived, onFriendStatusChange]
   );
 
-  // Fonction pour s'authentifier
   const authenticate = useCallback((userId: string) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(
@@ -506,9 +393,6 @@ export function useWebSocket({
     }
   }, []);
 
-  // Ajouter ces fonctions à la fin du hook useWebSocket, avant le return
-
-  // Fonction pour envoyer une demande d'ami
   const sendFriendRequest = useCallback(
     (receiverTag: string) => {
       if (wsRef.current?.readyState === WebSocket.OPEN && isAuthenticated) {
@@ -523,7 +407,6 @@ export function useWebSocket({
     [isAuthenticated]
   );
 
-  // Fonction pour répondre à une demande d'ami
   const respondToFriendRequest = useCallback(
     (requestId: string, action: "accept" | "reject") => {
       if (wsRef.current?.readyState === WebSocket.OPEN && isAuthenticated) {
@@ -538,7 +421,6 @@ export function useWebSocket({
     [isAuthenticated]
   );
 
-  // Fonction pour envoyer un message
   const sendMessage = useCallback(
     (message: WebSocketMessage) => {
       if (wsRef.current?.readyState === WebSocket.OPEN && isAuthenticated) {
@@ -548,59 +430,45 @@ export function useWebSocket({
     [isAuthenticated]
   );
 
-  // Fonction pour envoyer un ping
   const ping = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify({ type: "ping" }));
     }
   }, []);
 
-  // Effet pour gérer la connexion
+  const clearLastMessage = useCallback(() => setLastMessage(null), []);
+
   useEffect(() => {
     if (userId) {
       connect();
     }
-
     return () => {
       disconnect();
     };
   }, [userId, connect, disconnect]);
 
-  // Effet pour authentifier quand userId change ou après reconnexion
   useEffect(() => {
     if (userId && isConnected && !isAuthenticated) {
-      console.log("Authentification automatique après connexion");
       authenticate(userId);
     }
   }, [userId, isConnected, isAuthenticated, authenticate]);
 
-  // Effet pour réinitialiser l'authentification quand la connexion est perdue
   useEffect(() => {
     if (!isConnected) {
       setIsAuthenticated(false);
     }
   }, [isConnected]);
 
-  // Ping périodique pour maintenir la connexion
   useEffect(() => {
     if (isConnected) {
       const pingInterval = setInterval(() => {
         if (wsRef.current?.readyState === WebSocket.OPEN) {
           ping();
         }
-        // Supprimer cette partie pour éviter la boucle infinie
-        // else if (
-        //   wsRef.current?.readyState === WebSocket.CLOSED ||
-        //   wsRef.current?.readyState === WebSocket.CLOSING
-        // ) {
-        //   // Forcer une reconnexion si le WebSocket est fermé
-        //   setIsConnected(false);
-        //   connect();
-        // }
-      }, 15000); // Ping toutes les 15 secondes
+      }, 15000);
       return () => clearInterval(pingInterval);
     }
-  }, [isConnected, ping, connect]);
+  }, [isConnected, ping]);
 
   return {
     isConnected,
@@ -611,6 +479,7 @@ export function useWebSocket({
     reconnect: connect,
     sendMessage,
     lastMessage,
+    clearLastMessage,
     setExternalCallbacks,
   };
 }

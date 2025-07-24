@@ -1,7 +1,10 @@
 export interface Player {
   id: string;
   name: string;
-  status: string;
+  // Le statut est optionnel car on ne l'affiche plus pendant le jeu
+  status?: string;
+  isPresentInLobby?: boolean;
+  leftLobbyAt?: string | null;
 }
 
 export interface PlayerScore extends Player {
@@ -20,6 +23,6 @@ export interface Ranking {
   id: string;
   name: string;
   score: number;
-  completionTime: number;
+  completionTime?: number | null;
   rank: number;
 }

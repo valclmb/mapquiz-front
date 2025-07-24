@@ -75,6 +75,15 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
   const [gameEnded, setGameEnded] = useState(false);
   const hasRestoredState = useRef(false);
 
+  useEffect(() => {
+    console.log("[useMapGame] INIT", {
+      initialValidatedCountries,
+      initialIncorrectCountries,
+      countries,
+      activeCountries,
+    });
+  }, []);
+
   const defaultValues = useMemo(
     () => ({
       name: { value: "", valid: false },
@@ -195,45 +204,57 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
   // Nouvelle fonction pour changer l'index avec une liste de pays validés à jour
   const changeIndexWithValidated = useCallback(
     (valid = false, updatedValidatedCountries = validatedCountries) => {
+      // Ajouter le pays actuel aux incorrects si la réponse est fausse (AVANT le test de fin de partie)
+      let newIncorrectCountries = incorrectCountries;
+      if (!valid && activeCountries[randomIndex] && mode === "quiz") {
+        const code = activeCountries[randomIndex].properties.code;
+        if (!incorrectCountries.includes(code)) {
+          newIncorrectCountries = [...incorrectCountries, code];
+          setIncorrectCountries(newIncorrectCountries);
+          // Synchroniser avec le backend si nécessaire
+          if (onProgressSync) {
+            onProgressSync(
+              validatedCountries,
+              newIncorrectCountries,
+              validatedCountries.length,
+              activeCountries.length
+            );
+          }
+        }
+        // Appeler le callback pour réponse incorrecte
+        onIncorrectAnswer?.();
+      }
+
       // Logique de fin de jeu différente selon le mode
       let shouldEndGame = false;
-
       if (options.isMultiplayer) {
-        // Mode multijoueur : finir quand tous les pays actifs sont traités
         const allActiveCountriesProcessed = activeCountries.every(
           (country) =>
             updatedValidatedCountries.includes(country.properties.code) ||
-            incorrectCountries.includes(country.properties.code)
+            newIncorrectCountries.includes(country.properties.code)
         );
-
         const totalAnswered =
-          updatedValidatedCountries.length + incorrectCountries.length;
+          updatedValidatedCountries.length + newIncorrectCountries.length;
         const allAnswered = totalAnswered >= activeCountries.length;
-
         shouldEndGame = allActiveCountriesProcessed || allAnswered;
-
         if (shouldEndGame) {
           console.log(
             "Fin de jeu multijoueur détectée - tous les pays actifs traités"
           );
         }
       } else {
-        // Mode solo : finir quand tous les pays (validés + incorrects) sont traités
         const allCountriesProcessed = countries.every(
           (country) =>
             updatedValidatedCountries.includes(country.properties.code) ||
-            incorrectCountries.includes(country.properties.code)
+            newIncorrectCountries.includes(country.properties.code)
         );
-
         shouldEndGame =
           allCountriesProcessed ||
           updatedValidatedCountries.length === countries.length;
-
         if (shouldEndGame) {
           console.log("Fin de jeu solo détectée - tous les pays traités");
         }
       }
-
       if (shouldEndGame) {
         endGame();
         return;
@@ -241,8 +262,7 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
 
       let newIndex;
       let attempts = 0;
-      const maxAttempts = activeCountries.length * 2; // Éviter une boucle infinie
-
+      const maxAttempts = activeCountries.length * 2;
       do {
         newIndex = Math.floor(Math.random() * activeCountries.length);
         attempts++;
@@ -250,7 +270,7 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
           console.error(
             "Impossible de trouver un pays non validé après plusieurs tentatives"
           );
-          endGame(); // Terminer le jeu si on ne trouve pas de pays disponible
+          endGame();
           return;
         }
       } while (
@@ -258,35 +278,10 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
           activeCountries[newIndex]?.properties.code
         ) ||
         (mode === "quiz" &&
-          incorrectCountries.includes(
+          newIncorrectCountries.includes(
             activeCountries[newIndex]?.properties.code
           ))
       );
-
-      // Ajouter le pays actuel aux incorrects si la réponse est fausse
-      if (!valid && activeCountries[randomIndex] && mode === "quiz") {
-        setIncorrectCountries((prev) => {
-          const code = activeCountries[randomIndex].properties.code;
-          const newIncorrectCountries = prev.includes(code)
-            ? prev
-            : [...prev, code];
-
-          // Synchroniser avec le backend si nécessaire
-          if (onProgressSync) {
-            onProgressSync(
-              validatedCountries,
-              newIncorrectCountries,
-              validatedCountries.length,
-              activeCountries.length // Utiliser les pays actifs, pas tous les pays
-            );
-          }
-
-          return newIncorrectCountries;
-        });
-
-        // Appeler le callback pour réponse incorrecte
-        onIncorrectAnswer?.();
-      }
 
       setRandomIndex(newIndex);
       setCurrentCountry(defaultValues);
@@ -318,6 +313,7 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
   );
 
   const resetGame = () => {
+    console.log("[useMapGame] RESET GAME called");
     setValidatedCountries([]);
     setIncorrectCountries([]);
     setCurrentCountry(defaultValues);
@@ -363,7 +359,11 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
       hasRestoredState.current = true;
       setValidatedCountries(initialValidatedCountries);
       setIncorrectCountries(initialIncorrectCountries);
-
+      console.log("[useMapGame] RESTORE STATE", {
+        initialValidatedCountries,
+        initialIncorrectCountries,
+        activeCountries,
+      });
       // Si on a des pays validés, calculer le prochain index en conséquence
       if (activeCountries.length > 0) {
         const availableCountries = activeCountries.filter(
@@ -382,9 +382,11 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
               availableCountries[randomIndex].properties.code
           );
           setRandomIndex(countryIndex);
+          console.log("[useMapGame] RESTORE randomIndex", countryIndex);
         } else {
           // Tous les pays ont été traités
           setGameEnded(true);
+          console.log("[useMapGame] RESTORE all countries processed");
         }
       }
     }

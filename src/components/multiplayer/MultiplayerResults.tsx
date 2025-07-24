@@ -1,18 +1,22 @@
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import type { Ranking } from "@/types/game";
 import { useNavigate } from "@tanstack/react-router";
 import { Award, Medal, Trophy } from "lucide-react";
+import Typography from "../ui/Typography";
 
 interface MultiplayerResultsProps {
   rankings: Ranking[];
   onRestart: () => void;
+  isHost?: boolean;
 }
 
 export const MultiplayerResults = ({
   rankings,
   onRestart,
+  isHost = false,
 }: MultiplayerResultsProps) => {
   const navigate = useNavigate();
 
@@ -47,13 +51,13 @@ export const MultiplayerResults = ({
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br ">
-      <Card className="w-full max-w-2xl mx-4">
+    <div className="min-h-screen flex items-start justify-center bg-gradient-to-br ">
+      <Card className="w-full max-w-2xl mt-30">
         <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-bold text-gray-800">
+          <CardTitle className="text-3xl font-bold ">
             Résultats de la partie
           </CardTitle>
-          <p className="text-gray-600 mt-2">Classement final des joueurs</p>
+          <p className="text-primary mt-2">Classement final des joueurs</p>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Classement */}
@@ -76,7 +80,13 @@ export const MultiplayerResults = ({
                     {getRankIcon(player.rank)}
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg">{player.name}</h3>
+                    <Typography
+                      variant="h3"
+                      className="text-dark dark:text-dark"
+                    >
+                      {player.name}
+                    </Typography>
+
                     <div className="flex items-center space-x-2 mt-1">
                       <Badge variant={getRankBadgeVariant(player.rank)}>
                         {player.rank === 1
@@ -87,11 +97,11 @@ export const MultiplayerResults = ({
                               ? "3ème"
                               : `${player.rank}ème`}
                       </Badge>
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-black">
                         {player.score} points
                       </span>
                       {player.completionTime && (
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm ">
                           en {Math.floor(player.completionTime / 60)}:
                           {(player.completionTime % 60)
                             .toString()
@@ -107,22 +117,27 @@ export const MultiplayerResults = ({
 
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-3 pt-4">
-            <Button
-              onClick={onRestart}
-              className="flex-1 bg-blue-600 hover:bg-blue-700"
-            >
-              Rejouer
-            </Button>
-            <Button
-              onClick={() => navigate({ to: "/multiplayer" })}
-              variant="outline"
-              className="flex-1"
-            >
-              Nouveau lobby
-            </Button>
+            {isHost && (
+              <Button onClick={onRestart} className="flex-1 ">
+                Rejouer
+              </Button>
+            )}
+
+            {/* Message d'attente pour les non-hôtes */}
+            {!isHost && (
+              <div
+                className={cn(
+                  buttonVariants({ variant: "outline" }),
+                  "hover:bg-background"
+                )}
+              >
+                Attendre que l'hôte relance la partie...
+              </div>
+            )}
+
             <Button
               onClick={() => navigate({ to: "/" })}
-              variant="outline"
+              variant={isHost ? "outline" : "default"}
               className="flex-1"
             >
               Accueil

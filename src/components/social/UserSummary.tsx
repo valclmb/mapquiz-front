@@ -1,11 +1,10 @@
 "use client";
 
-import { Plus } from "lucide-react";
-
 import { useWebSocketContext } from "@/context/WebSocketContext";
 import { useFriendRequests } from "@/hooks/queries/useFriendRequests";
 import { useFriendsList } from "@/hooks/queries/useFriends";
 import { Link } from "@tanstack/react-router";
+import { Plus } from "lucide-react";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 export const UserSummary = () => {
@@ -58,7 +57,9 @@ export const UserSummary = () => {
                 Vous n{"'"}avez pas encore d{"'"}amis
               </p>
               <Link to="/social">
-                <Button variant="outline">Ajouter des amis</Button>
+                <Button variant="outline">
+                  <Plus /> Ajouter des amis
+                </Button>
               </Link>
             </div>
           ) : (
@@ -103,11 +104,6 @@ export const UserSummary = () => {
                   +{friends.length - 3} autres amis
                 </p>
               )}
-              <Link to="/social">
-                <Button variant="outline" size="sm" className="mt-2 gap-1">
-                  <Plus size={20} /> Ajouter des amis
-                </Button>
-              </Link>
             </div>
           )}
         </div>
@@ -118,10 +114,13 @@ export const UserSummary = () => {
             <p>Chargement...</p>
           ) : (
             <div className="flex items-center gap-2 bg-secondary p-2 rounded-xl">
-              <span className="font-medium">
+              <Link
+                to="/social"
+                className="font-medium  hover:text-primary transition-colors"
+              >
                 {requests.length} demande{requests.length !== 1 ? "s" : ""} en
                 attente
-              </span>
+              </Link>
             </div>
           )}
         </div>

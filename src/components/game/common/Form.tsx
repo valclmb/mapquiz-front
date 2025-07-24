@@ -17,7 +17,7 @@ export const Form = ({ className }: FormProps) => {
   const { currentCountry, handleChange, refs, changeIndex } = gameContext;
 
   const inputClass =
-    "mt-2  rounded-lg border shadow-sm disabled:bg-green-100 dark:disabled:bg-green-900 disabled:border disabled:border-green-500";
+    "mt-2  rounded-lg border min-w-40 shadow-sm disabled:bg-green-100 dark:disabled:bg-green-900 disabled:border disabled:border-green-500";
   return (
     <Card
       className={cn(
@@ -25,7 +25,7 @@ export const Form = ({ className }: FormProps) => {
         className
       )}
     >
-      <CardContent className="flex items-center gap-3 px-9 space-y-2">
+      <CardContent className="flex flex-col  lg:flex-row items-center gap-3 px-9 space-y-2">
         <div className="flex flex-col w-full">
           <Label htmlFor="name">Pays</Label>
           <Input
@@ -34,6 +34,7 @@ export const Form = ({ className }: FormProps) => {
             disabled={currentCountry.name.valid}
             id="name"
             type="text"
+            autoComplete="off"
             className={inputClass}
             value={currentCountry.name.value}
             onChange={handleChange}
@@ -46,13 +47,17 @@ export const Form = ({ className }: FormProps) => {
             disabled={currentCountry.capital.valid}
             id="capital"
             type="text"
+            autoComplete="off"
             className={inputClass}
             value={currentCountry.capital.value}
             onChange={handleChange}
           />
         </div>
-        <Button onClick={() => changeIndex()} className="flex mt-3 gap-1 ">
-          Passer ( Ctrl + <Delete strokeWidth={1.5} size={20} />)
+        <Button
+          onClick={() => changeIndex(false)}
+          className="w-full lg:w-auto flex mt-3 gap-1 "
+        >
+          Passer Ctrl <Delete strokeWidth={1.5} size={20} />
         </Button>
       </CardContent>
     </Card>
