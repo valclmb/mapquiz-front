@@ -14,7 +14,6 @@ export const Route = createFileRoute("/multiplayer/$lobbyId/game")({
 function MultiplayerGamePage() {
   const { lobby, loading } = useLobby();
   const { countries } = Route.useLoaderData();
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">

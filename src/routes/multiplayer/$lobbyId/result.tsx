@@ -19,6 +19,7 @@ function GameResultPage() {
   const { sendMessage, lastMessage } = useWebSocketContext();
   const navigate = useNavigate();
   const { restartGame } = useLobby();
+  const { lobby } = useLobby();
 
   // Récupérer l'utilisateur actuel
   const { data: session } = authClient.useSession();
@@ -29,11 +30,13 @@ function GameResultPage() {
 
   // Récupérer les résultats au montage
   useEffect(() => {
-    sendMessage({
-      type: "get_game_results",
-      payload: { lobbyId },
-    });
-  }, [lobbyId, sendMessage]);
+    if (lobby?.status === "finished") {
+      sendMessage({
+        type: "get_game_results",
+        payload: { lobbyId },
+      });
+    }
+  }, [lobby?.status, lobbyId, sendMessage]);
 
   // Écouter les résultats
   useEffect(() => {
