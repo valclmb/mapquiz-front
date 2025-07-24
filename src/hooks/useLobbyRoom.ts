@@ -12,63 +12,14 @@ export function useLobbyRoom(lobbyId: string) {
     gameMode: "quiz",
   });
   const [isReady, setIsReady] = useState(false);
-  const [hasMarkedAsPresent, setHasMarkedAsPresent] = useState(false);
-
-  // To this
+  // SUPPRESSION : plus de hasMarkedAsPresent
   const [hostId, setHostId] = useState<string | undefined>(undefined);
 
-  // Récupérer l'ID de l'utilisateur actuel
   const { data: session } = authClient.useSession();
   const currentUserId = session?.user?.id;
-
-  // Utiliser le contexte WebSocket au lieu du hook useWebSocket
   const { sendMessage, lastMessage } = useWebSocketContext();
 
-  // Gestion de la présence dans le lobby
-  useEffect(() => {
-    if (!currentUserId || !lobbyId) {
-      console.log("useLobbyRoom - currentUserId ou lobbyId manquant:", {
-        currentUserId,
-        lobbyId,
-      });
-      return;
-    }
-
-    // Marquer l'utilisateur comme absent du lobby
-    const markAsAbsent = () => {
-      if (!currentUserId) {
-        console.log(
-          "useLobbyRoom - currentUserId manquant lors de markAsAbsent"
-        );
-        return;
-      }
-      console.log("useLobbyRoom - Marquer comme absent");
-      sendMessage({
-        type: "set_player_absent",
-        payload: {
-          lobbyId,
-          absent: true,
-        },
-      });
-    };
-
-    // Ne pas marquer automatiquement comme présent - attendre de confirmer que l'utilisateur est dans le lobby
-    // Le statut sera envoyé une fois que l'utilisateur aura rejoint le lobby avec succès
-
-    // Gestionnaire pour détecter quand l'utilisateur quitte la page
-    const handleBeforeUnload = () => {
-      markAsAbsent();
-    };
-
-    // Ajouter les écouteurs d'événements
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    // Cleanup des écouteurs d'événements
-    return () => {
-      markAsAbsent(); // Marquer comme absent lors du démontage
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, [currentUserId, lobbyId, sendMessage]);
+  // SUPPRESSION : plus de gestion de présence/absence à l'unload
 
   // Écouter les mises à jour du lobby
   useEffect(() => {
@@ -100,46 +51,25 @@ export function useLobbyRoom(lobbyId: string) {
         lastMessage.payload.settings
       );
       console.log("Mise à jour du lobby détectée:", lastMessage.payload);
-      // Vérifier que players existe avant de l'assigner
       if (lastMessage.payload.players) {
-        console.log(
-          "Mise à jour des joueurs:",
-          lastMessage.payload.players.length,
-          "joueurs"
-        );
         setPlayers(lastMessage.payload.players);
-
-        // Mettre à jour l'état isReady en fonction du statut du joueur actuel
         if (currentUserId) {
           const currentPlayer = lastMessage.payload.players.find(
             (p: Player) => p.id === currentUserId
           );
           if (currentPlayer) {
             setIsReady(currentPlayer.status === "ready");
-            // Marquer comme présent seulement une fois, quand l'utilisateur est confirmé dans le lobby
-            if (!hasMarkedAsPresent) {
-              sendMessage({
-                type: "set_player_absent",
-                payload: {
-                  lobbyId,
-                  absent: false,
-                },
-              });
-              setHasMarkedAsPresent(true);
-            }
           }
         }
       }
-      // Vérifier que settings existe avant de l'assigner
       if (lastMessage.payload.settings) {
         setSettings(lastMessage.payload.settings);
       }
-      // Stocker l'ID de l'hôte s'il est présent dans le message
       if (lastMessage.payload.hostId) {
         setHostId(lastMessage.payload.hostId);
       }
     }
-  }, [lastMessage, lobbyId, currentUserId, hasMarkedAsPresent, sendMessage]);
+  }, [lastMessage, lobbyId, currentUserId, sendMessage]);
 
   // Déterminer si l'utilisateur actuel est l'hôte
   const isHost = currentUserId && hostId ? currentUserId === hostId : false;

@@ -119,13 +119,10 @@ export const LobbyRoom = ({ lobbyId }: LobbyRoomProps) => {
                   name: player.name,
                   image: null,
                   tag: null,
-                  isOnline: player.isPresentInLobby !== false, // En ligne si présent dans le lobby ou non défini
-                  lastSeen: player.leftLobbyAt
-                    ? new Date(player.leftLobbyAt).toLocaleString()
-                    : "",
+                  isOnline: true, // Toujours en ligne tant qu'il est dans le lobby
+                  lastSeen: "",
                   status: player.status,
-                  isPresentInLobby: player.isPresentInLobby,
-                  leftLobbyAt: player.leftLobbyAt,
+                  // isPresentInLobby, leftLobbyAt supprimés
                 }))}
                 showStatus={true}
                 hostId={hostId}

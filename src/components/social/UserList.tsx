@@ -107,14 +107,7 @@ export const UserList = ({
             </p>
           ) : (
             filteredUsers.map((user) => (
-              <Card
-                key={user.id}
-                className={cn(
-                  "rounded-xl p-0",
-                  (user as LobbyPlayer).isPresentInLobby === false &&
-                    "border-red-200 bg-red-50"
-                )}
-              >
+              <Card key={user.id} className="rounded-xl p-0">
                 <CardContent className="flex items-center justify-between gap-2 p-4">
                   {/* Avatar et nom */}
                   <section className="flex items-center gap-2">
@@ -131,9 +124,7 @@ export const UserList = ({
                         <div
                           className={cn(
                             "w-8 h-8 rounded-full flex items-center justify-center text-primary-foreground",
-                            (user as LobbyPlayer).isPresentInLobby === false
-                              ? "bg-red-500"
-                              : "bg-primary"
+                            user.isOnline ? "bg-green-500" : "bg-gray-400"
                           )}
                         >
                           {user.name.charAt(0)}
@@ -142,19 +133,9 @@ export const UserList = ({
                       <div
                         className={cn(
                           "absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white",
-                          (user as LobbyPlayer).isPresentInLobby === false
-                            ? "bg-red-500"
-                            : user.isOnline
-                              ? "bg-green-500"
-                              : "bg-gray-400"
+                          user.isOnline ? "bg-green-500" : "bg-gray-400"
                         )}
-                        title={
-                          (user as LobbyPlayer).isPresentInLobby === false
-                            ? "Absent du lobby"
-                            : user.isOnline
-                              ? "En ligne"
-                              : "Hors ligne"
-                        }
+                        title={user.isOnline ? "En ligne" : "Hors ligne"}
                       />
                     </div>
 
@@ -162,25 +143,16 @@ export const UserList = ({
                       <span
                         className={cn(
                           "font-medium",
-                          (user as LobbyPlayer).isPresentInLobby === false &&
-                            "text-red-800"
+                          user.isOnline ? "text-gray-800" : "text-red-800"
                         )}
                       >
                         {user.name}
                       </span>
-                      {(user as LobbyPlayer).isPresentInLobby === false &&
-                      (user as LobbyPlayer).leftLobbyAt ? (
-                        <span className="text-xs text-red-600">
-                          Absent depuis{" "}
-                          {new Date(
-                            (user as LobbyPlayer).leftLobbyAt!
-                          ).toLocaleString()}
-                        </span>
-                      ) : !user.isOnline && user.lastSeen ? (
+                      {user.lastSeen && (
                         <span className="text-xs text-gray-500">
                           Vu {new Date(user.lastSeen).toLocaleDateString()}
                         </span>
-                      ) : null}
+                      )}
                     </div>
                   </section>
 
@@ -192,12 +164,11 @@ export const UserList = ({
                       </span>
                     )}
                     {/* Statut de présence */}
-                    {showStatus &&
-                      (user as LobbyPlayer).isPresentInLobby === false && (
-                        <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">
-                          Absent
-                        </span>
-                      )}
+                    {showStatus && user.isOnline === false && (
+                      <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">
+                        Hors ligne
+                      </span>
+                    )}
 
                     {/* Statut de jeu - seulement dans les lobbies, pas pendant le jeu */}
                     {showStatus &&
@@ -224,11 +195,7 @@ export const UserList = ({
                         size="sm"
                         onClick={() => onRemovePlayer(user.id)}
                         className="ml-2"
-                        title={
-                          (user as LobbyPlayer).isPresentInLobby === false
-                            ? "Supprimer le joueur absent"
-                            : "Expulser le joueur"
-                        }
+                        title="Expulser le joueur"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
