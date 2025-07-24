@@ -1,10 +1,8 @@
 export interface Player {
   id: string;
   name: string;
-  // Le statut est optionnel car on ne l'affiche plus pendant le jeu
-  status?: string;
-  isPresentInLobby?: boolean;
-  leftLobbyAt?: string | null;
+  image: string;
+  status?: "ready" | "joined" | "invited";
 }
 
 export interface PlayerScore extends Player {
@@ -12,11 +10,6 @@ export interface PlayerScore extends Player {
   progress: number;
   validatedCountries?: string[];
   incorrectCountries?: string[];
-}
-
-export interface LobbySettings {
-  selectedRegions: string[];
-  gameMode: string;
 }
 
 export interface Ranking {

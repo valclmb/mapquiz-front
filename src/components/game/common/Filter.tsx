@@ -5,7 +5,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { FilterIcon } from "lucide-react";
-import { RegionSelector } from "./RegionSelector";
+import { ContinentSelector } from "./ContinentSelector";
 
 type FilterProps = {
   filter: string[];
@@ -24,9 +24,9 @@ export const Filter = ({ filter, setFilter }: FilterProps) => {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="max-w-[440px] w-full">
-        <RegionSelector
+        <ContinentSelector
           className="mb-0"
-          selectedRegions={filter}
+          selectedContinents={filter}
           onChange={setFilter}
           inverted={true}
         />

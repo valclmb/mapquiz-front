@@ -1,4 +1,5 @@
-import type { LobbySettings, Player } from "@/types/game";
+import type { Player } from "@/types/game";
+import type { LobbySettings } from "@/types/lobby";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";

@@ -129,10 +129,10 @@ export const Map = ({
       return "var(--color-destructive)";
     }
     if (countries[key]?.filtered) {
-      return "var(--color-secondary)";
+      return "var(--color-background)";
     }
 
-    return theme === "light" ? "black" : "white";
+    return "var(--color-secondary)";
   };
 
   return (
@@ -153,17 +153,17 @@ export const Map = ({
                 tabIndex={-1}
                 key={geo.rsmKey}
                 geography={geo}
-                strokeWidth={0.6}
+                strokeWidth={geo.filtered ? 0.3 : 0.7}
                 fill={countryStyle(key)}
                 style={{
                   default: {
                     outline: "none",
-                    stroke: theme === "dark" ? "black" : "white",
+                    stroke: "var(--color-primary)",
                     transition: "fill 0.3s ease",
                   },
                   hover: {
                     outline: "none",
-                    stroke: theme === "dark" ? "black" : "white",
+                    stroke: "var(--color-primary)",
                     transition: "fill 0.3s ease",
                   },
                   pressed: { outline: "none" },

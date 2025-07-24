@@ -1,22 +1,20 @@
-export type LobbyPlayer = {
-  id: string;
-  name: string;
-  status: string;
-};
+import type { Continent } from "./continent";
+import type { Player } from "./game";
 
-export type LobbyState = {
+export interface LobbySettings {
+  selectedRegions: Continent[];
+  gameMode?: "quiz" | "training";
+}
+
+export interface LobbyState {
   lobbyId: string;
-  status: string;
-  players: LobbyPlayer[];
-  settings?: Record<string, unknown>;
-  hostId?: string;
-  rankings?: unknown[];
-};
+  players: Player[];
+  hostId: string;
+  settings: LobbySettings;
+  status: "waiting" | "started" | "finished";
+}
 
-export type MultiplayerPlayer = {
-  id: string;
-  name: string;
-  status: string;
+export type MultiplayerPlayer = Player & {
   score: number;
   progress: number;
   validatedCountries: string[];
