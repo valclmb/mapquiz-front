@@ -15,6 +15,13 @@ const Toaster = ({ ...props }: ToasterProps) => {
           "--normal-border": "var(--border)",
         } as React.CSSProperties
       }
+      toastOptions={{
+        classNames: {
+          toast: "!rounded-2xl !px-6 !py-5",
+          actionButton:
+            "!rounded-lg !px-4 !py-3 !bg-background !border !border-secondary  !text-current !text-primary",
+        },
+      }}
       {...props}
     />
   );
