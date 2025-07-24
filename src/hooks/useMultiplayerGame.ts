@@ -154,35 +154,6 @@ export function useMultiplayerGame(
     }
   }, [lastMessage, lobbyId, currentUserId]);
 
-  // SUPPRESSION de toute logique liée au localStorage
-  // (plus de sauvegarde/restauration de la progression locale)
-
-  // Gérer la déconnexion pendant la game
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      if (currentUserId && lobbyId) {
-        sendMessage({
-          type: "set_player_absent",
-          payload: {
-            lobbyId,
-            absent: true,
-          },
-        });
-      }
-    };
-    const handleVisibilityChange = () => {
-      if (currentUserId && lobbyId) {
-        // Ne rien faire pendant la partie
-      }
-    };
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-  }, [currentUserId, lobbyId, sendMessage]);
-
   return {
     playerScores,
     myProgress,
