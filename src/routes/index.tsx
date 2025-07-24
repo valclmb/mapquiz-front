@@ -3,7 +3,7 @@ import { QuizCard } from "@/components/home/QuizCard";
 import { TrainingCard } from "@/components/home/TrainingCard";
 import { UserSummary } from "@/components/social/UserSummary";
 import { authClient } from "@/lib/auth-client";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -26,6 +26,8 @@ function Home() {
           <UserSummary />
         </div>
       )}
+
+      <Outlet />
     </section>
   );
 }

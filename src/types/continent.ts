@@ -2,7 +2,7 @@ export type Continent =
   | "Asie"
   | "Afrique"
   | "Amérique du Nord"
-  | "Amérique du Sud "
+  | "Amérique du Sud"
   | "Australie"
   | "Europe"
   | "Océanie";

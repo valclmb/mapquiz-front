@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardDescription,
@@ -6,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Link } from "@tanstack/react-router";
+import { CreateLobby } from "../multiplayer/CreateLobby";
 
 export const MultiplayerCard = () => {
   return (
@@ -19,9 +18,7 @@ export const MultiplayerCard = () => {
         </CardDescription>
       </CardHeader>
       <CardFooter>
-        <Link to="/multiplayer">
-          <Button className="w-full sm:w-auto">Créer un lobby</Button>
-        </Link>
+        <CreateLobby />
       </CardFooter>
     </Card>
   );

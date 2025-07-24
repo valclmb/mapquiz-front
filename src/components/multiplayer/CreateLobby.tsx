@@ -1,6 +1,5 @@
 import { ContinentSelector } from "@/components/game/common/ContinentSelector";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useWebSocketContext } from "@/context/WebSocketContext";
@@ -8,6 +7,13 @@ import { DEFAULT_CONTINENT } from "@/lib/constants";
 import type { Continent } from "@/types/continent";
 import { useState } from "react";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
 
 export const CreateLobby = () => {
   const [lobbyName, setLobbyName] = useState("");
@@ -39,11 +45,16 @@ export const CreateLobby = () => {
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
-        <CardTitle>Créer un lobby multijoueur</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button>Créer un lobby</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle className="text-2xl text-center my-5">
+            Créer un lobby multijoueur
+          </DialogTitle>
+        </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="lobbyName">Nom du lobby</Label>
@@ -77,7 +88,7 @@ export const CreateLobby = () => {
             </p>
           )}
         </div>
-      </CardContent>
-    </Card>
+      </DialogContent>
+    </Dialog>
   );
 };

@@ -1,19 +1,10 @@
-import { CreateLobby } from "@/components/multiplayer/CreateLobby";
-import Typography from "@/components/ui/Typography";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/multiplayer/")({
-  component: MultiplayerPage,
+  component: MultiplayerModalRoute,
 });
 
-function MultiplayerPage() {
-  return (
-    <div className="w-full max-w-3xl mx-auto">
-      <Typography variant="h1" className="text-center mt-10 mb-16">
-        Créer un lobby multijoueur
-      </Typography>
-      <h1 className="text-2xl font-bold mb-6"></h1>
-      <CreateLobby />
-    </div>
-  );
+// Ce composant ne rend rien, la modale est gérée par le parent (__root.tsx)
+export default function MultiplayerModalRoute() {
+  return null;
 }

@@ -1,5 +1,7 @@
+import type { Continent } from "@/types/continent";
+
 // Constantes partagées pour l'application
-export const CONTINENTS = [
+export const CONTINENTS: Continent[] = [
   "Afrique",
   "Amérique du Nord",
   "Amérique du Sud",
