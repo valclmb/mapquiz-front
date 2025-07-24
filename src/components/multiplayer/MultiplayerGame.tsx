@@ -45,15 +45,24 @@ export const MultiplayerGame = ({
   const currentUserId = session?.user?.id;
   const myGameStateProgress = players.find((p) => p.id === currentUserId);
 
-  // Utiliser la progression du hook en priorité, sinon celle du player
-  const initialValidatedCountries =
-    myProgress?.validatedCountries ||
-    myGameStateProgress?.validatedCountries ||
-    [];
-  const initialIncorrectCountries =
-    myProgress?.incorrectCountries ||
-    myGameStateProgress?.incorrectCountries ||
-    [];
+  const isGameActive =
+    lobby?.status === "playing" || lobby?.status === "waiting";
+
+  const initialValidatedCountries = isGameActive
+    ? myProgress?.validatedCountries ||
+      myGameStateProgress?.validatedCountries ||
+      []
+    : [];
+  const initialIncorrectCountries = isGameActive
+    ? myProgress?.incorrectCountries ||
+      myGameStateProgress?.incorrectCountries ||
+      []
+    : [];
+
+  console.log("[MultiplayerGame] status:", lobby?.status, {
+    initialValidatedCountries,
+    initialIncorrectCountries,
+  });
 
   const map = useMapGame(filteredCountries, {
     mode: "quiz",
@@ -129,6 +138,19 @@ export const MultiplayerGame = ({
           <Button onClick={() => window.location.reload()}>
             Rafraîchir la page
           </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isGameActive) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-gray-600">
+            En attente du démarrage de la partie...
+          </p>
         </div>
       </div>
     );

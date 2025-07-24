@@ -45,6 +45,7 @@ export function WebSocketProvider({
     respondToFriendRequest,
     sendMessage,
     lastMessage,
+    clearLastMessage,
     // Ajoute les callbacks à passer au hook
     setExternalCallbacks,
   } = useWebSocket({
@@ -85,6 +86,7 @@ export function WebSocketProvider({
         respondToFriendRequest,
         sendMessage,
         lastMessage,
+        clearLastMessage,
       }}
     >
       {children}

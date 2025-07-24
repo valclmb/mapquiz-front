@@ -154,35 +154,8 @@ export function useMultiplayerGame(
     }
   }, [lastMessage, lobbyId, currentUserId]);
 
-  useEffect(() => {
-    if (currentUserId && lobbyId) {
-      const savedProgress = localStorage.getItem(
-        `multiplayer_progress_${lobbyId}_${currentUserId}`
-      );
-      if (savedProgress) {
-        try {
-          const progress = JSON.parse(savedProgress);
-          setMyProgress(progress);
-        } catch (error) {
-          console.error(
-            "Erreur lors de la restauration de la progression:",
-            error
-          );
-        }
-      }
-    }
-  }, [currentUserId, lobbyId]);
-
-  useEffect(() => {
-    if (currentUserId && lobbyId && myProgress) {
-      localStorage.setItem(
-        `multiplayer_progress_${lobbyId}_${currentUserId}`,
-        JSON.stringify(myProgress)
-      );
-    }
-  }, [myProgress, currentUserId, lobbyId]);
-
-  // Nettoyage du localStorage à la fin de la partie SUPPRIMÉ (car plus de gameFinished)
+  // SUPPRESSION de toute logique liée au localStorage
+  // (plus de sauvegarde/restauration de la progression locale)
 
   // Gérer la déconnexion pendant la game
   useEffect(() => {

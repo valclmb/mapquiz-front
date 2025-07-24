@@ -75,6 +75,15 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
   const [gameEnded, setGameEnded] = useState(false);
   const hasRestoredState = useRef(false);
 
+  useEffect(() => {
+    console.log("[useMapGame] INIT", {
+      initialValidatedCountries,
+      initialIncorrectCountries,
+      countries,
+      activeCountries,
+    });
+  }, []);
+
   const defaultValues = useMemo(
     () => ({
       name: { value: "", valid: false },
@@ -304,6 +313,7 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
   );
 
   const resetGame = () => {
+    console.log("[useMapGame] RESET GAME called");
     setValidatedCountries([]);
     setIncorrectCountries([]);
     setCurrentCountry(defaultValues);
@@ -349,7 +359,11 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
       hasRestoredState.current = true;
       setValidatedCountries(initialValidatedCountries);
       setIncorrectCountries(initialIncorrectCountries);
-
+      console.log("[useMapGame] RESTORE STATE", {
+        initialValidatedCountries,
+        initialIncorrectCountries,
+        activeCountries,
+      });
       // Si on a des pays validés, calculer le prochain index en conséquence
       if (activeCountries.length > 0) {
         const availableCountries = activeCountries.filter(
@@ -368,9 +382,11 @@ export const useMapGame = (countries: Country[], options: GameOptions) => {
               availableCountries[randomIndex].properties.code
           );
           setRandomIndex(countryIndex);
+          console.log("[useMapGame] RESTORE randomIndex", countryIndex);
         } else {
           // Tous les pays ont été traités
           setGameEnded(true);
+          console.log("[useMapGame] RESTORE all countries processed");
         }
       }
     }

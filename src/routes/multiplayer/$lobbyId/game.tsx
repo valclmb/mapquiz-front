@@ -16,9 +16,15 @@ export const Route = createFileRoute("/multiplayer/$lobbyId/game")({
 function MultiplayerGamePage() {
   const { lobby, loading } = useLobby();
   const { countries } = Route.useLoaderData();
-  const { lastMessage } = useWebSocketContext();
+  const { lastMessage, clearLastMessage } = useWebSocketContext();
   const navigate = useNavigate();
   const { lobbyId } = Route.useParams();
+
+  // Nettoyer le lastMessage au montage pour éviter la redirection intempestive
+  useEffect(() => {
+    clearLastMessage();
+    // eslint-disable-next-line
+  }, []);
 
   useEffect(() => {
     if (lastMessage?.type === "game_results") {
@@ -43,6 +49,7 @@ function MultiplayerGamePage() {
 
   return (
     <MultiplayerGame
+      key={lobby?.status || undefined}
       lobby={lobby}
       countries={countries}
       selectedRegions={selectedRegions}

@@ -619,6 +619,8 @@ export function useWebSocket({
     }
   }, []);
 
+  const clearLastMessage = useCallback(() => setLastMessage(null), []);
+
   // Effet pour gérer la connexion
   useEffect(() => {
     if (userId) {
@@ -675,6 +677,7 @@ export function useWebSocket({
     reconnect: connect,
     sendMessage,
     lastMessage,
+    clearLastMessage,
     setExternalCallbacks,
   };
 }

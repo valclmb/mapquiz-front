@@ -124,7 +124,11 @@ export function LobbyProvider({ lobbyId, children }: LobbyProviderProps) {
       const state = (lastMessage.data?.lobbyState ||
         lastMessage.payload ||
         lastMessage.data?.gameState) as LobbyState | undefined;
-      console.log("[LobbyProvider] State reçu:", state);
+      console.log(
+        "[LobbyProvider] LOBBY STATE AVANT setLobby:",
+        JSON.stringify(state, null, 2)
+      );
+      console.log("[LobbyProvider] PLAYERS DETAIL:", state?.players);
       if (state && state.lobbyId === lobbyId) {
         setLobby(state);
         setLoading(false);
