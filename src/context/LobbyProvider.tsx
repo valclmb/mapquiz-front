@@ -35,7 +35,7 @@ export function LobbyProvider({ lobbyId, children }: LobbyProviderProps) {
     ) {
       toast.info("L'hôte a relancé la partie, retour au lobby !");
       // Utilisation de la navigation TanStack Router
-      navigate({ to: "/multiplayer/$lobbyId", params: { lobbyId } });
+      navigate({ to: "/multiplayer/$lobbyId/lobby", params: { lobbyId } });
     }
   }, [lastMessage, lobbyId, navigate]);
 
