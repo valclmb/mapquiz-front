@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { useTheme } from "@/context/ThemeProvider";
 import { Earth, LogOut, Moon, Sun, UserPlus } from "lucide-react";
 import { toast } from "sonner";
+import { Avatar } from "../social/Avatar";
 export const Nav = () => {
   const { data, isPending } = authClient.useSession();
   const { theme, setTheme } = useTheme();
@@ -37,6 +38,7 @@ export const Nav = () => {
       setTheme("light");
     }
   };
+
   return (
     <nav className=" bg-card absolute top-2 left-1/2 -translate-x-1/2 z-40  w-full flex items-center justify-between px-5 py-3 border border-secondary rounded-2xl shadow-sm">
       <Link to="/" className="group flex items-center gap-2 ">
@@ -57,15 +59,8 @@ export const Nav = () => {
         ) : data?.user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                className="relative h-9 w-9 rounded-full p-0 overflow-hidden"
-              >
-                <img
-                  src={data.user.image ?? ""}
-                  alt={data.user.name}
-                  className="w-full h-full object-cover size-10"
-                />
+              <Button variant="outline" size="icon" className="rounded-full">
+                <Avatar user={data.user} showStatus={false} />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
