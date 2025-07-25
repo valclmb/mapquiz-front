@@ -39,13 +39,17 @@ export function LobbyProvider({ lobbyId, children }: LobbyProviderProps) {
     }
   }, [lastMessage, lobbyId, navigate]);
 
-  // Redirection automatique vers /result si le lobby est fini et qu'on est sur /game
+  // Redirection automatique vers /result à la réception de 'game_end'
   useEffect(() => {
-    if (lobby?.status === "finished" && location.pathname.endsWith("/game")) {
-      console.log("[LobbyProvider] Redirection via status finished !");
+    if (
+      lastMessage?.type === "game_end" &&
+      lastMessage.payload?.lobbyId === lobbyId &&
+      location.pathname.endsWith("/game")
+    ) {
+      console.log("[LobbyProvider] Redirection via game_end !");
       navigate({ to: `/multiplayer/${lobbyId}/result` });
     }
-  }, [lobby?.status, location.pathname, navigate, lobbyId]);
+  }, [lastMessage, lobbyId, navigate, location.pathname]);
 
   // Timeout de chargement (10s)
   useEffect(() => {

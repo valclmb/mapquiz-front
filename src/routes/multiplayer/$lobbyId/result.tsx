@@ -19,7 +19,6 @@ function GameResultPage() {
   const { sendMessage, lastMessage } = useWebSocketContext();
   const navigate = useNavigate();
   const { restartGame } = useLobby();
-  const { lobby } = useLobby();
 
   // Récupérer l'utilisateur actuel
   const { data: session } = authClient.useSession();
@@ -30,13 +29,13 @@ function GameResultPage() {
 
   // Récupérer les résultats au montage
   useEffect(() => {
-    if (lobby?.status === "finished") {
-      sendMessage({
-        type: "get_game_results",
-        payload: { lobbyId },
-      });
-    }
-  }, [lobby?.status, lobbyId, sendMessage]);
+    // Envoyer get_game_results dès que le composant est monté
+    // Le backend vérifiera si le lobby est vraiment terminé
+    sendMessage({
+      type: "get_game_results",
+      payload: { lobbyId },
+    });
+  }, [lobbyId, sendMessage]);
 
   // Écouter les résultats
   useEffect(() => {
