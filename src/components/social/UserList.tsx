@@ -80,7 +80,7 @@ export const UserList = ({
                 <CardContent className="flex items-center justify-between gap-2 p-4">
                   {/* Avatar et nom */}
                   <section className="flex items-center gap-2">
-                    <Avatar user={user} />
+                    <Avatar user={user} showStatus={!showStatus} />
                     <div className="flex flex-col">
                       <span className={cn("font-medium")}>{user.name}</span>
                       {/* {user.lastSeen && (

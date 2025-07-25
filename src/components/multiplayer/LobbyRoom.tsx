@@ -5,6 +5,7 @@ import { authClient } from "@/lib/auth-client";
 import type { Continent } from "@/types/continent";
 import type { Player } from "@/types/game";
 import { useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { ContinentSelector } from "../game/common/ContinentSelector";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
@@ -53,6 +54,17 @@ export const LobbyRoom = ({ lobbyId }: LobbyRoomProps) => {
     navigate({ to: "/" });
   };
 
+  // Ajout du beforeunload pour leaveLobby
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      leaveLobby();
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [leaveLobby]);
+
   // Les joueurs du message lobby_update incluent maintenant les joueurs
   const allPlayers: Player[] = players;
   const currentPlayerIds = allPlayers.map((player: Player) => player.id);
@@ -74,7 +86,11 @@ export const LobbyRoom = ({ lobbyId }: LobbyRoomProps) => {
       console.error("Erreur lors de la suppression du joueur:", error);
     }
   };
-  console.log("settings", settings);
+  // useEffect(() => {
+  //   return () => {
+  //     leaveLobby();
+  //   };
+  // }, [leaveLobby]);
 
   const handleUpdateContinents = (continents: Continent[]) => {
     sendMessage({
@@ -112,10 +128,10 @@ export const LobbyRoom = ({ lobbyId }: LobbyRoomProps) => {
                 title="Joueurs dans le lobby"
                 className="w-full md:w-1/3 "
                 customUsers={allPlayers}
-                showStatus={true}
                 hostId={hostId}
                 isHost={isHost}
                 onRemovePlayer={handleRemovePlayer}
+                showStatus
               />
 
               <UserList

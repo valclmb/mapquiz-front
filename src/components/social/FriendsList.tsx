@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
+import { Avatar } from "./Avatar";
 
 export const FriendsList = () => {
   const [removingFriend, setRemovingFriend] = useState<string | null>(null);
@@ -25,6 +26,7 @@ export const FriendsList = () => {
       setRemovingFriend(null);
     }
   };
+  console.log(friends);
 
   return (
     <Card>
@@ -47,26 +49,14 @@ export const FriendsList = () => {
                 className="flex items-center justify-between bg-secondary p-3 rounded-xl"
               >
                 <div className="flex items-center gap-3">
-                  {friend.image ? (
-                    <div className="w-10 h-10 rounded-full overflow-hidden">
-                      <img
-                        src={friend.image}
-                        alt={friend.name}
-                        className="w-full h-full object-cover size-20"
-                      />
-                    </div>
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center ">
-                      {friend.name.charAt(0)}
-                    </div>
-                  )}
+                  <Avatar user={friend} />
                   <div>
                     <div className="font-medium">{friend.name}</div>
-                    {friend.tag && (
+                    {/* {friend.tag && (
                       <div className="text-xs text-muted-foreground font-mono">
                         {friend.tag}
                       </div>
-                    )}
+                    )} */}
                   </div>
                 </div>
                 <Button

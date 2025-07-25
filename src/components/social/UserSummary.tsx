@@ -7,6 +7,7 @@ import { Link } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Avatar } from "./Avatar";
 export const UserSummary = () => {
   const { isConnected, isAuthenticated } = useWebSocketContext();
 
@@ -70,32 +71,10 @@ export const UserSummary = () => {
                   className="flex items-center gap-2 bg-secondary p-2 rounded-xl"
                 >
                   <div className="relative">
-                    {friend.image ? (
-                      <div className="w-8 h-8 rounded-full overflow-hidden">
-                        <img
-                          src={friend.image}
-                          alt={friend.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
-                        {friend.name.charAt(0)}
-                      </div>
-                    )}
-                    <div
-                      className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
-                        friend.isOnline ? "bg-green-500" : "bg-gray-400"
-                      }`}
-                    />
+                    <Avatar user={friend} />
                   </div>
                   <div className="flex flex-col">
                     <span className="font-medium">{friend.name}</span>
-                    {!friend.isOnline && (
-                      <span className="text-xs text-gray-500">
-                        Vu {new Date(friend.lastSeen).toLocaleDateString()}
-                      </span>
-                    )}
                   </div>
                 </div>
               ))}
