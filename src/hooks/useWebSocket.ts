@@ -350,7 +350,6 @@ export function useWebSocket({
           }
           break;
         case "game_restarted": {
-          toast.success("Partie redémarrée par l'hôte !");
           const lobbyId = message.payload?.lobbyId;
           if (lobbyId && typeof lobbyId === "string") {
             externalCallbacksRef.current.onLobbyJoined?.(lobbyId);
