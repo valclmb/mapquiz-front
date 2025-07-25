@@ -7,8 +7,8 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { Link } from "@tanstack/react-router";
 
-import googleIcon from "@/assets/google-icon.svg";
 import { Button } from "@/components/ui/button";
+import { GoogleSignInButton } from "@/components/ui/google-sign-in-button";
 import { useTheme } from "@/context/ThemeProvider";
 import { Earth, LogOut, Moon, Sun, UserPlus } from "lucide-react";
 import { toast } from "sonner";
@@ -16,12 +16,6 @@ import { Avatar } from "../social/Avatar";
 export const Nav = () => {
   const { data, isPending } = authClient.useSession();
   const { theme, setTheme } = useTheme();
-
-  const signIn = () => {
-    authClient.signIn.social({
-      provider: "google",
-    });
-  };
 
   const signOut = () => {
     authClient.signOut().then((res) => {
@@ -81,14 +75,7 @@ export const Nav = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
-          <Button onClick={signIn} disabled={isPending}>
-            <img
-              src={googleIcon}
-              alt="Google"
-              className="w-5 h-5 dark:invert"
-            />
-            Se connecter{" "}
-          </Button>
+          <GoogleSignInButton />
         )}
       </div>
     </nav>
