@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import type { Continent } from "@/types/continent";
 
 type ContinentSelectorProps = {
-  selectedContinents: string[];
+  selectedContinents: Continent[];
   isEditable?: boolean;
   onChange: (regions: Continent[]) => void;
   className?: string;
@@ -22,7 +22,7 @@ export const ContinentSelector = ({
   isLoading = false,
   isEditable = true,
 }: ContinentSelectorProps) => {
-  const handleToggle = (region: string) => {
+  const handleToggle = (region: Continent) => {
     const newSelectedRegions = selectedContinents.includes(region)
       ? selectedContinents.filter((r) => r !== region)
       : [...selectedContinents, region];

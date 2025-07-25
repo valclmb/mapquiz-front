@@ -27,6 +27,18 @@ export function LobbyProvider({ lobbyId, children }: LobbyProviderProps) {
   const basePath = `/multiplayer/${lobbyId}`;
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Redirection automatique vers le lobby à la réception de 'game_restarted' pour ce lobby
+  useEffect(() => {
+    if (
+      lastMessage?.type === "game_restarted" &&
+      lastMessage.payload?.lobbyId === lobbyId
+    ) {
+      toast.info("L'hôte a relancé la partie, retour au lobby !");
+      // Utilisation de la navigation TanStack Router
+      navigate({ to: "/multiplayer/$lobbyId/lobby", params: { lobbyId } });
+    }
+  }, [lastMessage, lobbyId, navigate]);
+
   // Redirection automatique vers /result si le lobby est fini et qu'on est sur /game
   useEffect(() => {
     if (lobby?.status === "finished" && location.pathname.endsWith("/game")) {
