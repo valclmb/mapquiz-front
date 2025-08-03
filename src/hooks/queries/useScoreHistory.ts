@@ -4,15 +4,10 @@ import type { Continent } from "@/types/continent";
 import { useQuery } from "@tanstack/react-query";
 
 export type ScoreHistoryItem = {
-  id: string;
   score: number;
-  totalQuestions: number;
-  selectedRegions: Continent[];
-  gameMode: string;
   duration: number;
-  createdAt: string;
+  selectedRegions: Continent[];
   date: string; // Format dd/MM
-  scorePercentage: number; // Pourcentage arrondi
 };
 
 export function useScoreHistory() {
