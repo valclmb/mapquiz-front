@@ -45,17 +45,14 @@ export function LobbyProvider({ lobbyId, children }: LobbyProviderProps) {
       lastMessage?.type === "game_end" &&
       lastMessage.payload?.lobbyId === lobbyId
     ) {
-      console.log("[LobbyProvider] Envoi automatique de get_game_results !");
+      // Envoyer get_game_results
       sendMessage({
         type: "get_game_results",
         payload: { lobbyId },
       });
 
-      // Redirection automatique vers /result si on est sur la page game
-      if (location.pathname.endsWith("/game")) {
-        console.log("[LobbyProvider] Redirection via game_end !");
-        navigate({ to: `/multiplayer/${lobbyId}/result` });
-      }
+      // Redirection automatique vers /result
+      navigate({ to: `/multiplayer/${lobbyId}/result` });
     }
   }, [lastMessage, lobbyId, sendMessage, navigate, location.pathname]);
 
