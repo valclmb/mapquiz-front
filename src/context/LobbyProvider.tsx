@@ -39,7 +39,7 @@ export function LobbyProvider({ lobbyId, children }: LobbyProviderProps) {
     }
   }, [lastMessage, lobbyId, navigate]);
 
-  // Gestion de game_end : redirection + envoi automatique de get_game_results
+  // Gestion de game_end : envoi automatique de get_game_results
   useEffect(() => {
     if (
       lastMessage?.type === "game_end" &&
@@ -50,11 +50,19 @@ export function LobbyProvider({ lobbyId, children }: LobbyProviderProps) {
         type: "get_game_results",
         payload: { lobbyId },
       });
+    }
+  }, [lastMessage, lobbyId, sendMessage]);
 
-      // Redirection automatique vers /result
+  // Gestion de get_game_results_success : redirection après réception des résultats
+  useEffect(() => {
+    if (
+      lastMessage?.type === "get_game_results_success" &&
+      lastMessage.data?.lobbyId === lobbyId
+    ) {
+      // Redirection vers /result après avoir reçu les résultats
       navigate({ to: `/multiplayer/${lobbyId}/result` });
     }
-  }, [lastMessage, lobbyId, sendMessage, navigate]);
+  }, [lastMessage, lobbyId, navigate]);
 
   // Timeout de chargement (10s)
   useEffect(() => {
