@@ -1,12 +1,13 @@
 import { apiFetch } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
+import type { Continent } from "@/types/continent";
 import { useQuery } from "@tanstack/react-query";
 
 export type ScoreHistoryItem = {
   id: string;
   score: number;
   totalQuestions: number;
-  selectedRegions: string[];
+  selectedRegions: Continent[];
   gameMode: string;
   duration: number;
   createdAt: string;

@@ -60,9 +60,7 @@ export function useRemoveFriend() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["friends"] });
-      toast("title", {
-        description: "Ami supprimé avec succès",
-      });
+      toast.success("Ami supprimé avec succès");
     },
     onError: (error: Error) => {
       toast.error("Une erreur est survenue !", {

@@ -19,7 +19,7 @@ type UserListProps = {
   onInvite?: (userId: string) => void;
   className?: string;
   filterUsers?: (user: Player) => boolean; // Fonction optionnelle pour filtrer les utilisateurs
-  showInviteForOffline?: boolean; // Afficher le bouton d'invitation même pour les utilisateurs hors ligne
+
   customUsers?: Player[]; // Liste d'utilisateurs personnalisée (au lieu d'utiliser useFriendsList)
   showStatus?: boolean; // Afficher le statut des utilisateurs (pour les joueurs de lobby)
   hostId?: string; // ID de l'hôte (pour les lobbies)
@@ -32,7 +32,7 @@ export const UserList = ({
   onInvite,
   className = "",
   filterUsers,
-  showInviteForOffline = false,
+
   customUsers,
   showStatus = false,
   hostId,
@@ -115,7 +115,6 @@ export const UserList = ({
                     )}
 
                     {onInvite &&
-                      (user.isOnline || showInviteForOffline) &&
                       (invitedUsers[user.id] ? (
                         <div className="w-8 h-8 flex items-center justify-center text-green-500">
                           <Check size={18} />

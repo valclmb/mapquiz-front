@@ -10,6 +10,7 @@ import {
 import { useScoreHistory } from "@/hooks/queries/useScoreHistory";
 import { authClient } from "@/lib/auth-client";
 import { CONTINENTS } from "@/lib/constants";
+import type { Continent } from "@/types/continent";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import Typography from "../ui/Typography";
@@ -19,7 +20,8 @@ export const QuizCard = () => {
   const { useSession } = authClient;
   const { data } = useSession();
   const { data: scoreHistory } = useScoreHistory();
-  const [selectedRegions, setSelectedRegions] = useState<string[]>(CONTINENTS);
+  const [selectedRegions, setSelectedRegions] =
+    useState<Continent[]>(CONTINENTS);
 
   // Déterminer les régions par défaut à partir de l'historique
   useEffect(() => {

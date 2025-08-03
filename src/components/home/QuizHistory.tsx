@@ -6,6 +6,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
+import type { Continent } from "@/types/continent";
 import { Area, AreaChart, XAxis } from "recharts";
 
 const chartConfig = {
@@ -20,7 +21,7 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 type QuizHistoryProps = {
-  selectedRegions?: string[];
+  selectedRegions?: Continent[];
 };
 
 export const QuizHistory = ({ selectedRegions = [] }: QuizHistoryProps) => {
