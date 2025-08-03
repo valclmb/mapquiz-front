@@ -39,17 +39,25 @@ export function LobbyProvider({ lobbyId, children }: LobbyProviderProps) {
     }
   }, [lastMessage, lobbyId, navigate]);
 
-  // Redirection automatique vers /result à la réception de 'game_end'
+  // Gestion de game_end : redirection + envoi automatique de get_game_results
   useEffect(() => {
     if (
       lastMessage?.type === "game_end" &&
-      lastMessage.payload?.lobbyId === lobbyId &&
-      location.pathname.endsWith("/game")
+      lastMessage.payload?.lobbyId === lobbyId
     ) {
-      console.log("[LobbyProvider] Redirection via game_end !");
-      navigate({ to: `/multiplayer/${lobbyId}/result` });
+      console.log("[LobbyProvider] Envoi automatique de get_game_results !");
+      sendMessage({
+        type: "get_game_results",
+        payload: { lobbyId },
+      });
+
+      // Redirection automatique vers /result si on est sur la page game
+      if (location.pathname.endsWith("/game")) {
+        console.log("[LobbyProvider] Redirection via game_end !");
+        navigate({ to: `/multiplayer/${lobbyId}/result` });
+      }
     }
-  }, [lastMessage, lobbyId, navigate, location.pathname]);
+  }, [lastMessage, lobbyId, sendMessage, navigate, location.pathname]);
 
   // Timeout de chargement (10s)
   useEffect(() => {
