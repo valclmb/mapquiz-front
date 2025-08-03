@@ -25,12 +25,15 @@ type QuizHistoryProps = {
 };
 
 export const QuizHistory = ({ selectedRegions = [] }: QuizHistoryProps) => {
-  const { data = [], isLoading } = useScoreHistory();
+  const { data, isLoading } = useScoreHistory();
+
+  // S'assurer que data est un tableau
+  const dataArray = Array.isArray(data) ? data : [];
 
   // Filtrer les données en fonction des régions sélectionnées
   const filteredData =
     selectedRegions.length > 0
-      ? data.filter((item) => {
+      ? dataArray.filter((item) => {
           // Vérifier si les régions de l'item correspondent exactement aux régions sélectionnées
           // ou si les régions sélectionnées sont un sous-ensemble des régions de l'item
           return (
@@ -39,12 +42,13 @@ export const QuizHistory = ({ selectedRegions = [] }: QuizHistoryProps) => {
             ) && item.selectedRegions.length === selectedRegions.length
           );
         })
-      : data; // Si aucune région n'est sélectionnée, afficher toutes les données
+      : dataArray; // Si aucune région n'est sélectionnée, afficher toutes les données
 
   if (isLoading) {
     return <p className="text-sm text-muted-foreground">Chargement...</p>;
   }
 
+  console.log(filteredData);
   if (filteredData.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
@@ -56,7 +60,7 @@ export const QuizHistory = ({ selectedRegions = [] }: QuizHistoryProps) => {
   return (
     <ChartContainer config={chartConfig} className="h-24 w-full">
       <AreaChart
-        data={data}
+        data={filteredData}
         margin={{
           left: 15,
           right: 15,
