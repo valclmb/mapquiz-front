@@ -54,7 +54,7 @@ export function LobbyProvider({ lobbyId, children }: LobbyProviderProps) {
       // Redirection automatique vers /result
       navigate({ to: `/multiplayer/${lobbyId}/result` });
     }
-  }, [lastMessage, lobbyId, sendMessage, navigate, location.pathname]);
+  }, [lastMessage, lobbyId, sendMessage, navigate]);
 
   // Timeout de chargement (10s)
   useEffect(() => {

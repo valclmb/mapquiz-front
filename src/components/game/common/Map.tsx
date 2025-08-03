@@ -118,16 +118,17 @@ export const Map = ({
   }, [zoom, center]);
 
   const countryStyle = (key: number) => {
-    // Utiliser le code du pays au lieu de l'index
-    if (countries[key]?.properties.code === currentCountryCode) {
-      return "#60a5fa";
-    }
     if (validatedCountries.includes(countries[key]?.properties.code)) {
       return "#22c55e";
     }
     if (incorrectCountries.includes(countries[key]?.properties.code)) {
       return "var(--color-destructive)";
     }
+
+    if (countries[key]?.properties.code === currentCountryCode) {
+      return "#60a5fa";
+    }
+
     if (countries[key]?.filtered) {
       return "var(--color-background)";
     }
