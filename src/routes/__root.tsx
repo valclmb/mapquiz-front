@@ -1,3 +1,4 @@
+import { Footer } from "@/components/layout/Footer";
 import { Grid } from "@/components/layout/Grid";
 import { Nav } from "@/components/layout/Nav";
 import { Providers } from "@/context/Providers";
@@ -9,6 +10,7 @@ function RootLayout() {
       <Grid>
         <Nav />
         <Outlet />
+        <Footer />
       </Grid>
     </Providers>
   );

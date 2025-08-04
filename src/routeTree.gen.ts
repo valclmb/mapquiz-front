@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TrainingRouteImport } from './routes/training'
 import { Route as SocialRouteImport } from './routes/social'
 import { Route as QuizRouteImport } from './routes/quiz'
+import { Route as BugReportRouteImport } from './routes/bug-report'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MultiplayerIndexRouteImport } from './routes/multiplayer/index'
 import { Route as MultiplayerLobbyIdRouteImport } from './routes/multiplayer/$lobbyId'
@@ -33,6 +34,11 @@ const SocialRoute = SocialRouteImport.update({
 const QuizRoute = QuizRouteImport.update({
   id: '/quiz',
   path: '/quiz',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BugReportRoute = BugReportRouteImport.update({
+  id: '/bug-report',
+  path: '/bug-report',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -74,6 +80,7 @@ const MultiplayerLobbyIdGameRoute = MultiplayerLobbyIdGameRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/bug-report': typeof BugReportRoute
   '/quiz': typeof QuizRoute
   '/social': typeof SocialRoute
   '/training': typeof TrainingRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/bug-report': typeof BugReportRoute
   '/quiz': typeof QuizRoute
   '/social': typeof SocialRoute
   '/training': typeof TrainingRoute
@@ -98,6 +106,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/bug-report': typeof BugReportRoute
   '/quiz': typeof QuizRoute
   '/social': typeof SocialRoute
   '/training': typeof TrainingRoute
@@ -112,6 +121,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/bug-report'
     | '/quiz'
     | '/social'
     | '/training'
@@ -124,6 +134,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/bug-report'
     | '/quiz'
     | '/social'
     | '/training'
@@ -135,6 +146,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/bug-report'
     | '/quiz'
     | '/social'
     | '/training'
@@ -148,6 +160,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BugReportRoute: typeof BugReportRoute
   QuizRoute: typeof QuizRoute
   SocialRoute: typeof SocialRoute
   TrainingRoute: typeof TrainingRoute
@@ -176,6 +189,13 @@ declare module '@tanstack/react-router' {
       path: '/quiz'
       fullPath: '/quiz'
       preLoaderRoute: typeof QuizRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bug-report': {
+      id: '/bug-report'
+      path: '/bug-report'
+      fullPath: '/bug-report'
+      preLoaderRoute: typeof BugReportRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -249,6 +269,7 @@ const MultiplayerLobbyIdRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BugReportRoute: BugReportRoute,
   QuizRoute: QuizRoute,
   SocialRoute: SocialRoute,
   TrainingRoute: TrainingRoute,
