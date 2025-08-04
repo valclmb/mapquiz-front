@@ -1,4 +1,4 @@
-import { useUserTag } from "@/hooks/queries/useUserTag";
+import { authClient } from "@/lib/auth-client";
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
@@ -11,16 +11,22 @@ import {
 } from "../ui/card";
 import { Input } from "../ui/input";
 
+type UserWithTag = {
+  tag?: string | null;
+};
+
 export const FriendTag = () => {
-  const { data: tag = "", isLoading } = useUserTag();
+  const { data: session } = authClient.useSession();
+  const tag = (session?.user as UserWithTag)?.tag || "";
 
   // Copier le tag dans le presse-papier
   const copyTag = () => {
-    console.log("test");
-    navigator.clipboard.writeText(tag);
-    toast("Tag copié", {
-      description: "Votre tag a été copié dans le presse-papier",
-    });
+    if (tag) {
+      navigator.clipboard.writeText(tag);
+      toast("Tag copié", {
+        description: "Votre tag a été copié dans le presse-papier",
+      });
+    }
   };
 
   return (
@@ -32,16 +38,10 @@ export const FriendTag = () => {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex items-center gap-2">
-        {isLoading ? (
-          <div>Chargement...</div>
-        ) : (
-          <>
-            <Input value={tag} readOnly className="font-mono text-lg" />
-            <Button variant="outline" size="icon" onClick={copyTag}>
-              <Copy className="h-4 w-4" />
-            </Button>
-          </>
-        )}
+        <Input value={tag} readOnly className="font-mono text-lg" />
+        <Button variant="outline" size="icon" onClick={copyTag}>
+          <Copy className="h-4 w-4" />
+        </Button>
       </CardContent>
     </Card>
   );

@@ -39,17 +39,30 @@ export function LobbyProvider({ lobbyId, children }: LobbyProviderProps) {
     }
   }, [lastMessage, lobbyId, navigate]);
 
-  // Redirection automatique vers /result à la réception de 'game_end'
+  // Gestion de game_end : envoi automatique de get_game_results
   useEffect(() => {
     if (
       lastMessage?.type === "game_end" &&
-      lastMessage.payload?.lobbyId === lobbyId &&
-      location.pathname.endsWith("/game")
+      lastMessage.payload?.lobbyId === lobbyId
     ) {
-      console.log("[LobbyProvider] Redirection via game_end !");
+      // Envoyer get_game_results
+      sendMessage({
+        type: "get_game_results",
+        payload: { lobbyId },
+      });
+    }
+  }, [lastMessage, lobbyId, sendMessage]);
+
+  // Gestion de get_game_results_success : redirection après réception des résultats
+  useEffect(() => {
+    if (
+      lastMessage?.type === "get_game_results_success" &&
+      lastMessage.data?.lobbyId === lobbyId
+    ) {
+      // Redirection vers /result après avoir reçu les résultats
       navigate({ to: `/multiplayer/${lobbyId}/result` });
     }
-  }, [lastMessage, lobbyId, navigate, location.pathname]);
+  }, [lastMessage, lobbyId, navigate]);
 
   // Timeout de chargement (10s)
   useEffect(() => {
@@ -116,22 +129,21 @@ export function LobbyProvider({ lobbyId, children }: LobbyProviderProps) {
       return;
     }
     // Ajout : gestion du message game_results
-    // REMETTRE SI CA NE MARCHE PAS AVEC game_end
-    // if (lastMessage.type === "game_results" && lastMessage.payload?.rankings) {
-    //   setLobby((prev: LobbyState | null) => {
-    //     if (!prev || !lastMessage.payload) {
-    //       console.warn(
-    //         "[LobbyProvider] game_results reçu mais lobby précédent null, rankings ignorés"
-    //       );
-    //       return null;
-    //     }
-    //     const next = { ...prev, rankings: lastMessage.payload.rankings };
-    //     console.log("[LobbyProvider] setLobby (game_results):", next);
-    //     return next;
-    //   });
-    //   setLoading(false);
-    //   return;
-    // }
+    if (lastMessage.type === "game_results" && lastMessage.payload?.rankings) {
+      setLobby((prev: LobbyState | null) => {
+        if (!prev || !lastMessage.payload) {
+          console.warn(
+            "[LobbyProvider] game_results reçu mais lobby précédent null, rankings ignorés"
+          );
+          return null;
+        }
+        const next = { ...prev, rankings: lastMessage.payload.rankings };
+        console.log("[LobbyProvider] setLobby (game_results):", next);
+        return next;
+      });
+      setLoading(false);
+      return;
+    }
     if (
       lastMessage.type === "get_game_results_success" &&
       lastMessage.data?.rankings

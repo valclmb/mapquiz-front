@@ -49,7 +49,7 @@ export const AddFriend = () => {
             type="text"
             placeholder="Entrez le tag d'ami"
             className="font-mono uppercase"
-            maxLength={6}
+            maxLength={8}
             value={friendTag}
             onChange={(e) => setFriendTag(e.target.value)}
           />

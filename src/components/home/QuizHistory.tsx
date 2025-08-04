@@ -25,12 +25,12 @@ type QuizHistoryProps = {
 };
 
 export const QuizHistory = ({ selectedRegions = [] }: QuizHistoryProps) => {
-  const { data = [], isLoading } = useScoreHistory();
+  const { data, isLoading } = useScoreHistory();
 
   // Filtrer les données en fonction des régions sélectionnées
   const filteredData =
     selectedRegions.length > 0
-      ? data.filter((item) => {
+      ? data?.filter((item) => {
           // Vérifier si les régions de l'item correspondent exactement aux régions sélectionnées
           // ou si les régions sélectionnées sont un sous-ensemble des régions de l'item
           return (
@@ -53,10 +53,12 @@ export const QuizHistory = ({ selectedRegions = [] }: QuizHistoryProps) => {
     );
   }
 
+  console.log(filteredData);
+
   return (
     <ChartContainer config={chartConfig} className="h-24 w-full">
       <AreaChart
-        data={data}
+        data={filteredData}
         margin={{
           left: 15,
           right: 15,

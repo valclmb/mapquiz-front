@@ -118,16 +118,17 @@ export const Map = ({
   }, [zoom, center]);
 
   const countryStyle = (key: number) => {
-    // Utiliser le code du pays au lieu de l'index
-    if (countries[key]?.properties.code === currentCountryCode) {
-      return "#60a5fa";
-    }
     if (validatedCountries.includes(countries[key]?.properties.code)) {
       return "#22c55e";
     }
     if (incorrectCountries.includes(countries[key]?.properties.code)) {
       return "var(--color-destructive)";
     }
+
+    if (countries[key]?.properties.code === currentCountryCode) {
+      return "#60a5fa";
+    }
+
     if (countries[key]?.filtered) {
       return "var(--color-background)";
     }
@@ -137,7 +138,7 @@ export const Map = ({
 
   return (
     <ComposableMap
-      className="h-[500px] lg:h-[750px] z-10 w-full rounded-4xl border-2 border-secondary transition-all "
+      className="h-[40vh] md:h-[50vh] lg:h-[75vh] z-10 w-full rounded-4xl border-2 border-secondary transition-all"
       projection="geoMercator"
       projectionConfig={{
         scale: 140,
