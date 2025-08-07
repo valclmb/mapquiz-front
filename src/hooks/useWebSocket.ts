@@ -360,17 +360,8 @@ export function useWebSocket({
           toast.info(
             `${message.payload?.playerName || "Un joueur"} a quitté la partie`
           );
-          if (message.payload?.lobbyId) {
-            setLastMessage({
-              type: "lobby_update",
-              payload: {
-                lobbyId: message.payload.lobbyId,
-                playerLeft: true,
-                leftPlayerId: message.payload.playerId,
-                leftPlayerName: message.payload.playerName,
-              },
-            });
-          }
+          // Ne plus transformer en lobby_update pour éviter les conflits
+          setLastMessage(message);
           break;
         case "game_end":
           setLastMessage(message);

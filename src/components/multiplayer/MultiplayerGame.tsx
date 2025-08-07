@@ -104,14 +104,34 @@ export const MultiplayerGame = ({
 
   // Nettoyer les ressources lors du démontage du composant
   useEffect(() => {
-    return () => {
-      // Ne plus envoyer automatiquement le message leave_game
-      // Cela causait des problèmes de synchronisation
+    const handleBeforeUnload = () => {
+      // Envoyer un message leave_lobby quand l'utilisateur quitte la page
+      sendMessage({
+        type: "leave_lobby",
+        payload: { lobbyId },
+      });
       console.log(
-        "MultiplayerGame - Composant démonté sans envoyer leave_game"
+        "MultiplayerGame - Utilisateur quitte la page, message leave_lobby envoyé"
       );
     };
-  }, []);
+
+    // Ajouter le gestionnaire beforeunload
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      // Nettoyer le gestionnaire
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+
+      // Envoyer aussi le message quand le composant se démonte (navigation)
+      sendMessage({
+        type: "leave_lobby",
+        payload: { lobbyId },
+      });
+      console.log(
+        "MultiplayerGame - Composant démonté, message leave_lobby envoyé"
+      );
+    };
+  }, [sendMessage, lobbyId]);
 
   if (!lobby) {
     return (
