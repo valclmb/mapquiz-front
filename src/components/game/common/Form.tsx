@@ -38,6 +38,7 @@ export const Form = ({ className }: FormProps) => {
             className={inputClass}
             value={currentCountry.name.value}
             onChange={handleChange}
+            aria-describedby="country-help"
           />
         </div>
         <div className="flex flex-col w-full">
@@ -51,13 +52,20 @@ export const Form = ({ className }: FormProps) => {
             className={inputClass}
             value={currentCountry.capital.value}
             onChange={handleChange}
+            aria-describedby="capital-help"
+            aria-invalid={
+              currentCountry.capital.value.length > 0 &&
+              !currentCountry.capital.valid
+            }
           />
         </div>
         <Button
           onClick={() => changeIndex(false)}
-          className="w-full md:w-auto flex mt-3 gap-1 "
+          className="w-full md:w-auto flex mt-3 gap-1"
+          aria-label="Passer au pays suivant"
         >
-          Passer Ctrl <Delete strokeWidth={1.5} size={20} />
+          Passer <span className="sr-only">(raccourci: Ctrl + Backspace)</span>
+          Ctrl + <Delete strokeWidth={1.5} size={20} />
         </Button>
       </CardContent>
     </Card>

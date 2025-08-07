@@ -13,9 +13,9 @@ export function Grid({ children }: { children: React.ReactNode }) {
       />
       {/* Radial gradient for the container to give a faded look */}
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-background [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
-      <main className="z-20 w-full pt-16 flex flex-col md:justify-between">
+      <div className="z-20 w-full pt-16 flex flex-col md:justify-between">
         {children}
-      </main>
+      </div>
     </div>
   );
 }

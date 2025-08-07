@@ -9,7 +9,9 @@ function RootLayout() {
     <Providers>
       <Grid>
         <Nav />
-        <Outlet />
+        <main id="main-content" role="main">
+          <Outlet />
+        </main>
         <Footer />
       </Grid>
     </Providers>

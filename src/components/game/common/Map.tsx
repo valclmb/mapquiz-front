@@ -135,6 +135,8 @@ export const Map = ({
         center: [0, 40],
         rotate: [-10, 0, 0],
       }}
+      aria-label="Carte du monde interactive pour le quiz géographique"
+      role="img"
     >
       <ZoomableGroup center={currentCenter} zoom={currentZoom}>
         <Geographies geography={countries} stroke="#FFFFFF">
@@ -146,6 +148,12 @@ export const Map = ({
                 geography={geo}
                 strokeWidth={geo.filtered ? 0.3 : 0.7}
                 fill={countryStyle(key)}
+                aria-label={
+                  geo.properties.code === currentCountryCode
+                    ? "Pays actuellement sélectionné pour le quiz"
+                    : "Pays sur la carte"
+                }
+                aria-selected={geo.properties.code === currentCountryCode}
                 style={{
                   default: {
                     outline: "none",
