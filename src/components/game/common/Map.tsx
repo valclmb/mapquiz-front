@@ -1,5 +1,5 @@
 import { GameContext } from "@/context/GameContext";
-import { useTheme } from "@/context/ThemeProvider";
+import { CONTINENTS } from "@/lib/constants";
 import { useContext, useEffect, useRef, useState } from "react";
 import {
   ComposableMap,
@@ -21,15 +21,6 @@ const REGION_CONFIG: Record<
   Monde: { center: [0, 40], zoom: 1 },
 };
 
-const ALL_REGIONS = [
-  "Europe",
-  "Asie",
-  "Afrique",
-  "Océanie",
-  "Amérique du Sud",
-  "Amérique du Nord",
-];
-
 function lerp(a: number, b: number, t: number) {
   return a + (b - a) * t;
 }
@@ -44,7 +35,6 @@ export const Map = ({
 }: {
   selectedRegions?: string[];
 }) => {
-  const { theme } = useTheme();
   const gameContext = useContext(GameContext);
   if (!gameContext) throw new Error("gameContext is not defined");
   const { countries, validatedCountries, incorrectCountries, randomIndex } =
@@ -60,8 +50,8 @@ export const Map = ({
 
   // Nouvelle logique de zoom/centre
   const isWorld =
-    selectedRegions.length === ALL_REGIONS.length &&
-    ALL_REGIONS.every((region) => selectedRegions.includes(region));
+    selectedRegions.length === CONTINENTS.length &&
+    CONTINENTS.every((region) => selectedRegions.includes(region));
 
   let selectedRegion: string;
   if (isWorld || selectedRegions.length === 0) {
@@ -138,7 +128,7 @@ export const Map = ({
 
   return (
     <ComposableMap
-      className="h-[40vh] md:h-[50vh] lg:h-[75vh] z-10 w-full rounded-4xl border-2 border-secondary transition-all"
+      className="h-[45vh]  md:h-[70vh] z-10 w-full rounded-4xl border-2 border-secondary transition-all"
       projection="geoMercator"
       projectionConfig={{
         scale: 140,

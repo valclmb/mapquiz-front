@@ -10,6 +10,7 @@ import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { GoogleSignInButton } from "@/components/ui/google-sign-in-button";
 import { useTheme } from "@/context/ThemeProvider";
+
 import { Earth, LogOut, Moon, Sun, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar } from "../social/Avatar";
@@ -38,7 +39,7 @@ export const Nav = () => {
       <Link to="/" className="group flex items-center gap-2 ">
         <Earth className="group-hover:rotate-180 transition-all duration-300 " />
 
-        <span className="font-bold ">Map Quiz</span>
+        <span className="font-bold hidden md:block">Map Quiz</span>
       </Link>
 
       <div className="flex items-center gap-2">

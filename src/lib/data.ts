@@ -1,8 +1,10 @@
+import type { Continent } from "@/types/continent";
+
 // Types pour les données de pays
 export interface CountryProperties {
   name: string;
   capital: string;
-  continent: string;
+  continent: Continent;
   code: string;
 }
 

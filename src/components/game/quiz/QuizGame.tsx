@@ -4,17 +4,19 @@ import Typography from "@/components/ui/Typography";
 import { GameContext } from "@/context/GameContext";
 import { useSaveScore } from "@/hooks/queries/useSaveScore";
 import { useFilter } from "@/hooks/useFilter";
-import type { Country } from "@/hooks/useMapGame";
+
 import { useMapGame } from "@/hooks/useMapGame";
 import { authClient } from "@/lib/auth-client";
+import type { Country } from "@/lib/data";
+import type { Continent } from "@/types/continent";
 import { useEffect, useState } from "react";
-import { Form } from "../common/Form";
+import { GameControls } from "../common/GameControls";
 import { Map } from "../common/Map";
-import { Score } from "../common/Score";
 import { QuizResults } from "./QuizResults";
+
 type QuizGameProps = {
-  countries: Country[]; // Changer de GeoJsonProperties[] à Country[]
-  selectedRegions: string[];
+  countries: Country[];
+  selectedRegions: Continent[];
 };
 
 export const QuizGame = ({ countries, selectedRegions }: QuizGameProps) => {
@@ -75,10 +77,7 @@ export const QuizGame = ({ countries, selectedRegions }: QuizGameProps) => {
         QUIZ
       </Typography>
       <Map selectedRegions={selectedRegions} />
-      <Form />
-      <div className="flex items-center gap-4 ml-8 mt-4">
-        <Score />
-      </div>
+      <GameControls />
     </GameContext.Provider>
   );
 };

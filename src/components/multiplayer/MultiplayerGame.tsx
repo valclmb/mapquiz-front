@@ -4,10 +4,10 @@ import { useMapGame } from "@/hooks/useMapGame";
 import { useMultiplayerGame } from "@/hooks/useMultiplayerGame";
 import { authClient } from "@/lib/auth-client";
 import type { Country } from "@/lib/data";
+import type { Continent } from "@/types/continent";
 import type { LobbyState, MultiplayerPlayer } from "@/types/lobby";
-import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { Form } from "../game/common/Form";
+import { GameControls } from "../game/common/GameControls";
 import { Map } from "../game/common/Map";
 import { Button } from "../ui/button";
 import Typography from "../ui/Typography";
@@ -16,7 +16,7 @@ import { LobbyScoreList } from "./LobbyScoreList";
 type MultiplayerGameProps = {
   lobby: LobbyState | null;
   countries: Country[];
-  selectedRegions: string[];
+  selectedRegions: Continent[];
 };
 
 export const MultiplayerGame = ({
@@ -35,7 +35,6 @@ export const MultiplayerGame = ({
     countries,
     selectedRegions
   );
-  const navigate = useNavigate();
 
   const { playerScores, sendMessage, myProgress, syncProgressWithBackend } =
     useMultiplayerGame(lobbyId, multiplayerLobby);
@@ -170,7 +169,7 @@ export const MultiplayerGame = ({
         <Map selectedRegions={selectedRegions} />
       </div>
 
-      <Form />
+      <GameControls showScore={false} className="lg:ml-64" />
     </GameContext.Provider>
   );
 };

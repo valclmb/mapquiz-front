@@ -36,7 +36,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           }}
         >
           {children}
-          <Toaster richColors />
+          <Toaster richColors position="top-center" />
         </WebSocketProvider>
       </QueryClientProvider>
     </ThemeProvider>

@@ -11,7 +11,7 @@ export interface LobbyState {
   players: Player[];
   hostId: string;
   settings: LobbySettings;
-  status: "waiting" | "started" | "finished";
+  status: "waiting" | "playing" | "finished";
 }
 
 export type MultiplayerPlayer = Player & {
