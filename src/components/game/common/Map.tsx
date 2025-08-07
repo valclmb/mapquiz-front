@@ -153,13 +153,9 @@ export const Map = ({
 
   // Effet pour gérer les changements de pays et de région
   useEffect(() => {
-    // Éviter de se déclencher au premier rendu
-    if (previousRandomIndex.current === undefined) {
-      previousRandomIndex.current = randomIndex;
-      return;
-    }
-
-    const isNewCountry = previousRandomIndex.current !== randomIndex;
+    const isNewCountry =
+      previousRandomIndex.current !== undefined &&
+      previousRandomIndex.current !== randomIndex;
 
     // Si c'est un nouveau pays, revenir à la vue globale
     if (isNewCountry) {
