@@ -18,10 +18,11 @@ export const Filter = ({ filter, setFilter }: FilterProps) => {
     <Popover>
       <PopoverTrigger asChild>
         <Button
-          size="icon"
-          className="p-6 bg-card border border-secondary hover:bg-secondary cursor-pointer "
+          className="bg-card text-primary border border-secondary hover:bg-secondary cursor-pointer "
+          aria-label="Filtrer par continent"
         >
-          <FilterIcon className="size-7 text-primary " />
+          <FilterIcon className="size-5 text-primary " />
+          Filtre
         </Button>
       </PopoverTrigger>
       <PopoverContent>

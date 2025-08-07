@@ -50,7 +50,12 @@ export const Nav = () => {
         ) : data?.user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon" className="rounded-full">
+              <Button
+                variant="outline"
+                size="icon"
+                className="rounded-full"
+                aria-label="Menu utilisateur"
+              >
                 <Avatar user={data.user} showStatus={false} />
               </Button>
             </DropdownMenuTrigger>

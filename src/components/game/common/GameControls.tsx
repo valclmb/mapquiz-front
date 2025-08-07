@@ -24,7 +24,7 @@ export const GameControls = ({
         className
       )}
     >
-      <div className="flex items-start gap-4">
+      <div className="flex items-center gap-4">
         {filter && setFilter && (
           <Filter filter={filter} setFilter={setFilter} />
         )}
