@@ -6,7 +6,6 @@ import { authClient } from "@/lib/auth-client";
 import type { Country } from "@/lib/data";
 import type { Continent } from "@/types/continent";
 import type { LobbyState, MultiplayerPlayer } from "@/types/lobby";
-import { useEffect } from "react";
 import { GameControls } from "../game/common/GameControls";
 import { Map } from "../game/common/Map";
 import { Button } from "../ui/button";
@@ -101,37 +100,6 @@ export const MultiplayerGame = ({
       // La progression est déjà synchronisée via onProgressSync dans useMapGame
     },
   });
-
-  // Nettoyer les ressources lors du démontage du composant
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      // Envoyer un message leave_lobby quand l'utilisateur quitte la page
-      sendMessage({
-        type: "leave_lobby",
-        payload: { lobbyId },
-      });
-      console.log(
-        "MultiplayerGame - Utilisateur quitte la page, message leave_lobby envoyé"
-      );
-    };
-
-    // Ajouter le gestionnaire beforeunload
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    return () => {
-      // Nettoyer le gestionnaire
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-
-      // Envoyer aussi le message quand le composant se démonte (navigation)
-      sendMessage({
-        type: "leave_lobby",
-        payload: { lobbyId },
-      });
-      console.log(
-        "MultiplayerGame - Composant démonté, message leave_lobby envoyé"
-      );
-    };
-  }, [sendMessage, lobbyId]);
 
   if (!lobby) {
     return (

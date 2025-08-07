@@ -23,6 +23,7 @@ export function useMultiplayerGame(
     initialGameState?.players?.map((p) => ({
       id: p.id,
       name: p.name,
+      image: "", // Champ requis par PlayerScore
       score: p.score,
       progress: p.progress,
       validatedCountries: p.validatedCountries,
@@ -70,6 +71,7 @@ export function useMultiplayerGame(
       const updatedPlayerScores = initialGameState.players.map((p) => ({
         id: p.id,
         name: p.name,
+        image: "", // Champ requis par PlayerScore
         score: p.score,
         progress: p.progress,
         validatedCountries: p.validatedCountries,
@@ -92,7 +94,7 @@ export function useMultiplayerGame(
 
   useEffect(() => {
     if (
-      lastMessage?.type === "player_progress_update" &&
+      lastMessage?.type === "update_player_progress" &&
       (lastMessage.payload?.lobbyId === lobbyId ||
         lastMessage.data?.lobbyId === lobbyId)
     ) {
@@ -111,16 +113,6 @@ export function useMultiplayerGame(
             });
           }
         }
-      }
-    }
-    if (
-      lastMessage?.type === "score_update" &&
-      lastMessage.data?.lobbyId === lobbyId
-    ) {
-      const { players } = lastMessage.data;
-      if (players && Array.isArray(players)) {
-        const playerScoresData = players as PlayerScore[];
-        setPlayerScores(playerScoresData);
       }
     }
     if (
@@ -160,5 +152,6 @@ export function useMultiplayerGame(
     myPlayer,
     syncProgressWithBackend,
     sendMessage,
+    lastMessage,
   };
 }

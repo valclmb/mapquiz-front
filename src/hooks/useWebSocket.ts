@@ -338,16 +338,8 @@ export function useWebSocket({
           }
           break;
         case "score_update":
-          if (message.data) {
-            setLastMessage({
-              type: "player_progress_update",
-              payload: {
-                lobbyId: message.data.lobbyId as string,
-                players: message.data.players,
-                updatedPlayerId: message.data.updatedPlayerId,
-              },
-            });
-          }
+          // Le backend envoie maintenant directement update_player_progress
+          setLastMessage(message);
           break;
         case "game_restarted": {
           const lobbyId = message.payload?.lobbyId;
