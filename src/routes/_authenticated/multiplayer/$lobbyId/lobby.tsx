@@ -2,7 +2,7 @@ import { LobbyRoom } from "@/components/multiplayer/LobbyRoom";
 import { useLobby } from "@/context/LobbyProvider";
 import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/multiplayer/$lobbyId/lobby")({
+export const Route = createFileRoute("/_authenticated/multiplayer/$lobbyId/lobby")({
   component: LobbyWaitingPage,
 });
 

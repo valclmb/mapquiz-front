@@ -37,7 +37,9 @@ export const QuizCard = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl sm:text-2xl">Quiz</CardTitle>
+        <CardTitle>
+          <Typography variant="h3">Quiz</Typography>
+        </CardTitle>
         <CardDescription>
           Défiez-vous sur les pays et leurs capitales !
           <br /> Connectez-vous pour suivre votre progression et conserver l

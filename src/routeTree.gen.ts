@@ -10,25 +10,21 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TrainingRouteImport } from './routes/training'
-import { Route as SocialRouteImport } from './routes/social'
 import { Route as QuizRouteImport } from './routes/quiz'
 import { Route as BugReportRouteImport } from './routes/bug-report'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as MultiplayerIndexRouteImport } from './routes/multiplayer/index'
-import { Route as MultiplayerLobbyIdRouteImport } from './routes/multiplayer/$lobbyId'
-import { Route as MultiplayerLobbyIdIndexRouteImport } from './routes/multiplayer/$lobbyId/index'
-import { Route as MultiplayerLobbyIdResultRouteImport } from './routes/multiplayer/$lobbyId/result'
-import { Route as MultiplayerLobbyIdLobbyRouteImport } from './routes/multiplayer/$lobbyId/lobby'
-import { Route as MultiplayerLobbyIdGameRouteImport } from './routes/multiplayer/$lobbyId/game'
+import { Route as AuthenticatedSocialRouteImport } from './routes/_authenticated/social'
+import { Route as AuthenticatedMultiplayerIndexRouteImport } from './routes/_authenticated/multiplayer/index'
+import { Route as AuthenticatedMultiplayerLobbyIdRouteImport } from './routes/_authenticated/multiplayer/$lobbyId'
+import { Route as AuthenticatedMultiplayerLobbyIdIndexRouteImport } from './routes/_authenticated/multiplayer/$lobbyId/index'
+import { Route as AuthenticatedMultiplayerLobbyIdResultRouteImport } from './routes/_authenticated/multiplayer/$lobbyId/result'
+import { Route as AuthenticatedMultiplayerLobbyIdLobbyRouteImport } from './routes/_authenticated/multiplayer/$lobbyId/lobby'
+import { Route as AuthenticatedMultiplayerLobbyIdGameRouteImport } from './routes/_authenticated/multiplayer/$lobbyId/game'
 
 const TrainingRoute = TrainingRouteImport.update({
   id: '/training',
   path: '/training',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SocialRoute = SocialRouteImport.update({
-  id: '/social',
-  path: '/social',
   getParentRoute: () => rootRouteImport,
 } as any)
 const QuizRoute = QuizRouteImport.update({
@@ -41,81 +37,96 @@ const BugReportRoute = BugReportRouteImport.update({
   path: '/bug-report',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MultiplayerIndexRoute = MultiplayerIndexRouteImport.update({
-  id: '/multiplayer/',
-  path: '/multiplayer/',
-  getParentRoute: () => rootRouteImport,
+const AuthenticatedSocialRoute = AuthenticatedSocialRouteImport.update({
+  id: '/social',
+  path: '/social',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
-const MultiplayerLobbyIdRoute = MultiplayerLobbyIdRouteImport.update({
-  id: '/multiplayer/$lobbyId',
-  path: '/multiplayer/$lobbyId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MultiplayerLobbyIdIndexRoute = MultiplayerLobbyIdIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => MultiplayerLobbyIdRoute,
-} as any)
-const MultiplayerLobbyIdResultRoute =
-  MultiplayerLobbyIdResultRouteImport.update({
+const AuthenticatedMultiplayerIndexRoute =
+  AuthenticatedMultiplayerIndexRouteImport.update({
+    id: '/multiplayer/',
+    path: '/multiplayer/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedMultiplayerLobbyIdRoute =
+  AuthenticatedMultiplayerLobbyIdRouteImport.update({
+    id: '/multiplayer/$lobbyId',
+    path: '/multiplayer/$lobbyId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedMultiplayerLobbyIdIndexRoute =
+  AuthenticatedMultiplayerLobbyIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedMultiplayerLobbyIdRoute,
+  } as any)
+const AuthenticatedMultiplayerLobbyIdResultRoute =
+  AuthenticatedMultiplayerLobbyIdResultRouteImport.update({
     id: '/result',
     path: '/result',
-    getParentRoute: () => MultiplayerLobbyIdRoute,
+    getParentRoute: () => AuthenticatedMultiplayerLobbyIdRoute,
   } as any)
-const MultiplayerLobbyIdLobbyRoute = MultiplayerLobbyIdLobbyRouteImport.update({
-  id: '/lobby',
-  path: '/lobby',
-  getParentRoute: () => MultiplayerLobbyIdRoute,
-} as any)
-const MultiplayerLobbyIdGameRoute = MultiplayerLobbyIdGameRouteImport.update({
-  id: '/game',
-  path: '/game',
-  getParentRoute: () => MultiplayerLobbyIdRoute,
-} as any)
+const AuthenticatedMultiplayerLobbyIdLobbyRoute =
+  AuthenticatedMultiplayerLobbyIdLobbyRouteImport.update({
+    id: '/lobby',
+    path: '/lobby',
+    getParentRoute: () => AuthenticatedMultiplayerLobbyIdRoute,
+  } as any)
+const AuthenticatedMultiplayerLobbyIdGameRoute =
+  AuthenticatedMultiplayerLobbyIdGameRouteImport.update({
+    id: '/game',
+    path: '/game',
+    getParentRoute: () => AuthenticatedMultiplayerLobbyIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/bug-report': typeof BugReportRoute
   '/quiz': typeof QuizRoute
-  '/social': typeof SocialRoute
   '/training': typeof TrainingRoute
-  '/multiplayer/$lobbyId': typeof MultiplayerLobbyIdRouteWithChildren
-  '/multiplayer': typeof MultiplayerIndexRoute
-  '/multiplayer/$lobbyId/game': typeof MultiplayerLobbyIdGameRoute
-  '/multiplayer/$lobbyId/lobby': typeof MultiplayerLobbyIdLobbyRoute
-  '/multiplayer/$lobbyId/result': typeof MultiplayerLobbyIdResultRoute
-  '/multiplayer/$lobbyId/': typeof MultiplayerLobbyIdIndexRoute
+  '/social': typeof AuthenticatedSocialRoute
+  '/multiplayer/$lobbyId': typeof AuthenticatedMultiplayerLobbyIdRouteWithChildren
+  '/multiplayer': typeof AuthenticatedMultiplayerIndexRoute
+  '/multiplayer/$lobbyId/game': typeof AuthenticatedMultiplayerLobbyIdGameRoute
+  '/multiplayer/$lobbyId/lobby': typeof AuthenticatedMultiplayerLobbyIdLobbyRoute
+  '/multiplayer/$lobbyId/result': typeof AuthenticatedMultiplayerLobbyIdResultRoute
+  '/multiplayer/$lobbyId/': typeof AuthenticatedMultiplayerLobbyIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bug-report': typeof BugReportRoute
   '/quiz': typeof QuizRoute
-  '/social': typeof SocialRoute
   '/training': typeof TrainingRoute
-  '/multiplayer': typeof MultiplayerIndexRoute
-  '/multiplayer/$lobbyId/game': typeof MultiplayerLobbyIdGameRoute
-  '/multiplayer/$lobbyId/lobby': typeof MultiplayerLobbyIdLobbyRoute
-  '/multiplayer/$lobbyId/result': typeof MultiplayerLobbyIdResultRoute
-  '/multiplayer/$lobbyId': typeof MultiplayerLobbyIdIndexRoute
+  '/social': typeof AuthenticatedSocialRoute
+  '/multiplayer': typeof AuthenticatedMultiplayerIndexRoute
+  '/multiplayer/$lobbyId/game': typeof AuthenticatedMultiplayerLobbyIdGameRoute
+  '/multiplayer/$lobbyId/lobby': typeof AuthenticatedMultiplayerLobbyIdLobbyRoute
+  '/multiplayer/$lobbyId/result': typeof AuthenticatedMultiplayerLobbyIdResultRoute
+  '/multiplayer/$lobbyId': typeof AuthenticatedMultiplayerLobbyIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/bug-report': typeof BugReportRoute
   '/quiz': typeof QuizRoute
-  '/social': typeof SocialRoute
   '/training': typeof TrainingRoute
-  '/multiplayer/$lobbyId': typeof MultiplayerLobbyIdRouteWithChildren
-  '/multiplayer/': typeof MultiplayerIndexRoute
-  '/multiplayer/$lobbyId/game': typeof MultiplayerLobbyIdGameRoute
-  '/multiplayer/$lobbyId/lobby': typeof MultiplayerLobbyIdLobbyRoute
-  '/multiplayer/$lobbyId/result': typeof MultiplayerLobbyIdResultRoute
-  '/multiplayer/$lobbyId/': typeof MultiplayerLobbyIdIndexRoute
+  '/_authenticated/social': typeof AuthenticatedSocialRoute
+  '/_authenticated/multiplayer/$lobbyId': typeof AuthenticatedMultiplayerLobbyIdRouteWithChildren
+  '/_authenticated/multiplayer/': typeof AuthenticatedMultiplayerIndexRoute
+  '/_authenticated/multiplayer/$lobbyId/game': typeof AuthenticatedMultiplayerLobbyIdGameRoute
+  '/_authenticated/multiplayer/$lobbyId/lobby': typeof AuthenticatedMultiplayerLobbyIdLobbyRoute
+  '/_authenticated/multiplayer/$lobbyId/result': typeof AuthenticatedMultiplayerLobbyIdResultRoute
+  '/_authenticated/multiplayer/$lobbyId/': typeof AuthenticatedMultiplayerLobbyIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -123,8 +134,8 @@ export interface FileRouteTypes {
     | '/'
     | '/bug-report'
     | '/quiz'
-    | '/social'
     | '/training'
+    | '/social'
     | '/multiplayer/$lobbyId'
     | '/multiplayer'
     | '/multiplayer/$lobbyId/game'
@@ -136,8 +147,8 @@ export interface FileRouteTypes {
     | '/'
     | '/bug-report'
     | '/quiz'
-    | '/social'
     | '/training'
+    | '/social'
     | '/multiplayer'
     | '/multiplayer/$lobbyId/game'
     | '/multiplayer/$lobbyId/lobby'
@@ -146,26 +157,25 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/bug-report'
     | '/quiz'
-    | '/social'
     | '/training'
-    | '/multiplayer/$lobbyId'
-    | '/multiplayer/'
-    | '/multiplayer/$lobbyId/game'
-    | '/multiplayer/$lobbyId/lobby'
-    | '/multiplayer/$lobbyId/result'
-    | '/multiplayer/$lobbyId/'
+    | '/_authenticated/social'
+    | '/_authenticated/multiplayer/$lobbyId'
+    | '/_authenticated/multiplayer/'
+    | '/_authenticated/multiplayer/$lobbyId/game'
+    | '/_authenticated/multiplayer/$lobbyId/lobby'
+    | '/_authenticated/multiplayer/$lobbyId/result'
+    | '/_authenticated/multiplayer/$lobbyId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   BugReportRoute: typeof BugReportRoute
   QuizRoute: typeof QuizRoute
-  SocialRoute: typeof SocialRoute
   TrainingRoute: typeof TrainingRoute
-  MultiplayerLobbyIdRoute: typeof MultiplayerLobbyIdRouteWithChildren
-  MultiplayerIndexRoute: typeof MultiplayerIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -175,13 +185,6 @@ declare module '@tanstack/react-router' {
       path: '/training'
       fullPath: '/training'
       preLoaderRoute: typeof TrainingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/social': {
-      id: '/social'
-      path: '/social'
-      fullPath: '/social'
-      preLoaderRoute: typeof SocialRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/quiz': {
@@ -198,6 +201,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BugReportRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -205,76 +215,105 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/multiplayer/': {
-      id: '/multiplayer/'
+    '/_authenticated/social': {
+      id: '/_authenticated/social'
+      path: '/social'
+      fullPath: '/social'
+      preLoaderRoute: typeof AuthenticatedSocialRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/multiplayer/': {
+      id: '/_authenticated/multiplayer/'
       path: '/multiplayer'
       fullPath: '/multiplayer'
-      preLoaderRoute: typeof MultiplayerIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedMultiplayerIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/multiplayer/$lobbyId': {
-      id: '/multiplayer/$lobbyId'
+    '/_authenticated/multiplayer/$lobbyId': {
+      id: '/_authenticated/multiplayer/$lobbyId'
       path: '/multiplayer/$lobbyId'
       fullPath: '/multiplayer/$lobbyId'
-      preLoaderRoute: typeof MultiplayerLobbyIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedMultiplayerLobbyIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/multiplayer/$lobbyId/': {
-      id: '/multiplayer/$lobbyId/'
+    '/_authenticated/multiplayer/$lobbyId/': {
+      id: '/_authenticated/multiplayer/$lobbyId/'
       path: '/'
       fullPath: '/multiplayer/$lobbyId/'
-      preLoaderRoute: typeof MultiplayerLobbyIdIndexRouteImport
-      parentRoute: typeof MultiplayerLobbyIdRoute
+      preLoaderRoute: typeof AuthenticatedMultiplayerLobbyIdIndexRouteImport
+      parentRoute: typeof AuthenticatedMultiplayerLobbyIdRoute
     }
-    '/multiplayer/$lobbyId/result': {
-      id: '/multiplayer/$lobbyId/result'
+    '/_authenticated/multiplayer/$lobbyId/result': {
+      id: '/_authenticated/multiplayer/$lobbyId/result'
       path: '/result'
       fullPath: '/multiplayer/$lobbyId/result'
-      preLoaderRoute: typeof MultiplayerLobbyIdResultRouteImport
-      parentRoute: typeof MultiplayerLobbyIdRoute
+      preLoaderRoute: typeof AuthenticatedMultiplayerLobbyIdResultRouteImport
+      parentRoute: typeof AuthenticatedMultiplayerLobbyIdRoute
     }
-    '/multiplayer/$lobbyId/lobby': {
-      id: '/multiplayer/$lobbyId/lobby'
+    '/_authenticated/multiplayer/$lobbyId/lobby': {
+      id: '/_authenticated/multiplayer/$lobbyId/lobby'
       path: '/lobby'
       fullPath: '/multiplayer/$lobbyId/lobby'
-      preLoaderRoute: typeof MultiplayerLobbyIdLobbyRouteImport
-      parentRoute: typeof MultiplayerLobbyIdRoute
+      preLoaderRoute: typeof AuthenticatedMultiplayerLobbyIdLobbyRouteImport
+      parentRoute: typeof AuthenticatedMultiplayerLobbyIdRoute
     }
-    '/multiplayer/$lobbyId/game': {
-      id: '/multiplayer/$lobbyId/game'
+    '/_authenticated/multiplayer/$lobbyId/game': {
+      id: '/_authenticated/multiplayer/$lobbyId/game'
       path: '/game'
       fullPath: '/multiplayer/$lobbyId/game'
-      preLoaderRoute: typeof MultiplayerLobbyIdGameRouteImport
-      parentRoute: typeof MultiplayerLobbyIdRoute
+      preLoaderRoute: typeof AuthenticatedMultiplayerLobbyIdGameRouteImport
+      parentRoute: typeof AuthenticatedMultiplayerLobbyIdRoute
     }
   }
 }
 
-interface MultiplayerLobbyIdRouteChildren {
-  MultiplayerLobbyIdGameRoute: typeof MultiplayerLobbyIdGameRoute
-  MultiplayerLobbyIdLobbyRoute: typeof MultiplayerLobbyIdLobbyRoute
-  MultiplayerLobbyIdResultRoute: typeof MultiplayerLobbyIdResultRoute
-  MultiplayerLobbyIdIndexRoute: typeof MultiplayerLobbyIdIndexRoute
+interface AuthenticatedMultiplayerLobbyIdRouteChildren {
+  AuthenticatedMultiplayerLobbyIdGameRoute: typeof AuthenticatedMultiplayerLobbyIdGameRoute
+  AuthenticatedMultiplayerLobbyIdLobbyRoute: typeof AuthenticatedMultiplayerLobbyIdLobbyRoute
+  AuthenticatedMultiplayerLobbyIdResultRoute: typeof AuthenticatedMultiplayerLobbyIdResultRoute
+  AuthenticatedMultiplayerLobbyIdIndexRoute: typeof AuthenticatedMultiplayerLobbyIdIndexRoute
 }
 
-const MultiplayerLobbyIdRouteChildren: MultiplayerLobbyIdRouteChildren = {
-  MultiplayerLobbyIdGameRoute: MultiplayerLobbyIdGameRoute,
-  MultiplayerLobbyIdLobbyRoute: MultiplayerLobbyIdLobbyRoute,
-  MultiplayerLobbyIdResultRoute: MultiplayerLobbyIdResultRoute,
-  MultiplayerLobbyIdIndexRoute: MultiplayerLobbyIdIndexRoute,
+const AuthenticatedMultiplayerLobbyIdRouteChildren: AuthenticatedMultiplayerLobbyIdRouteChildren =
+  {
+    AuthenticatedMultiplayerLobbyIdGameRoute:
+      AuthenticatedMultiplayerLobbyIdGameRoute,
+    AuthenticatedMultiplayerLobbyIdLobbyRoute:
+      AuthenticatedMultiplayerLobbyIdLobbyRoute,
+    AuthenticatedMultiplayerLobbyIdResultRoute:
+      AuthenticatedMultiplayerLobbyIdResultRoute,
+    AuthenticatedMultiplayerLobbyIdIndexRoute:
+      AuthenticatedMultiplayerLobbyIdIndexRoute,
+  }
+
+const AuthenticatedMultiplayerLobbyIdRouteWithChildren =
+  AuthenticatedMultiplayerLobbyIdRoute._addFileChildren(
+    AuthenticatedMultiplayerLobbyIdRouteChildren,
+  )
+
+interface AuthenticatedRouteChildren {
+  AuthenticatedSocialRoute: typeof AuthenticatedSocialRoute
+  AuthenticatedMultiplayerLobbyIdRoute: typeof AuthenticatedMultiplayerLobbyIdRouteWithChildren
+  AuthenticatedMultiplayerIndexRoute: typeof AuthenticatedMultiplayerIndexRoute
 }
 
-const MultiplayerLobbyIdRouteWithChildren =
-  MultiplayerLobbyIdRoute._addFileChildren(MultiplayerLobbyIdRouteChildren)
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedSocialRoute: AuthenticatedSocialRoute,
+  AuthenticatedMultiplayerLobbyIdRoute:
+    AuthenticatedMultiplayerLobbyIdRouteWithChildren,
+  AuthenticatedMultiplayerIndexRoute: AuthenticatedMultiplayerIndexRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
   BugReportRoute: BugReportRoute,
   QuizRoute: QuizRoute,
-  SocialRoute: SocialRoute,
   TrainingRoute: TrainingRoute,
-  MultiplayerLobbyIdRoute: MultiplayerLobbyIdRouteWithChildren,
-  MultiplayerIndexRoute: MultiplayerIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

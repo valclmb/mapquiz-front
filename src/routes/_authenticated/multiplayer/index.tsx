@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/multiplayer/")({
+export const Route = createFileRoute("/_authenticated/multiplayer/")({
   component: MultiplayerModalRoute,
 });
 

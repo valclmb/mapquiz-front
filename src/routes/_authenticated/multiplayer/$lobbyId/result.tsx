@@ -6,7 +6,7 @@ import type { Ranking } from "@/types/game";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
-export const Route = createFileRoute("/multiplayer/$lobbyId/result")({
+export const Route = createFileRoute("/_authenticated/multiplayer/$lobbyId/result")({
   component: GameResultPage,
 });
 

@@ -2,6 +2,7 @@ import { MultiplayerCard } from "@/components/home/MultiplayerCard";
 import { QuizCard } from "@/components/home/QuizCard";
 import { TrainingCard } from "@/components/home/TrainingCard";
 import { UserSummary } from "@/components/social/UserSummary";
+import Typography from "@/components/ui/Typography";
 import { authClient } from "@/lib/auth-client";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 
@@ -27,9 +28,9 @@ function Home() {
         role="region"
         aria-labelledby="games-title"
       >
-        <h2 id="games-title" className="sr-only">
-          Modes de jeu disponibles
-        </h2>
+        <Typography variant="h2" id="games-title" className=" pt-8 ">
+          Sélectionnez un mode de jeu
+        </Typography>
         <TrainingCard />
         <QuizCard />
         <MultiplayerCard />

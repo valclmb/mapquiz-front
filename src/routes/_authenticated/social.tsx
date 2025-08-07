@@ -6,9 +6,7 @@ import { FriendTag } from "@/components/social/FriendTag";
 import Typography from "@/components/ui/Typography";
 import { createFileRoute } from "@tanstack/react-router";
 
-// Par celles-ci
-
-export const Route = createFileRoute("/social")({
+export const Route = createFileRoute("/_authenticated/social")({
   component: RouteComponent,
 });
 

@@ -4,7 +4,7 @@ import { useWebSocketContext } from "@/context/WebSocketContext";
 import { useEffect } from "react";
 import { authClient } from "@/lib/auth-client";
 
-export const Route = createFileRoute("/multiplayer/$lobbyId")({
+export const Route = createFileRoute("/_authenticated/multiplayer/$lobbyId")({
   component: LobbyParentPage,
 });
 

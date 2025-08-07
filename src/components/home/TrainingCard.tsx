@@ -7,12 +7,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Link } from "@tanstack/react-router";
+import Typography from "../ui/Typography";
 
 export const TrainingCard = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl sm:text-2xl">Entrainement</CardTitle>
+        <CardTitle>
+          <Typography variant="h3">Entrainement</Typography>
+        </CardTitle>
         <CardDescription>
           Entrainez-vous à identifier les pays et leurs capitales !
         </CardDescription>
