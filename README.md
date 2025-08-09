@@ -1,112 +1,199 @@
-# Map Quiz - Frontend
+# MapQuiz Frontend
 
-## 🚀 Description
+> 🚀 **Documentation Complète** : Consultez [DEVELOPPEMENT.md](./DEVELOPPEMENT.md) pour le guide d'installation et [DEPLOIEMENT.md](./DEPLOIEMENT.md) pour le protocole de déploiement.
 
-Application frontend pour Map Quiz, un jeu de quiz géographique interactif avec système d'amis et authentification sociale.
+## 🎯 **Vue d'Ensemble**
 
-## 🛠️ Technologies
+Interface utilisateur moderne pour MapQuiz - un jeu de géographie multijoueur en temps réel avec système social intégré.
 
-- **Framework**: React 19 + Vite
-- **Routing**: TanStack Router
-- **Styling**: Tailwind CSS + Shadcn UI
-- **State Management**: TanStack Query
-- **Authentification**: Better Auth React
-- **Cartes**: React Simple Maps + D3 Geo
-- **Langage**: TypeScript
+## ✨ **Fonctionnalités Principales**
 
-## ✨ Fonctionnalités
+- 🗺️ **Quiz géographiques** avec cartes interactives
+- 🎮 **Multijoueur temps réel** via WebSockets
+- 👥 **Système social** - amis, lobbies, classements
+- 🔐 **Authentification Google** OAuth sécurisée
+- 🎯 **Mode entraînement** pour progression personnelle
+- 📱 **Design responsive** optimisé mobile/desktop
+- 🌙 **Thème sombre/clair** avec persistance
+- ⚡ **Performance optimisée** avec lazy loading
 
-- 🗺️ **Quiz géographiques** interactifs
-- 👥 **Système d'amis** avec demandes
-- 🔐 **Authentification Google** OAuth
-- 🎯 **Mode entraînement**
-- 📱 **Interface responsive**
-- 🌙 **Mode sombre/clair**
+## 🛠️ **Stack Technique**
 
-## 📋 Prérequis
+- **Framework** : React 19 + TypeScript
+- **Build Tool** : Vite (fast, modern bundling)
+- **Routing** : TanStack Router (type-safe)
+- **State** : TanStack Query (server state)
+- **Styling** : Tailwind CSS + Shadcn/ui
+- **Maps** : React Simple Maps + D3 Geo
+- **WebSocket** : Native WebSocket client
+- **Tests** : Vitest + Testing Library
 
-- Node.js 18+
-- npm ou pnpm
+## ⚡ **Démarrage Rapide**
 
-## 🔧 Installation
-
-1. Clonez le repository
+### **Installation**
 
 ```bash
-git clone <votre-repo>
 cd frontend
+npm install  # ou pnpm install
 ```
 
-2. Installez les dépendances
+### **Configuration**
 
-```
-pnpm install
-# ou
-npm install
-```
-
-3. Configurez les variables d'environnement
-
-```
-cp .env.example .env.local
+```bash
+# Copier le template de configuration
+cp env.template .env.local
+# Éditer .env.local avec vos valeurs
 ```
 
-Variables requises :
+### **Démarrage**
 
-```
-VITE_API_URL="http://localhost:3000/api"
-BETTER_AUTH_URL="http://localhost:3000"
-```
+```bash
+# Mode développement avec hot-reload
+npm run dev
 
-## 🚀 Démarrage
-
-### Développement
-
-```
-pnpm dev
-# ou
-npm run dev
+# Tests avec interface
+npm run test:ui
 ```
 
-L'application sera disponible sur http://localhost:5173
+**🌐 Application disponible** : http://localhost:5173
 
-### Build de production
+## 🏗️ **Architecture de l'Application**
+
+### **Pages et Routes**
 
 ```
-pnpm build
-pnpm preview
+/ (index)                    # Dashboard principal
+├── /quiz                   # Mode quiz solo
+├── /training              # Mode entraînement libre
+├── /bug-report           # Rapport de bugs
+└── /multiplayer          # Zone multijoueur
+    ├── /                 # Lobbies disponibles
+    ├── /:lobbyId         # Interface lobby
+    ├── /:lobbyId/game    # Jeu en cours
+    └── /:lobbyId/result  # Résultats de partie
 ```
 
-## 📱 Pages disponibles
+### **Composants Principaux**
 
-- / - Page d'accueil avec dashboard
-- /quiz - Interface de quiz (en développement)
-- /training - Mode entraînement
-- /social - Gestion des amis et profil
+- **Game/** - Logique de jeu (quiz, training, controls)
+- **Multiplayer/** - Gestion lobbies et multijoueur
+- **Social/** - Système d'amis et interactions
+- **UI/** - Composants d'interface réutilisables
 
-## 📝 Scripts disponibles
+### **Contextes**
 
-- pnpm dev - Démarrage en mode développement
-- pnpm build - Build de production
-- pnpm preview - Aperçu du build
-- pnpm lint - Vérification ESLint
+- `WebSocketContext` - Communication temps réel
+- `LobbyProvider` - État des lobbies
+- `GameContext` - État des jeux
+- `ThemeProvider` - Gestion des thèmes
 
-## 🔧 Configuration
+## 📋 **Scripts de Développement**
 
-### Vite
+```bash
+# Développement
+npm run dev                # Mode développement + HMR
+npm run build:check       # Vérification TypeScript
 
-- Configuration dans vite.config.ts
-- Plugins : React, TanStack Router
-- Alias : @ pour /src
+# Tests
+npm run test              # Tests interactifs
+npm run test:ui           # Interface graphique des tests
+npm run test:coverage     # Couverture de tests
 
-### Tailwind CSS
+# Qualité
+npm run lint              # ESLint
+npm run lint:fix          # Correction automatique
 
-- Configuration dans tailwind.config.js
-- Thème personnalisé avec variables CSS
-- Animations avec tw-animate-css
+# Production
+npm run build             # Build optimisé
+npm run preview           # Aperçu du build
+```
 
-### TypeScript
+## 🎨 **Design System**
 
-- Configuration stricte
-- Types pour les composants React
-- Types pour les données géographiques
+**Tailwind CSS + Shadcn/ui :**
+
+- Composants pré-stylés et accessibles
+- Thème personnalisé adapté au jeu
+- Variables CSS pour cohérence
+- Animations fluides et performance
+
+**Structure :**
+
+```
+src/
+├── components/
+│   ├── ui/              # Composants base (Shadcn)
+│   ├── game/            # Composants de jeu
+│   ├── layout/          # Structure de page
+│   └── social/          # Interface sociale
+├── hooks/               # Hooks personnalisés
+├── lib/                 # Utilitaires
+└── routes/             # Définition des routes
+```
+
+## 🔌 **Intégrations**
+
+**API Backend :**
+
+- REST API pour données statiques
+- WebSocket pour temps réel
+- TanStack Query pour cache intelligent
+
+**Services Externes :**
+
+- Google OAuth (authentification)
+- Géolocalisation (cartes)
+
+## 🧪 **Tests & Qualité**
+
+**Stratégie de Test :**
+
+- Tests unitaires (hooks, utils)
+- Tests de composants (interactions)
+- Tests d'intégration (routes)
+
+**Outils Qualité :**
+
+- TypeScript strict mode
+- ESLint configuration étendue
+- Vitest pour performance
+- Coverage rapports
+
+## 📱 **Performance & Optimisations**
+
+**Optimisations Vite :**
+
+- Code splitting automatique
+- Lazy loading des routes
+- Tree shaking optimisé
+- Bundle analysis
+
+**Optimisations React :**
+
+- Memo pour composants coûteux
+- Suspense pour chargements
+- Virtual scrolling (listes)
+
+## 🚀 **Build & Déploiement**
+
+**Configuration Multi-Environnements :**
+
+- Développement local
+- Staging (preview branches)
+- Production (Fly.io)
+
+**Variables d'environnement :**
+
+```env
+VITE_API_URL     # URL de l'API backend
+BETTER_AUTH_URL  # URL d'authentification
+VITE_WS_URL      # URL WebSocket
+```
+
+**🔗 Liens utiles :**
+
+- [Guide développement complet](./DEVELOPPEMENT.md)
+- [Protocole de déploiement](./DEPLOIEMENT.md)
+- [Configuration Vite](./vite.config.ts)
+- [Configuration Tailwind](./tailwind.config.js)
+- [Backend MapQuiz](https://github.com/your-username/mapquiz-backend)
