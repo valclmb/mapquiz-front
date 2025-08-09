@@ -330,5 +330,5 @@ const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 - [Guide de développement](./DEVELOPPEMENT.md)
 - [Configuration Fly.io](./fly.toml)
 - [Configuration Vite](./vite.config.ts)
-- [Backend MapQuiz](https://github.com/your-username/mapquiz-backend)
+- [Backend MapQuiz](https://github.com/map-quiz/mapquiz-back)
 - [Dashboard Fly.io](https://fly.io/dashboard)

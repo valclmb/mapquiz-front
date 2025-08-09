@@ -28,7 +28,7 @@ npm install -g @vitejs/create-vite
 
 ```bash
 # Cloner le repository
-git clone <your-frontend-repo>
+git clone https://github.com/map-quiz/mapquiz-front.git
 cd mapquiz-frontend
 
 # Installer les dépendances (préférer pnpm)
@@ -555,7 +555,7 @@ BETTER_AUTH_URL="https://backend-solitary-moon-1875.fly.dev"
 
 **Besoin d'aide ?**
 
-- 📖 [Documentation API Backend](https://github.com/your-username/mapquiz-backend)
+- 📖 [Documentation API Backend](https://github.com/map-quiz/mapquiz-back)
 - 🎨 [Shadcn/ui Documentation](https://ui.shadcn.com/)
 - 🚀 [Protocole de déploiement](./DEPLOIEMENT.md)
 - 🐛 Créer une issue sur GitHub

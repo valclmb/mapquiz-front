@@ -41,7 +41,7 @@ npm install  # ou pnpm install
 
 ```bash
 # Copier le template de configuration
-cp env.template .env.local
+cp env.example .env.local
 # Éditer .env.local avec vos valeurs
 ```
 
@@ -196,4 +196,4 @@ VITE_WS_URL      # URL WebSocket
 - [Protocole de déploiement](./DEPLOIEMENT.md)
 - [Configuration Vite](./vite.config.ts)
 - [Configuration Tailwind](./tailwind.config.js)
-- [Backend MapQuiz](https://github.com/your-username/mapquiz-backend)
+- [Backend MapQuiz](https://github.com/map-quiz/mapquiz-back)
