@@ -216,7 +216,7 @@ export const Map = ({
       )}
 
       <ComposableMap
-        className="h-[45vh]  md:h-[70vh] z-10 w-full rounded-4xl border-2 border-secondary transition-all"
+        className="h-[45vh]  md:h-[70vh] z-10 w-full rounded-4xl border-2 border-secondary transition-all bg-white dark:bg-black"
         projection="geoMercator"
         projectionConfig={{
           scale: 140,
