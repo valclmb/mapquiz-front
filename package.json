@@ -58,7 +58,7 @@
     "@testing-library/react": "^14.3.1",
     "@testing-library/user-event": "^14.6.1",
     "@types/geojson": "^7946.0.16",
-    "@types/node": "^24.1.0",
+    "@types/node": "^24.2.1",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
     "@types/react-simple-maps": "^3.0.6",
