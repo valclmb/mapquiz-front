@@ -38,7 +38,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           {children}
           <Toaster
             richColors
-            position="top-center"
+            position="bottom-right"
             closeButton
             duration={4000}
             aria-label="Notifications"
