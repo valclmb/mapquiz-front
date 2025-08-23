@@ -1,6 +1,6 @@
-import type { Friend } from "@/hooks/queries/useFriends";
 import { useWebSocket, type WebSocketMessage } from "@/hooks/useWebSocket";
 import { authClient } from "@/lib/auth-client";
+import type { Player } from "@/types/game";
 import { useQueryClient } from "@tanstack/react-query";
 import { createContext, useContext, useEffect } from "react";
 
@@ -45,7 +45,6 @@ export function WebSocketProvider({
     respondToFriendRequest,
     sendMessage,
     lastMessage,
-    clearLastMessage,
     // Ajoute les callbacks à passer au hook
     setExternalCallbacks,
   } = useWebSocket({
@@ -56,9 +55,9 @@ export function WebSocketProvider({
     },
     onFriendStatusChange: (friendId, isOnline, lastSeen) => {
       console.log(`Ami ${friendId} ${isOnline ? "connecté" : "déconnecté"}`);
-      queryClient.setQueryData(["friends"], (oldData: Friend[] | undefined) => {
+      queryClient.setQueryData(["friends"], (oldData: Player[] | undefined) => {
         if (!oldData) return oldData;
-        return oldData.map((friend: Friend) => {
+        return oldData.map((friend: Player) => {
           if (friend.id === friendId) {
             return {
               ...friend,
@@ -86,7 +85,6 @@ export function WebSocketProvider({
         respondToFriendRequest,
         sendMessage,
         lastMessage,
-        clearLastMessage,
       }}
     >
       {children}
