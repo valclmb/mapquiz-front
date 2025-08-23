@@ -1,4 +1,4 @@
-import type { Country } from "@/hooks/useMapGame";
+import type { Country } from "@/lib/data";
 import { createContext, type ChangeEvent } from "react";
 
 // Étendre le type Country pour inclure la propriété filtered

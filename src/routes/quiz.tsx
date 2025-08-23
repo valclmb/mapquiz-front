@@ -1,10 +1,11 @@
 import { QuizGame } from "@/components/game/quiz/QuizGame";
 import { DEFAULT_CONTINENT } from "@/lib/constants";
 import { getCountries } from "@/lib/data";
+import type { Continent } from "@/types/continent";
 import { createFileRoute } from "@tanstack/react-router";
 
 type QuizSearch = {
-  regions?: string[];
+  regions?: Continent[];
 };
 
 export const Route = createFileRoute("/quiz")({

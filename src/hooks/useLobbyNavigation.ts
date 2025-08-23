@@ -1,19 +1,29 @@
+import type { LobbyState } from "@/types/lobby";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useLocation } from "@tanstack/react-router";
 import { toast } from "sonner";
 
+interface LobbyNavigationParams {
+  lobbyId: string;
+  lobby: LobbyState | null;
+  shouldRedirect: {
+    to: "game" | "result" | "lobby" | "home";
+    reason?: string;
+  } | null;
+}
+
 /**
- * Centralise la logique de navigation pour le lobby multijoueur.
- * - Redirige selon le statut du lobby
- * - Gère les erreurs (shouldRedirect)
+ * Hook pour gérer la navigation dans les lobbies
+ * - Gère les redirections automatiques selon le statut du lobby
  * - Gère le timeout de chargement
  *
- * @param {object} params
- * @param {string} lobbyId
- * @param {object | null} lobby
- * @param {object | null} shouldRedirect
+ * @param {LobbyNavigationParams} params
  */
-export function useLobbyNavigation({ lobbyId, lobby, shouldRedirect }) {
+export function useLobbyNavigation({
+  lobbyId,
+  lobby,
+  shouldRedirect,
+}: LobbyNavigationParams) {
   const navigate = useNavigate();
   const location = useLocation();
   const basePath = `/multiplayer/${lobbyId}`;
@@ -98,11 +108,14 @@ export function useLobbyNavigation({ lobbyId, lobby, shouldRedirect }) {
     if (lobby && isOnLobbyRoute) {
       if (lobby.status === "playing" && currentPath !== `${basePath}/game`) {
         navigate({ to: `${basePath}/game`, params: { lobbyId } });
-      } else if (lobby.status === "finished" && currentPath !== `${basePath}/result`) {
+      } else if (
+        lobby.status === "finished" &&
+        currentPath !== `${basePath}/result`
+      ) {
         navigate({ to: `${basePath}/result`, params: { lobbyId } });
       } else if (lobby.status === "waiting" && currentPath !== basePath) {
         navigate({ to: basePath, params: { lobbyId } });
       }
     }
   }, [lobby, currentPath, lobbyId, navigate, basePath, isOnLobbyRoute]);
-} 
+}

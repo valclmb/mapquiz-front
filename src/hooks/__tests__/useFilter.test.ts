@@ -10,6 +10,7 @@ const createMockCountry = (
   name: string,
   continent: Continent
 ): Country => ({
+  _id: { $oid: code }, // Ajout de la propriété _id manquante
   type: "Feature",
   properties: {
     code,

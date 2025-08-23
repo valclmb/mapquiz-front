@@ -43,15 +43,15 @@ beforeAll(() => {
 });
 
 // Mock global de WebSocket pour les tests
-global.WebSocket = vi.fn().mockImplementation(() => ({
+const mockWebSocket = {
   send: vi.fn(),
   close: vi.fn(),
   addEventListener: vi.fn(),
   removeEventListener: vi.fn(),
-  readyState: WebSocket.OPEN,
-  OPEN: 1,
-  CLOSED: 3,
-}));
+  readyState: 1, // WebSocket.OPEN
+};
+
+global.WebSocket = vi.fn(() => mockWebSocket) as unknown as typeof WebSocket;
 
 // Mock de l'environnement vite
 vi.mock("@/lib/auth-client", () => ({

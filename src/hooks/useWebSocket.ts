@@ -3,7 +3,6 @@ import type { LobbySettings } from "@/types/lobby";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import type { Friend } from "./queries/useFriends";
 
 export interface WebSocketMessage {
   type: string;
@@ -181,9 +180,9 @@ export function useWebSocket({
         case "friend_status_change": {
           queryClient.setQueryData(
             ["friends"],
-            (oldData: Friend[] | undefined) => {
+            (oldData: Player[] | undefined) => {
               if (!oldData) return oldData;
-              return oldData.map((friend: Friend) => {
+              return oldData.map((friend: Player) => {
                 if (friend.id === message.payload?.friendId) {
                   return {
                     ...friend,

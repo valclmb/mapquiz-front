@@ -1,4 +1,5 @@
 import type { Country } from "@/lib/data";
+import type { Continent } from "@/types/continent";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useMapGame } from "../useMapGame";
@@ -16,8 +17,9 @@ const createMockCountry = (
   code: string,
   name: string,
   capital: string,
-  continent: string
+  continent: Continent
 ): Country => ({
+  _id: { $oid: code }, // Ajout de la propriété _id manquante
   type: "Feature",
   properties: {
     code,
@@ -50,14 +52,12 @@ const mockCountries: Country[] = [
 describe("useMapGame - Logique Métier de Jeu", () => {
   let onGameEndMock: ReturnType<typeof vi.fn>;
   let onCorrectAnswerMock: ReturnType<typeof vi.fn>;
-  let onIncorrectAnswerMock: ReturnType<typeof vi.fn>;
   let onProgressSyncMock: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     vi.clearAllMocks();
     onGameEndMock = vi.fn();
     onCorrectAnswerMock = vi.fn();
-    onIncorrectAnswerMock = vi.fn();
     onProgressSyncMock = vi.fn();
   });
 

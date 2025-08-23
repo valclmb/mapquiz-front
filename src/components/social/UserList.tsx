@@ -19,7 +19,7 @@ type UserListProps = {
   onInvite?: (userId: string) => void;
   className?: string;
   filterUsers?: (user: Player) => boolean; // Fonction optionnelle pour filtrer les utilisateurs
-
+  showInviteForOffline?: boolean; // Afficher les invitations pour les utilisateurs hors ligne
   customUsers?: Player[]; // Liste d'utilisateurs personnalisée (au lieu d'utiliser useFriendsList)
   showStatus?: boolean; // Afficher le statut des utilisateurs (pour les joueurs de lobby)
   hostId?: string; // ID de l'hôte (pour les lobbies)

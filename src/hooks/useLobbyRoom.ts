@@ -1,14 +1,13 @@
-import { DEFAULT_CONTINENT } from "@/lib/constants";
-import type { Player } from "@/types/game";
-import { useEffect, useState } from "react";
-// Remplacer l'import de useWebSocket par useWebSocketContext
 import { useWebSocketContext } from "@/context/WebSocketContext";
 import { authClient } from "@/lib/auth-client";
+import type { Player } from "@/types/game";
+import type { LobbySettings } from "@/types/lobby";
+import { useEffect, useState } from "react";
 
 export function useLobbyRoom(lobbyId: string) {
   const [players, setPlayers] = useState<Player[]>([]);
-  const [settings, setSettings] = useState({
-    selectedRegions: [DEFAULT_CONTINENT],
+  const [settings, setSettings] = useState<LobbySettings>({
+    selectedRegions: [],
     gameMode: "quiz",
   });
   const [isReady, setIsReady] = useState(false);
@@ -84,7 +83,7 @@ export function useLobbyRoom(lobbyId: string) {
     });
   };
 
-  const updateSettings = (newSettings: typeof settings) => {
+  const updateSettings = (newSettings: LobbySettings) => {
     sendMessage({
       type: "update_lobby_settings",
       payload: {

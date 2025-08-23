@@ -1,5 +1,6 @@
 import { GameContext } from "@/context/GameContext";
 import type { Country } from "@/lib/data";
+import type { Continent } from "@/types/continent";
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Map } from "../Map";
@@ -41,8 +42,9 @@ vi.mock("lucide-react", () => ({
 const createMockCountry = (
   code: string,
   name: string,
-  continent: string
+  continent: Continent
 ): Country => ({
+  _id: { $oid: code }, // Ajout de la propriété _id manquante
   type: "Feature",
   properties: {
     code,
