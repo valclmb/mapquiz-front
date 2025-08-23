@@ -133,7 +133,15 @@ export const BugReportForm = ({ initialUrl }: BugReportFormProps) => {
     <Card className="w-full max-w-2xl mx-auto">
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-4"
+            aria-labelledby="bug-report-title"
+          >
+            <h1 id="bug-report-title" className="sr-only">
+              Rapport de bug
+            </h1>
+
             <FormField
               control={form.control}
               name="title"
@@ -142,7 +150,7 @@ export const BugReportForm = ({ initialUrl }: BugReportFormProps) => {
                   <FormLabel>Titre du problème *</FormLabel>
                   <FormControl>
                     <Input
-                      id="title"
+                      placeholder="Ex: Le bouton ne fonctionne pas"
                       {...form.register("title", {
                         required: "Le titre est requis",
                         minLength: {
@@ -158,6 +166,7 @@ export const BugReportForm = ({ initialUrl }: BugReportFormProps) => {
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="description"
@@ -166,7 +175,6 @@ export const BugReportForm = ({ initialUrl }: BugReportFormProps) => {
                   <FormLabel>Description du problème *</FormLabel>
                   <FormControl>
                     <Textarea
-                      id="description"
                       placeholder="Décrivez le problème en détail..."
                       rows={4}
                       {...form.register("description", {
@@ -199,7 +207,6 @@ export const BugReportForm = ({ initialUrl }: BugReportFormProps) => {
                   </FormLabel>
                   <FormControl>
                     <Textarea
-                      id="stepsToReproduce"
                       placeholder="1. Aller sur la page...&#10;2. Cliquer sur...&#10;3. Le problème apparaît..."
                       rows={4}
                       {...field}
@@ -220,7 +227,6 @@ export const BugReportForm = ({ initialUrl }: BugReportFormProps) => {
                   </FormLabel>
                   <FormControl>
                     <Input
-                      id="location"
                       placeholder="Ex: Page d'accueil, Quiz, Mode multijoueur, etc."
                       {...field}
                     />
@@ -230,9 +236,15 @@ export const BugReportForm = ({ initialUrl }: BugReportFormProps) => {
               )}
             />
 
-            <div className="text-sm text-muted-foreground bg-muted p-3 rounded-xl border">
-              <strong>Informations automatiquement collectées :</strong>
-              <ul className="mt-2 space-y-1">
+            <div
+              className="text-sm text-muted-foreground bg-muted p-3 rounded-xl border"
+              role="region"
+              aria-labelledby="environment-info-title"
+            >
+              <h2 id="environment-info-title" className="font-semibold mb-2">
+                Informations automatiquement collectées :
+              </h2>
+              <ul className="space-y-1" role="list">
                 <li>
                   • Navigateur : {getEnvironmentInfo().browser}{" "}
                   {getEnvironmentInfo().browserVersion}
@@ -248,11 +260,22 @@ export const BugReportForm = ({ initialUrl }: BugReportFormProps) => {
             </div>
 
             <div className="flex gap-2 justify-end">
-              <Button type="submit" disabled={form.formState.isSubmitting}>
+              <Button
+                type="submit"
+                disabled={form.formState.isSubmitting}
+                aria-describedby={
+                  form.formState.isSubmitting ? "submitting-help" : undefined
+                }
+              >
                 {form.formState.isSubmitting
                   ? "Envoi..."
                   : "Envoyer le rapport"}
               </Button>
+              {form.formState.isSubmitting && (
+                <p id="submitting-help" className="sr-only">
+                  Envoi du rapport en cours...
+                </p>
+              )}
             </div>
           </form>
         </Form>

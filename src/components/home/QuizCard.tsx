@@ -37,7 +37,9 @@ export const QuizCard = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl sm:text-2xl">Quiz</CardTitle>
+        <CardTitle>
+          <Typography variant="h3">Quiz</Typography>
+        </CardTitle>
         <CardDescription>
           Défiez-vous sur les pays et leurs capitales !
           <br /> Connectez-vous pour suivre votre progression et conserver l
@@ -61,13 +63,22 @@ export const QuizCard = () => {
             <QuizHistory selectedRegions={selectedRegions} />
           </div>
         )}
+        {selectedRegions.length === 0 && (
+          <p id="quiz-disabled-help" className="text-sm text-muted-foreground">
+            Veuillez sélectionner au moins une région pour commencer le quiz
+          </p>
+        )}
         <Link
           to="/quiz"
           search={{ regions: selectedRegions }}
           className="w-full sm:w-auto"
+          disabled={selectedRegions.length === 0}
         >
           <Button
             className="w-full sm:w-auto"
+            aria-describedby={
+              selectedRegions.length === 0 ? "quiz-disabled-help" : undefined
+            }
             disabled={selectedRegions.length === 0}
           >
             Lancer

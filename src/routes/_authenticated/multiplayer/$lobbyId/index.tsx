@@ -2,7 +2,7 @@ import { useLobby } from "@/context/LobbyProvider";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 
-export const Route = createFileRoute("/multiplayer/$lobbyId/")({
+export const Route = createFileRoute("/_authenticated/multiplayer/$lobbyId/")({
   component: LobbyIndexRedirect,
 });
 

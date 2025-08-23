@@ -4,12 +4,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import type { Continent } from "@/types/continent";
 import { FilterIcon } from "lucide-react";
 import { ContinentSelector } from "./ContinentSelector";
 
 type FilterProps = {
-  filter: string[];
-  setFilter: React.Dispatch<React.SetStateAction<string[]>>;
+  filter: Continent[];
+  setFilter: React.Dispatch<React.SetStateAction<Continent[]>>;
 };
 
 export const Filter = ({ filter, setFilter }: FilterProps) => {
@@ -17,13 +18,14 @@ export const Filter = ({ filter, setFilter }: FilterProps) => {
     <Popover>
       <PopoverTrigger asChild>
         <Button
-          size="icon"
-          className="p-6 bg-card border border-secondary hover:bg-secondary cursor-pointer "
+          className="bg-card text-primary border border-secondary hover:bg-secondary cursor-pointer "
+          aria-label="Filtrer par continent"
         >
-          <FilterIcon className="size-7 text-primary " />
+          <FilterIcon className="size-5 text-primary " />
+          Filtre
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="max-w-[440px] w-full">
+      <PopoverContent>
         <ContinentSelector
           className="mb-0"
           selectedContinents={filter}

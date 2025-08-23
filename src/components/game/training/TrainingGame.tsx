@@ -3,12 +3,12 @@
 import Typography from "@/components/ui/Typography";
 import { GameContext } from "@/context/GameContext";
 import { useFilter } from "@/hooks/useFilter";
-import type { Country } from "@/hooks/useMapGame";
+
 import { useMapGame } from "@/hooks/useMapGame";
-import { Filter } from "../common/Filter";
-import { Form } from "../common/Form";
+import { CONTINENTS } from "@/lib/constants";
+import type { Country } from "@/lib/data";
+import { GameControls } from "../common/GameControls";
 import { Map } from "../common/Map";
-import { Score } from "../common/Score";
 
 type GameProps = {
   countries: Country[];
@@ -17,15 +17,7 @@ type GameProps = {
 export const TrainingGame = ({ countries }: GameProps) => {
   const { filteredCountries, filter, setFilter } = useFilter(countries);
 
-  const ALL_REGIONS = [
-    "Europe",
-    "Asie",
-    "Afrique",
-    "Océanie",
-    "Amérique du Sud",
-    "Amérique du Nord",
-  ];
-  const selectedRegions = ALL_REGIONS.filter(
+  const selectedRegions = CONTINENTS.filter(
     (region) => !filter.includes(region)
   );
 
@@ -39,11 +31,7 @@ export const TrainingGame = ({ countries }: GameProps) => {
         ENTRAINEMENT
       </Typography>
       <Map selectedRegions={selectedRegions} />
-      <Form />
-      <div className="flex items-center gap-4 ml-8 mt-4">
-        <Filter filter={filter} setFilter={setFilter} />
-        <Score />
-      </div>
+      <GameControls filter={filter} setFilter={setFilter} />
     </GameContext.Provider>
   );
 };

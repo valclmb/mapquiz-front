@@ -3,7 +3,7 @@ import { useLobby } from "@/context/LobbyProvider";
 import { getCountries } from "@/lib/data";
 import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/multiplayer/$lobbyId/game")({
+export const Route = createFileRoute("/_authenticated/multiplayer/$lobbyId/game")({
   component: MultiplayerGamePage,
   loader: async () => {
     const countries = await getCountries();

@@ -1,13 +1,14 @@
+import type { Country } from "@/lib/data";
+import type { Continent } from "@/types/continent";
 import { useMemo, useState } from "react";
-import type { Country } from "./useMapGame";
 
 export type FilteredCountry = Country & { filtered?: boolean };
 
 export const useFilter = (
   countries: Country[],
-  selectedRegions: string[] = []
+  selectedRegions: Continent[] = []
 ) => {
-  const [filter, setFilter] = useState<string[]>([]);
+  const [filter, setFilter] = useState<Continent[]>([]);
 
   const filteredCountries = useMemo(() => {
     // Si les pays ont déjà la propriété filtered (venant du backend), l'utiliser directement

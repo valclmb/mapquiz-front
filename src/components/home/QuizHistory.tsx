@@ -45,7 +45,7 @@ export const QuizHistory = ({ selectedRegions = [] }: QuizHistoryProps) => {
     return <p className="text-sm text-muted-foreground">Chargement...</p>;
   }
 
-  if (filteredData.length === 0) {
+  if (filteredData?.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
         Aucun historique pour cette sélection

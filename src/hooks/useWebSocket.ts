@@ -338,16 +338,8 @@ export function useWebSocket({
           }
           break;
         case "score_update":
-          if (message.data) {
-            setLastMessage({
-              type: "player_progress_update",
-              payload: {
-                lobbyId: message.data.lobbyId as string,
-                players: message.data.players,
-                updatedPlayerId: message.data.updatedPlayerId,
-              },
-            });
-          }
+          // Le backend envoie maintenant directement update_player_progress
+          setLastMessage(message);
           break;
         case "game_restarted": {
           const lobbyId = message.payload?.lobbyId;
@@ -360,17 +352,8 @@ export function useWebSocket({
           toast.info(
             `${message.payload?.playerName || "Un joueur"} a quitté la partie`
           );
-          if (message.payload?.lobbyId) {
-            setLastMessage({
-              type: "lobby_update",
-              payload: {
-                lobbyId: message.payload.lobbyId,
-                playerLeft: true,
-                leftPlayerId: message.payload.playerId,
-                leftPlayerName: message.payload.playerName,
-              },
-            });
-          }
+          // Ne plus transformer en lobby_update pour éviter les conflits
+          setLastMessage(message);
           break;
         case "game_end":
           setLastMessage(message);

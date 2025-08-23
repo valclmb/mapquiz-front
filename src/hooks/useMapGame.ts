@@ -1,3 +1,4 @@
+import type { Country, CountryProperties } from "@/lib/data";
 import {
   useCallback,
   useEffect,
@@ -16,17 +17,6 @@ type Value = {
 type Values = {
   name: Value;
   capital: Value;
-};
-
-type CountryProperties = {
-  name: string;
-  capital: string;
-  code: string;
-  continent: string;
-};
-
-export type Country = {
-  properties: CountryProperties;
 };
 
 type GameMode = "quiz" | "practice";

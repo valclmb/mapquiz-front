@@ -39,7 +39,12 @@ export const FriendTag = () => {
       </CardHeader>
       <CardContent className="flex items-center gap-2">
         <Input value={tag} readOnly className="font-mono text-lg" />
-        <Button variant="outline" size="icon" onClick={copyTag}>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={copyTag}
+          aria-label="Copier le tag"
+        >
           <Copy className="h-4 w-4" />
         </Button>
       </CardContent>
