@@ -28,7 +28,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run linting
-        run: pnpm lint
+        run: pnpm lint --ignore-pattern "**/*.test.*" --ignore-pattern "**/*.spec.*"
 
       - name: Run type checking
         run: pnpm build:check

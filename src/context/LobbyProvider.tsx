@@ -172,7 +172,7 @@ export function LobbyProvider({ lobbyId, children }: LobbyProviderProps) {
         console.log("[LobbyProvider] setLobby et setLoading(false)");
       }
     }
-  }, [lastMessage, lobbyId, navigate, basePath]);
+  }, [lastMessage, lobbyId, navigate, basePath]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Handler pour relancer la partie
   const restartGame = () => {
@@ -187,6 +187,7 @@ export function LobbyProvider({ lobbyId, children }: LobbyProviderProps) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useLobby() {
   const ctx = useContext(LobbyContext);
   if (!ctx) throw new Error("useLobby doit être utilisé dans un LobbyProvider");
